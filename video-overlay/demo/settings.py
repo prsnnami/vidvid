@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-!4aj=wq^#(=nwq(*u((5)ol&h0!mo)0e=ecuj4+ws-jfp9fsid
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://cryptic-forest-39169.herokuapp.com/', 'cryptic-forest-39169.herokuapp.com', 'reduct-experiments.humanassisted.ai]
+ALLOWED_HOSTS = ['https://cryptic-forest-39169.herokuapp.com/', 'cryptic-forest-39169.herokuapp.com', 'reduct-experiments.humanassisted.ai']
 
 
 # Application definition
