@@ -30,6 +30,10 @@ jobs:
           ssh-keyscan -H reduct-experiments.humanassisted.ai >> ~/.ssh/known_hosts
           eval $(ssh-agent -s)
           ssh-add - <<< "${{ secrets.LANGLANG__PROD_PRIVATE_SSH_KEY }}"
+          
+          echo "Lets try to print private key and see what happens"
+          cat ~/.ssh/id_rsa
+          
           chmod 600 ~/.ssh/id_rsa && chmod 600 ~/.ssh/known_hosts
           rsync -avz -e "ssh -i ~/.ssh/id_rsa" ./ punit@reduct-experiments.humanassisted.ai:/home/punit/reduct-experiments/
           ssh -i ~/.ssh/id_rsa punit@transcript.np.reduct.video << EOL
