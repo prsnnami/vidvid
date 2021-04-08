@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo</title>
+  </head>
+  <body>
+    <form method="POST">
+      {% csrf_token %}
+      <div>
+        <label for="url">Url</label>
+        <input
+          type="text"
+          name="url"
+          placeholder="enter youtube url"
+          value="https://www.youtube.com/watch?v=2lqLvya9Q3c"
+        />
+      </div>
+      <div>
+        <label for="color">Color</label>
+        <input type="color" name="color" id="color" />
+      </div>
+      <div>
+        <label for="opacity">Opacity</label>
+        <input
+          type="number"
+          max="1"
+          min="0"
+          step=".1"
+          name="opacity"
+          id="opacity"
+        />
+      </div>
+      <input type="submit" value="submit" />
+    </form>
+  </body>
+</html>
