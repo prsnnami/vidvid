@@ -41,5 +41,5 @@ jobs:
           cd /home/punit/reduct-experiments/video-overlay
           pip3 install -r requirements.txt
           pm2 kill
-          pm2 start manage.py -i max --interpreter python3 -- runserver
+          pm2 start manage.py --interpreter python3 --name django -- runserver
           EOL
