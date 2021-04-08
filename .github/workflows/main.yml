@@ -40,4 +40,6 @@ jobs:
           ssh -i ~/.ssh/id_rsa punit@reduct-experiments.humanassisted.ai << EOL
           cd /home/punit/reduct-experiments/video-overlay
           pip3 install -r requirements.txt
+          pm2 kill
+          pm2 start manage.py -i max --interpreter python3 -- runserver
           EOL
