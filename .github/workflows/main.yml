@@ -38,6 +38,8 @@ jobs:
           chmod 600 ~/.ssh/id_rsa && chmod 600 ~/.ssh/known_hosts
           rsync -avz -e "ssh -i ~/.ssh/id_rsa" ./ punit@reduct-experiments.humanassisted.ai:/home/punit/reduct-experiments/
           ssh -i ~/.ssh/id_rsa punit@reduct-experiments.humanassisted.ai << EOL
-          cd /home/punit/reduct-experiments
-          echo "Hello world"
+          cd /home/punit/reduct-experiments/video-overlay
+          pip3 install -r requirements.txt
+          pm2 kill
+          pm2 start manage.py --interpreter python3 --name django -- runserver
           EOL
