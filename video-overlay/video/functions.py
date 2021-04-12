@@ -44,6 +44,7 @@ def send_video(url, color, opacity, email):
         '.')[0] + ' ' + str(uuid.uuid4()) + '.' + video_name.split('.')[1]
     add_overlay(f"tmp/{video_name}",
                 f"tmp/{output_name}", rgb, opacity)
-    send_url = requote_uri(f"{os.getenv('BASE_URL')}/download/{output_name}")
+    send_url = requote_uri(
+        f"{os.getenv('BASE_URL')}/download?file={output_name}")
     send_mail(from_email="punit@reduct.video", to_email=email,
-              subject="Your Video is Ready", content=f"<a href='https://{send_url}'>Click Here</a> to download your video.")
+              subject="Your Video is Ready", content=f"<a href='{send_url}'>Click Here</a> to download your video.")
