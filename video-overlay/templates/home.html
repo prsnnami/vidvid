@@ -47,5 +47,12 @@
         <input type="submit" value="submit" />
       </form>
     </div>
+    <script>
+      let appstate = "{{state}}";
+      if (appstate === "processing_data")
+        alert(
+          "Your Video is processing! You will receive an email with the download link for the video!"
+        );
+    </script>
   </body>
 </html>

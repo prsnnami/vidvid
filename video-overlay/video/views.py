@@ -32,7 +32,10 @@ def home_view(request):
 
         p = Process(target=send_video, args=(url, color, opacity, email))
         p.start()
+        context = {
+            'state': 'processing_data'
+        }
         # return FileResponse(open(f"tmp/edited_{video_name}", 'rb'), as_attachment=True, filename=video_name)
-        return render(request, "home.html", {})
+        return render(request, "home.html", context)
 
     return render(request, "home.html", {})
