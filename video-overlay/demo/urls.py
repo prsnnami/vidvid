@@ -15,9 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls import url
 # from video import views
 
 urlpatterns = [
-    path('', include('video.urls')),
-    path('admin/', admin.site.urls),
+    url(r'^borderer/', include([
+        path('', include('video.urls')),
+        path('admin/', admin.site.urls),
+    ]))
 ]

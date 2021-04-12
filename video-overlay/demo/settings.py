@@ -11,9 +11,24 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+import environ
+
+environ.Env.read_env()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# EMAIL_HOST = 'smtp.sendgrid.net'
+# EMAIL_HOST_USER = 'apikey'
+# EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+
+EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 
 
 # Quick-start development settings - unsuitable for production
@@ -25,7 +40,7 @@ SECRET_KEY = 'django-insecure-!4aj=wq^#(=nwq(*u((5)ol&h0!mo)0e=ecuj4+ws-jfp9fsid
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://cryptic-forest-39169.herokuapp.com/', 'cryptic-forest-39169.herokuapp.com']
+ALLOWED_HOSTS = ['cryptic-forest-39169.herokuapp.com', "localhost"]
 
 
 # Application definition
@@ -38,7 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    #own
+    # own
     'video',
 ]
 
@@ -120,7 +135,19 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
+# STATIC_URL = '/static/'
+# # STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+# print(os.path.join(BASE_DIR, 'static'))
+
+STATIC_ROOT = ''
+
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = (os.path.join('static'),)
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

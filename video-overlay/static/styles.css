@@ -1,0 +1,30 @@
+body {
+  margin: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.content {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form_field {
+  margin: 10px;
+  min-width: 250px;
+  display: flex;
+  justify-content: space-between;
+}
+
+input {
+  width: 150px;
+}
