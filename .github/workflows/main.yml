@@ -39,6 +39,9 @@ jobs:
           rsync -avz -e "ssh -i ~/.ssh/id_rsa" ./ punit@reduct-experiments.humanassisted.ai:/home/punit/reduct-experiments/
           ssh -i ~/.ssh/id_rsa punit@reduct-experiments.humanassisted.ai << EOL
           cd /home/punit/reduct-experiments/video-overlay
+          touch demo/.env
+          echo SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} > demo/.env
+          echo BASE_URL=${{ secrets.BASE_URL }} > demo/.env
           pip3 install -r requirements.txt
           pm2 kill
           pm2 start manage.py --interpreter python3 --name django -- runserver
