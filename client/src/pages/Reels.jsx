@@ -5,9 +5,7 @@ import React from 'react';
 import { useQuery } from 'react-query';
 
 async function getReels() {
-  return fetch('http://localhost:8000/borderer/get_reels').then(res =>
-    res.json()
-  );
+  return fetch('/borderer/get_reels').then(res => res.json());
 }
 
 export default function Reels() {

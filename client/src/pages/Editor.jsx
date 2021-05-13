@@ -125,18 +125,14 @@ export default function Editor() {
   }
 
   async function loadManifest(shareUrl) {
-    const manifestRet = await fetch(
-      `http://localhost:8080/${shareUrl}/manifest-path.json`
-    );
+    const manifestRet = await fetch(`/proxy/${shareUrl}/manifest-path.json`);
     const manifest = await manifestRet.json();
     setManifestUrl(manifest);
     return manifest;
   }
 
   async function loadTranscript(shareUrl) {
-    const transRet = await fetch(
-      `http://localhost:8080/${shareUrl}/transcript.json`
-    );
+    const transRet = await fetch(`/proxy/${shareUrl}/transcript.json`);
     let transcript = await transRet.json();
     setTranscript(transcript);
     getSubtitle(transcript);
@@ -164,7 +160,7 @@ export default function Editor() {
 
     // console.log(`${shareUrl}/${manifest}`);
     const play = new Reduct.Player($vid);
-    play.init(`http://localhost:8080/${shareUrl}/${manifest}`, {
+    play.init(`/proxy/${shareUrl}/${manifest}`, {
       streaming: { bufferingGoal: 5, rebufferingGoal: 3 },
     });
     $vid.onVideoRender?.();
@@ -293,7 +289,7 @@ export default function Editor() {
       a_r: aspectRatio,
       color,
     };
-    fetch('http://localhost:8000/borderer/generate', {
+    fetch('/borderer/generate', {
       method: 'POST',
       body: JSON.stringify(body),
     }).then(res => {
