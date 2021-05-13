@@ -49,4 +49,19 @@ jobs:
           pip3 install -r requirements.txt
           pm2 kill
           pm2 start manage.py --interpreter python3 --name django -- runserver
+          
+          
+          #build react app
+          cd /home/punit/reduct-experiments/client
+          npm i
+          npm run build
+          chmod 600 /var/www/html
+          cp -R build/* /var/www/html
+          
+          #run proxy
+          cd /home/punit/reduct-experiments/proxy
+          npm i
+          pm2 start npm -- start
+
+
           EOL
