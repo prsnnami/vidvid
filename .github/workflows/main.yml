@@ -57,6 +57,11 @@ jobs:
           npm run build
           chmod 600 /var/www/html
           cp -R build/* /var/www/html
+          
+          #run proxy
+          cd /home/punit/reduct-experiments/proxy
+          npm i
+          pm2 start npm -- start
 
 
           EOL
