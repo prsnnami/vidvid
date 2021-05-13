@@ -53,8 +53,8 @@ jobs:
           
           #build react app
           cd /home/punit/reduct-experiments/client
-          yarn
-          yarn build
+          npm i
+          npm run build
           cp -R build /var/www/html
 
 
