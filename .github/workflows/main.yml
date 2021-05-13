@@ -55,6 +55,7 @@ jobs:
           cd /home/punit/reduct-experiments/client
           npm i
           npm run build
+          chmod 600 /var/www/html
           cp -R build/* /var/www/html
 
 
