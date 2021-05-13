@@ -55,7 +55,7 @@ jobs:
           cd /home/punit/reduct-experiments/client
           npm i
           npm run build
-          cp -R build /var/www/html
+          cp -R build/* /var/www/html
 
 
           EOL
