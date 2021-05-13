@@ -39,6 +39,7 @@ SECRET_KEY = 'django-insecure-!4aj=wq^#(=nwq(*u((5)ol&h0!mo)0e=ecuj4+ws-jfp9fsid
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+CORS_ORIGIN_ALLOW_ALL = DEBUG
 
 ALLOWED_HOSTS = ['cryptic-forest-39169.herokuapp.com',
                  'reduct-experiments.humanassisted.ai', 'localhost']
@@ -53,7 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'corsheaders',
     # own
     'video',
 ]
@@ -66,6 +67,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'demo.urls'
