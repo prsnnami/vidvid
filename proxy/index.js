@@ -8,7 +8,7 @@ const app = express();
 app.use(morgan("dev"));
 
 // // Configuration
-const PORT = 8000;
+const PORT = 8080;
 const HOST = "localhost";
 // const API_SERVICE_URL = "https://app.reduct.video/e/";
 
