@@ -85,5 +85,5 @@ def get_reels(request):
             with open(f'{dir_path}/{dir}/meta.json') as f:
                 response[dir] = json.load(f)
         except:
-            print('no meta for ' + dir)
+            continue
     return JsonResponse(response)
