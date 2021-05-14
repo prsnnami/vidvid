@@ -69,7 +69,7 @@ def download_reduct_stream(id, url, manifest_path, quality):
         csv = ','.join([*video_hashes, *audio_hashes])
 
         print('getting chunks')
-        subprocess.run(['python', 'video/scripts/fetch_chunks.py',
+        subprocess.run(['python3', 'video/scripts/fetch_chunks.py',
                        '--url', url, '--hashes', csv, '--id', id])
 
         print('stitching video')
