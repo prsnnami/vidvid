@@ -45,7 +45,7 @@ export default function Reels() {
                     as="a"
                     target="_blank"
                     href={
-                      'http://localhost:8000/borderer/download?file=' +
+                      'http://reduct-experiments.humanassisted.ai/borderer/download?file=' +
                       encodeURIComponent(reelsQuery.data[reel].output)
                     }
                     disabled={!reelsQuery.data[reel].output}
