@@ -316,7 +316,7 @@ export default function Editor() {
                   }
                 }}
               >
-                {videoRef.current.paused ? 'Play' : 'Pause'}
+                {videoRef.current?.paused ? 'Play' : 'Pause'}
               </Button>
               <Button onClick={() => exportModal.onOpen()}>Export</Button>
 
