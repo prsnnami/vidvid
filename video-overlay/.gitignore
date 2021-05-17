@@ -2,6 +2,7 @@
 
 */__pycache__
 tmp
+media/thumbnails
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
