@@ -196,9 +196,12 @@ def resize_video(id, a_r, color):
 def generate_thumbnail(id, name):
     dir_path = os.path.dirname(os.path.dirname(
         os.path.realpath(__file__))) + f'/tmp/{id}'
+
+    output_path = os.path.dirname(os.path.dirname(
+        os.path.realpath(__file__))) + f'/media/thumbnails/{id}.png'
     input_path = dir_path + '/' + name + '.mp4'
     stream = ffmpeg.input(input_path, ss=4)
-    stream = ffmpeg.output(stream, dir_path + '/thumbnail.png', vframes=1)
+    stream = ffmpeg.output(stream, output_path, vframes=1)
     ffmpeg.run(stream)
 
 
@@ -231,6 +234,6 @@ def generate_reel(subtitle, url, manifest_url, name, a_r, color, quality):
 
     generate_thumbnail(id, name)
 
-    meta['thumbnail'] = f'{id}/thumbnail.png'
+    meta['thumbnail'] = f'/media/thumbnails/{id}.png'
     with open('tmp/'+id + '/meta.json', 'w') as file:
         json.dump(meta, file)
