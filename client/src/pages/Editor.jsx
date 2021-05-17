@@ -95,6 +95,7 @@ export default function Editor() {
   const nameRef = useRef();
   const selectRef = useRef();
   const [mutationLoading, setMutationLoading] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const navigate = useNavigate();
 
   function getSubtitle(transcript) {
@@ -179,6 +180,8 @@ export default function Editor() {
     };
 
     $vid.onwaiting = () => console.log('buffering now');
+    $vid.addEventListener('play', () => setIsPlaying(true));
+    $vid.addEventListener('pause', () => setIsPlaying(false));
   }
 
   useEffect(() => {
@@ -308,6 +311,7 @@ export default function Editor() {
             <Stack direction="row">
               <Button
                 onClick={() => {
+                  console.log(videoRef.current?.paused);
                   if (!videoRef.current) return;
                   if (videoRef.current.paused) {
                     videoRef.current.play();
@@ -316,7 +320,7 @@ export default function Editor() {
                   }
                 }}
               >
-                {videoRef.current?.paused ? 'Play' : 'Pause'}
+                {!isPlaying ? 'Play' : 'Pause'}
               </Button>
               <Button onClick={() => exportModal.onOpen()}>Export</Button>
 
