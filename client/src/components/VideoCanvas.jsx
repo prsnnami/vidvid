@@ -18,7 +18,7 @@ const Canvas = React.forwardRef((props, canvasRef) => {
     let frameCount = 0;
     let animationFrameId;
 
-    predraw(context, canvas);
+    // predraw(context, canvas);
 
     const render = () => {
       frameCount++;

@@ -15,6 +15,11 @@ module.exports = function (app) {
       onProxyReq,
     })
   );
+  app.use(
+    createProxyMiddleware('/borderer', {
+      target: 'http://localhost:8000/',
+    })
+  );
 };
 
 // "proxy": {

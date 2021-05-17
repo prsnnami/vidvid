@@ -1,4 +1,5 @@
 import { Button } from '@chakra-ui/button';
+import { Image } from '@chakra-ui/image';
 import { Box, Flex, Heading, SimpleGrid, Stack, Text } from '@chakra-ui/layout';
 import { Spinner } from '@chakra-ui/spinner';
 import React from 'react';
@@ -37,7 +38,16 @@ export default function Reels() {
                   justifyContent="center"
                   alignItems="center"
                 >
-                  {reelsQuery.data[reel].thumbnail ? null : <Spinner />}
+                  {reelsQuery.data[reel].thumbnail ? (
+                    <Image
+                      src={'/borderer' + reelsQuery.data[reel].thumbnail}
+                      h="100%"
+                      w="100%"
+                      objectFit="cover"
+                    />
+                  ) : (
+                    <Spinner />
+                  )}
                 </Flex>
                 <Stack direction="row">
                   <Text>{reelsQuery.data[reel].name}</Text>
@@ -45,7 +55,7 @@ export default function Reels() {
                     as="a"
                     target="_blank"
                     href={
-                      'http://reduct-experiments.humanassisted.ai/borderer/download?file=' +
+                      '/borderer/download?file=' +
                       encodeURIComponent(reelsQuery.data[reel].output)
                     }
                     disabled={!reelsQuery.data[reel].output}

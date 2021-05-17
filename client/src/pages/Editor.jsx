@@ -35,29 +35,6 @@ function drawScaledImage(ctx, image, cs, is) {
   ctx.drawImage(image, left, top, is.width * scale, is.height * scale);
 }
 
-function download(blobUrl) {
-  // var xhr = new XMLHttpRequest();
-  // xhr.responseType = 'blob';
-
-  // xhr.onload = function () {
-  //   var recoveredBlob = xhr.response;
-
-  //   var reader = new FileReader();
-
-  //   reader.onload = function () {
-  //     var blobAsDataUrl = reader.result;
-  //     window.location = blobAsDataUrl;
-  //   };
-
-  //   reader.readAsDataURL(recoveredBlob);
-  // };
-
-  // xhr.open('GET', blobUrl);
-  // xhr.send();
-  const url = URL.createObjectURL(blobUrl);
-  console.log(url);
-}
-
 function getLines(ctx, text, maxWidth) {
   var words = text.split(' ');
   var lines = [];
