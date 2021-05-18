@@ -20,9 +20,8 @@ async function getReels() {
 export default function Reels() {
   const reelsQuery = useQuery('reels', getReels, {
     // Refetch the data every second
-    refetchInterval: 3000,
+    refetchInterval: 5000,
   });
-  console.log(reelsQuery.data);
 
   return (
     <Box px="4" pt="6">

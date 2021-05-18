@@ -25,6 +25,7 @@ const Video = React.forwardRef(
     const [isPlaying, setIsPlaying] = useState(false);
     const [poster, setPoster] = useState(null);
     const [buffering, setBuffering] = useState();
+    const [videoPlayed, setVideoPlayed] = useState(false);
 
     // const [color, setColor] = useState('#000000');
     const handleColorChange = useDebouncedCallback(
@@ -58,6 +59,7 @@ const Video = React.forwardRef(
       // };
 
       vid.onloadeddata = function (e) {
+        console.log('loadedData');
         setVideoSize({ height: this.videoHeight, width: this.videoWidth });
         setVideoLoading(false);
       };
@@ -66,7 +68,10 @@ const Video = React.forwardRef(
       vid.onseeking = () => setBuffering(true);
       vid.oncanplay = () => setBuffering(false);
 
-      vid.addEventListener('play', () => setIsPlaying(true));
+      vid.addEventListener('play', () => {
+        setVideoPlayed(true);
+        setIsPlaying(true);
+      });
       vid.addEventListener('pause', () => setIsPlaying(false));
     }
 
@@ -84,39 +89,54 @@ const Video = React.forwardRef(
       };
     }, [sharePath]);
 
-    function predraw(ctx) {
-      console.log('predraw');
+    function drawThumbnail(ctx) {
+      if (!videoLoading && poster) {
+        const image = new Image();
+        image.onload = () => {
+          image.style.objectFit = 'contain';
+          ctx.imageSmoothingEnabled = false;
+          drawScaledImage(ctx, image, canvasSize, {
+            height: image.height,
+            width: image.width,
+          });
+        };
+        image.src = poster;
+      }
     }
 
     function draw(ctx) {
       if (videoRef.current && !videoLoading) {
-        drawScaledImage(ctx, videoRef.current, canvasSize, videoSize);
-        ctx.font = '22px Arial';
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.lineWidth = 4;
-        ctx.miterLimit = 2;
+        if (!videoPlayed) {
+          drawThumbnail(ctx);
+        } else {
+          drawScaledImage(ctx, videoRef.current, canvasSize, videoSize);
+          ctx.font = '22px Arial';
+          ctx.fillStyle = 'white';
+          ctx.textAlign = 'center';
+          ctx.lineWidth = 4;
+          ctx.miterLimit = 2;
 
-        subtitle.forEach(s => {
-          if (
-            s.start < videoRef.current.currentTime &&
-            s.end > videoRef.current.currentTime
-          ) {
-            let lines = getWrapLines(ctx, s.line, canvasSize.width * 0.8);
-            lines.reverse().forEach((line, i) => {
-              ctx.strokeText(
-                line,
-                canvasSize.width / 2,
-                canvasSize.height - canvasSize.height * 0.1 - i * 24
-              );
-              ctx.fillText(
-                line,
-                canvasSize.width / 2,
-                canvasSize.height - canvasSize.height * 0.1 - i * 24
-              );
-            });
-          }
-        });
+          subtitle.forEach(s => {
+            if (
+              s.start < videoRef.current.currentTime &&
+              s.end > videoRef.current.currentTime
+            ) {
+              let lines = getWrapLines(ctx, s.line, canvasSize.width * 0.8);
+              lines.reverse().forEach((line, i) => {
+                ctx.strokeText(
+                  line,
+                  canvasSize.width / 2,
+                  canvasSize.height - canvasSize.height * 0.1 - i * 24
+                );
+                ctx.fillText(
+                  line,
+                  canvasSize.width / 2,
+                  canvasSize.height - canvasSize.height * 0.1 - i * 24
+                );
+              });
+            }
+          });
+        }
       }
     }
 
@@ -127,8 +147,8 @@ const Video = React.forwardRef(
 
       switch (ar) {
         case '1:1':
-          width = 360;
-          height = 360;
+          width = 640;
+          height = 640;
           break;
         case '16:9':
           width = 640;
@@ -192,12 +212,11 @@ const Video = React.forwardRef(
               h="100%"
               w="100%"
               bg="rgba(0,0,0,0.2)"
-              hidden={!buffering}
+              hidden={!(buffering || videoLoading)}
             >
               <Spinner color="teal" size="xl" thickness="8px" />
             </Flex>
             <Canvas
-              __predraw={predraw}
               ref={canvasRef}
               draw={draw}
               height={canvasSize.height}

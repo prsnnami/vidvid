@@ -35,43 +35,72 @@ export default function Transctipt({
   useEffect(() => setSubtitle(st), [st]);
 
   function editSubtitle(line, chunkIdx) {
-    let edit = [...subtitle];
-    edit[chunkIdx].line = line;
-    setSubtitle(edit);
-    onEdit(edit);
+    setSubtitle(subtitle => {
+      let edit = [...subtitle];
+      edit[chunkIdx].line = line.split('\n')[0];
+      return edit;
+    });
   }
+
+  useEffect(() => {
+    if (subtitle) {
+      onEdit(subtitle);
+    }
+  }, [subtitle, onEdit]);
 
   const handleSubtitleEdit = useDebouncedCallback(
     (line, chunkIdx) => editSubtitle(line, chunkIdx),
     400
   );
 
-  // function handleOnEnter(e, chunkIdx) {
-  //   e.preventDefault();
+  function handleOnEnter(e, chunkIdx) {
+    e.preventDefault();
 
-  //   let newText = e.target.innerText.split('\n')[0];
+    let newText = e.target.innerText.split('\n')[0];
 
-  //   const wordSpans = e.target.lastChild.children;
-  //   let words = Array.from(wordSpans).map(
-  //     span => subtitle[chunkIdx].words[span.dataset.wordidx]
-  //   );
-  //   let line = {
-  //     line: words.map(i => i.word).join(''),
-  //     start: words[0].start,
-  //     end: words[0].end,
-  //     words: words,
-  //   };
+    const wordSpans = e.target.lastChild.children;
+    let words = Array.from(wordSpans).map(
+      span => subtitle[chunkIdx].words[span.dataset.wordidx]
+    );
+    let chunk = {
+      line: words.map(i => i.word).join(''),
+      start: words[0].start,
+      end: words[words.length - 1].end,
+      words: words,
+    };
 
-  //   let editSubtitle = [...subtitle];
-  //   editSubtitle.splice(chunkIdx + 1, 0, line);
+    let editSubtitle = [...subtitle];
+    editSubtitle.splice(chunkIdx + 1, 0, chunk);
 
-  //   editSubtitle[chunkIdx].line = newText;
-  //   editSubtitle[chunkIdx].words = editSubtitle[chunkIdx].words.filter(
-  //     (i, idx) => idx >= wordSpans[0].dataset.wordidx
-  //   );
+    editSubtitle[chunkIdx].line = newText;
+    editSubtitle[chunkIdx].end = words[0].start;
+    editSubtitle[chunkIdx].words = editSubtitle[chunkIdx].words.map(
+      (i, idx) => {
+        if (idx >= wordSpans[0].dataset.wordidx) {
+          return {
+            ...i,
+            hidden: true,
+          };
+        }
+        return i;
+      }
+    );
 
-  //   setSubtitle(editSubtitle);
-  // }
+    setSubtitle(editSubtitle);
+  }
+
+  function handleBackspace(e, chunkIdx) {
+    let editSubtitle = [...subtitle];
+    if (chunkIdx === 0) return;
+    let curr = editSubtitle[chunkIdx];
+    let prev = editSubtitle[chunkIdx - 1];
+    prev.end = curr.end;
+    prev.line = prev.line + curr.line;
+    prev.words = [...prev.words, ...curr.words];
+
+    editSubtitle = editSubtitle.filter((i, idx) => idx !== chunkIdx);
+    setSubtitle(editSubtitle);
+  }
 
   // const [transcript, setTranscript] = useState(tx);
   // const transcribeContainerRef = useRef();
@@ -146,33 +175,47 @@ export default function Transctipt({
             {getTimeStamp(chunk.start)}
           </Box>
           <Box
-            contentEditable
-            suppressContentEditableWarning
-            onInput={e => handleSubtitleEdit(e.target.innerText, chunkIdx)}
-            // onKeyUp={e => {
-            //   if (e.key === 'Enter') {
-            //     e.preventDefault();
-            //     console.log(e.target.lastChild.children);
-            //     handleOnEnter(e, chunkIdx);
-            //   }
-            // }}
-            // onKeyDown={e => console.log(e.key)}
+          // contentEditable
+          // suppressContentEditableWarning
           >
-            {chunk.words.map((word, wordIdx) => (
-              <span
-                key={wordIdx}
-                data-wordidx={wordIdx}
-                onClick={e => {
-                  video.currentTime = word.start;
-                  e.stopPropagation();
-                }}
-                ref={wordRef => {
-                  word.wordRef = wordRef;
-                }}
-              >
-                {word.word}
-              </span>
-            ))}
+            <Box
+              onInput={e => handleSubtitleEdit(e.target.innerText, chunkIdx)}
+              contentEditable
+              suppressContentEditableWarning
+              onKeyUp={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleOnEnter(e, chunkIdx);
+                }
+                if (e.key === 'Backspace') {
+                  handleBackspace(e, chunkIdx);
+                }
+              }}
+              // onKeyDown={e => {
+              //   console.log('onkeypress');
+              //   if (e.key === 'Enter') {
+              //     e.preventDefault();
+              //     return false;
+              //   }
+              // }}
+            >
+              {chunk.words.map((word, wordIdx) => (
+                <span
+                  key={wordIdx}
+                  data-wordidx={wordIdx}
+                  onClick={e => {
+                    video.currentTime = word.start;
+                    e.stopPropagation();
+                  }}
+                  ref={wordRef => {
+                    word.wordRef = wordRef;
+                  }}
+                  hidden={word.hidden}
+                >
+                  {word.word}
+                </span>
+              ))}
+            </Box>
           </Box>
         </Flex>
       ))}
