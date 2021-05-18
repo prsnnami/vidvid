@@ -365,7 +365,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/test/:sharePath" element={<Test />} />
+      {/* <Route path="/test/:sharePath" element={<Test />} /> */}
       <Route path="/reels" element={<Reels />} />
       <Route path="/editor/:sharePath" element={<Editor />} />
 
