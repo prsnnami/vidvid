@@ -1,6 +1,14 @@
 import { Button } from '@chakra-ui/button';
 import { Image } from '@chakra-ui/image';
-import { Box, Flex, Heading, SimpleGrid, Stack, Text } from '@chakra-ui/layout';
+import {
+  Box,
+  Flex,
+  Heading,
+  SimpleGrid,
+  Stack,
+  Text,
+  Grid,
+} from '@chakra-ui/layout';
 import { Spinner } from '@chakra-ui/spinner';
 import React from 'react';
 import { useQuery } from 'react-query';
@@ -27,9 +35,16 @@ export default function Reels() {
         ) : Object.keys(reelsQuery.data).length === 0 ? (
           <Text>No Reels</Text>
         ) : (
-          <SimpleGrid minChildWidth="200px" spacing={4}>
+          <Grid
+            gap={8}
+            templateColumns="repeat(auto-fit, 200px)"
+            autoFlow="dense"
+            flexGrow={1}
+            pt={2}
+            wrap="wrap"
+          >
             {Object.keys(reelsQuery.data).map(reel => (
-              <Stack spacing="2">
+              <Stack spacing="2" key={reel}>
                 <Flex
                   height="200px"
                   w="200px"
@@ -65,7 +80,7 @@ export default function Reels() {
                 </Stack>
               </Stack>
             ))}
-          </SimpleGrid>
+          </Grid>
         )}
       </Box>
     </Box>

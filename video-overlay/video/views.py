@@ -20,11 +20,11 @@ from .functions import (add_overlay, burn_subtitles, create_srt,
 def send_file(request):
     if request.method != 'GET':
         return HttpResponse('<h1>404</h1>')
-    filename = request.GET.get('file')
-    print(filename)
+    path = request.GET.get('file')
+    filename = path.split('/')[-1]
 
     try:
-        return FileResponse(open(f"tmp/{filename}", "rb"), as_attachment=True, filename=filename)
+        return FileResponse(open(f"tmp/{path}", "rb"), as_attachment=True, filename=filename)
     except Exception as e:
         print(e)
         return HttpResponseBadRequest('<h1>Invalid Request</h1>')

@@ -5,6 +5,7 @@ import { Select } from '@chakra-ui/select';
 import { Spinner } from '@chakra-ui/spinner';
 import React, { useEffect, useState } from 'react';
 import { drawScaledImage, getWrapLines } from '../../utils';
+import { useDebouncedCallback } from '../../utils/useDebouncedCallback';
 import Canvas from '../VideoCanvas';
 
 async function loadManifest(shareUrl) {
@@ -14,17 +15,22 @@ async function loadManifest(shareUrl) {
 }
 
 const Video = React.forwardRef(
-  ({ videoRef, sharePath, subtitle }, canvasRef) => {
+  (
+    { videoRef, sharePath, subtitle, color, aspectRatio, setManifestUrl },
+    canvasRef
+  ) => {
     const [canvasSize, setCanvasSize] = useState({ height: 360, width: 640 });
     const [videoSize, setVideoSize] = useState({ height: 360, width: 480 });
-    const [aspectRatio, setAspectRatio] = useState('16:9');
     const [videoLoading, setVideoLoading] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
     const [poster, setPoster] = useState(null);
-    const [manifestUrl, setManifestUrl] = useState();
     const [buffering, setBuffering] = useState();
 
-    const [color, setColor] = useState('#000000');
+    // const [color, setColor] = useState('#000000');
+    const handleColorChange = useDebouncedCallback(
+      value => color[1](value),
+      200
+    );
 
     async function init(vid) {
       let shareUrl = 'https://app.reduct.video/e/' + sharePath;
@@ -115,11 +121,11 @@ const Video = React.forwardRef(
     }
 
     function handleDimensionsChange(e) {
-      const aspectRatio = e.target.value;
-      setAspectRatio(aspectRatio);
+      const ar = e.target.value;
+      aspectRatio[1](ar);
       let height, width;
 
-      switch (aspectRatio) {
+      switch (ar) {
         case '1:1':
           width = 360;
           height = 360;
@@ -163,7 +169,7 @@ const Video = React.forwardRef(
           <Select
             background="white"
             onChange={handleDimensionsChange}
-            value={aspectRatio}
+            value={aspectRatio[0]}
           >
             <option>1:1</option>
             <option>16:9</option>
@@ -173,8 +179,8 @@ const Video = React.forwardRef(
           <Input
             background="white"
             type="color"
-            value={color}
-            onChange={e => setColor(e.target.value)}
+            value={color[0]}
+            onChange={e => handleColorChange(e.target.value)}
           />
         </Stack>
         <Flex justifyContent="center" alignItems="center">
@@ -196,7 +202,7 @@ const Video = React.forwardRef(
               draw={draw}
               height={canvasSize.height}
               width={canvasSize.width}
-              color={color}
+              color={color[0]}
             />
           </Box>
         </Flex>
