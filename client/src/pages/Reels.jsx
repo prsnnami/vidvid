@@ -1,14 +1,6 @@
 import { Button } from '@chakra-ui/button';
 import { Image } from '@chakra-ui/image';
-import {
-  Box,
-  Flex,
-  Heading,
-  SimpleGrid,
-  Stack,
-  Text,
-  Grid,
-} from '@chakra-ui/layout';
+import { Box, Flex, Grid, Heading, Stack, Text } from '@chakra-ui/layout';
 import { Spinner } from '@chakra-ui/spinner';
 import React from 'react';
 import { useQuery } from 'react-query';

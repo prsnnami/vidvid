@@ -27,7 +27,11 @@ export default function Home() {
         <form onSubmit={submit}>
           <Stack spacing="4">
             <Heading>Welcome to Borderer</Heading>
-            <Input ref={inputRef} placeholder="Enter video share link" />
+            <Input
+              ref={inputRef}
+              defaultValue="https://app.reduct.video/e/how-the-zebra-gets-research-in-front-of-everyone-from-the-ceo-to-individual-designers-engineers-and-pms-3-mins-f08661432b-7f13df6723f0bd72c4d6"
+              placeholder="Enter video share link"
+            />
             <Button type="submit">Go!</Button>
           </Stack>
         </form>

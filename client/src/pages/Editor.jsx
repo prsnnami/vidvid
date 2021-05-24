@@ -1,10 +1,8 @@
 import { Button } from '@chakra-ui/button';
+import { FormControl, FormLabel } from '@chakra-ui/form-control';
+import { useDisclosure } from '@chakra-ui/hooks';
+import { Input } from '@chakra-ui/input';
 import { Box, Flex, Heading, Stack } from '@chakra-ui/layout';
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
-import Transctipt from '../components/Editor/Transcript';
-import Video from '../components/Editor/Video';
-import Canvas from '../components/VideoCanvas';
 import {
   Modal,
   ModalBody,
@@ -14,43 +12,12 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/modal';
-import { FormControl, FormLabel } from '@chakra-ui/form-control';
-import { useDisclosure } from '@chakra-ui/hooks';
-import { Input } from '@chakra-ui/input';
 import { Select } from '@chakra-ui/select';
-import { useMutation } from 'react-query';
-
-function getSubtitle(transcript) {
-  let lines = [];
-  transcript.segments.forEach(segment => {
-    let segmentChunks = segment.wdlist.reduce((prev, curr, i) => {
-      const chunkIndex = Math.floor(i / 8);
-      if (!prev[chunkIndex]) {
-        prev[chunkIndex] = []; // start a new chunk
-      }
-
-      prev[chunkIndex].push(curr);
-      return prev;
-    }, []);
-
-    segmentChunks = segmentChunks.map(chunk => {
-      return {
-        start: chunk[0].start,
-        end: chunk[chunk.length - 1].end,
-        words: chunk,
-        line: chunk.map(line => line.word).join(''),
-      };
-    });
-    lines.push(...segmentChunks);
-  });
-
-  return lines;
-}
-
-async function loadTranscript(shareUrl) {
-  const transRet = await fetch(`/proxy/${shareUrl}/transcript.json`);
-  return await transRet.json();
-}
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import Transctipt from '../components/Editor/Transcript';
+import Video from '../components/Editor/Video';
+import { getSubtitle, loadTranscript } from '../utils';
 
 export default function Editor() {
   const { sharePath } = useParams();

@@ -40,3 +40,35 @@ export function debounce(func, wait) {
     timeout = setTimeout(later, wait);
   };
 }
+
+export function getSubtitle(transcript) {
+  let lines = [];
+  transcript.segments.forEach(segment => {
+    let segmentChunks = segment.wdlist.reduce((prev, curr, i) => {
+      const chunkIndex = Math.floor(i / 8);
+      if (!prev[chunkIndex]) {
+        prev[chunkIndex] = []; // start a new chunk
+      }
+
+      prev[chunkIndex].push(curr);
+      return prev;
+    }, []);
+
+    segmentChunks = segmentChunks.map(chunk => {
+      return {
+        start: chunk[0].start,
+        end: chunk[chunk.length - 1].end,
+        words: chunk,
+        line: chunk.map(line => line.word).join(''),
+      };
+    });
+    lines.push(...segmentChunks);
+  });
+
+  return lines;
+}
+
+export async function loadTranscript(shareUrl) {
+  const transRet = await fetch(`/proxy/${shareUrl}/transcript.json`);
+  return await transRet.json();
+}
