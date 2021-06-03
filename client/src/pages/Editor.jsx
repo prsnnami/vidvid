@@ -47,6 +47,7 @@ export default function Editor() {
       setTranscript(transcript);
       let subtitle = getSubtitle(transcript);
       setSubtitle(subtitle);
+      console.log(subtitle);
     });
   }, []);
 

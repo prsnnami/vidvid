@@ -1,0 +1,1122 @@
+[
+  {
+    "start": 0.77,
+    "end": 2.99,
+    "words": [
+      { "start": 0.77, "end": 0.92, "text": "We " },
+      { "start": 0.92, "end": 1.39, "text": "start " },
+      { "start": 1.4, "end": 1.6700000000000002, "text": "every " },
+      { "start": 1.6700000000000002, "end": 2, "text": "design " },
+      { "start": 2, "end": 2.3200000000000003, "text": "sprint " },
+      { "start": 2.33, "end": 2.5300000000000002, "text": "with " },
+      { "start": 2.5300000000000002, "end": 2.5900000000000003, "text": "a " },
+      { "start": 2.5900000000000003, "end": 2.99, "text": "clip " }
+    ],
+    "line": "We start every design sprint with a clip "
+  },
+  {
+    "start": 3.03,
+    "end": 5.69,
+    "words": [
+      { "start": 3.03, "end": 3.56, "text": "from " },
+      { "start": 3.6, "end": 3.7, "text": "a " },
+      { "start": 3.7, "end": 4.04, "text": "user " },
+      { "start": 4.04, "end": 4.65, "text": "interview. " },
+      { "start": 4.960000000000001, "end": 5.050000000000001, "text": "Oh, " },
+      {
+        "start": 5.050000000000001,
+        "end": 5.210000000000001,
+        "text": "you're "
+      },
+      {
+        "start": 5.210000000000001,
+        "end": 5.5200000000000005,
+        "text": "asking "
+      },
+      { "start": 5.5200000000000005, "end": 5.69, "text": "me " }
+    ],
+    "line": "from a user interview. Oh, you're asking me "
+  },
+  {
+    "start": 5.69,
+    "end": 7.550000000000001,
+    "words": [
+      { "start": 5.69, "end": 5.83, "text": "what " },
+      { "start": 5.83, "end": 5.92, "text": "I " },
+      { "start": 5.920000000000001, "end": 6.110000000000001, "text": "like " },
+      { "start": 6.110000000000001, "end": 6.28, "text": "to " },
+      { "start": 6.28, "end": 6.75, "text": "say " },
+      { "start": 6.800000000000001, "end": 6.94, "text": "on " },
+      { "start": 6.94, "end": 7.16, "text": "my " },
+      { "start": 7.210000000000001, "end": 7.550000000000001, "text": "auto " }
+    ],
+    "line": "what I like to say on my auto "
+  },
+  {
+    "start": 7.550000000000001,
+    "end": 11,
+    "words": [
+      { "start": 7.550000000000001, "end": 8.18, "text": "policy, " },
+      { "start": 8.2, "end": 8.36, "text": "by " },
+      { "start": 8.43, "end": 8.950000000000001, "text": "bundling " },
+      { "start": 8.950000000000001, "end": 9.080000000000002, "text": "with " },
+      { "start": 9.09, "end": 9.37, "text": "friends. " },
+      { "start": 10.49, "end": 10.64, "text": "When " },
+      { "start": 10.64, "end": 10.74, "text": "I " },
+      { "start": 10.74, "end": 11, "text": "hear " }
+    ],
+    "line": "policy, by bundling with friends. When I hear "
+  },
+  {
+    "start": 11,
+    "end": 13.88,
+    "words": [
+      { "start": 11, "end": 11.05, "text": "it " },
+      { "start": 11.06, "end": 11.46, "text": "worded " },
+      { "start": 11.46, "end": 11.72, "text": "like " },
+      { "start": 11.72, "end": 12.280000000000001, "text": "that, " },
+      { "start": 12.360000000000001, "end": 12.670000000000002, "text": "I " },
+      { "start": 12.690000000000001, "end": 13.3, "text": "hear " },
+      { "start": 13.57, "end": 13.73, "text": "you're " },
+      { "start": 13.8, "end": 13.88, "text": "going " }
+    ],
+    "line": "it worded like that, I hear you're going "
+  },
+  {
+    "start": 13.88,
+    "end": 16.82,
+    "words": [
+      { "start": 13.88, "end": 13.97, "text": "to " },
+      { "start": 13.97, "end": 14.26, "text": "pay " },
+      { "start": 14.26, "end": 14.67, "text": "more " },
+      { "start": 14.67, "end": 15.28, "text": "overall " },
+      { "start": 15.360000000000001, "end": 16.01, "text": "showing " },
+      { "start": 16.05, "end": 16.18, "text": "the " },
+      { "start": 16.18, "end": 16.48, "text": "pain " },
+      { "start": 16.48, "end": 16.82, "text": "points, " }
+    ],
+    "line": "to pay more overall showing the pain points, "
+  },
+  {
+    "start": 16.82,
+    "end": 20.019999,
+    "words": [
+      { "start": 16.82, "end": 17.26, "text": "showing " },
+      { "start": 17.26, "end": 17.869999, "text": "someone " },
+      { "start": 18.14, "end": 18.59, "text": "suffering. " },
+      { "start": 18.59, "end": 18.659999, "text": "I " },
+      { "start": 18.670001, "end": 18.980000999999998, "text": "think " },
+      { "start": 19.199999000000002, "end": 19.419999, "text": "it's " },
+      { "start": 19.420001, "end": 19.530001, "text": "the " },
+      { "start": 19.530001, "end": 20.019999, "text": "quickest " }
+    ],
+    "line": "showing someone suffering. I think it's the quickest "
+  },
+  {
+    "start": 20.019999000000002,
+    "end": 22.559999,
+    "words": [
+      {
+        "start": 20.019999000000002,
+        "end": 20.429999000000002,
+        "text": "way "
+      },
+      { "start": 20.689999000000004, "end": 20.859999000000002, "text": "to " },
+      { "start": 20.859999000000002, "end": 21.289999, "text": "align " },
+      { "start": 21.289999, "end": 21.659999000000003, "text": "everyone " },
+      { "start": 21.659999000000003, "end": 21.769999000000002, "text": "in " },
+      {
+        "start": 21.769999000000002,
+        "end": 21.889999000000003,
+        "text": "the "
+      },
+      { "start": 21.889999000000003, "end": 22.219999, "text": "room " },
+      { "start": 22.239999, "end": 22.559999, "text": "on " }
+    ],
+    "line": "way to align everyone in the room on "
+  },
+  {
+    "start": 22.559999,
+    "end": 23.359999000000002,
+    "words": [
+      { "start": 22.559999, "end": 22.749999000000003, "text": "what " },
+      {
+        "start": 22.749999000000003,
+        "end": 22.869999000000004,
+        "text": "we're "
+      },
+      {
+        "start": 22.869999000000004,
+        "end": 23.209999000000003,
+        "text": "trying "
+      },
+      { "start": 23.209999000000003, "end": 23.309999, "text": "to " },
+      { "start": 23.309999, "end": 23.359999000000002, "text": "say. " }
+    ],
+    "line": "what we're trying to say. "
+  },
+  {
+    "start": 24.37,
+    "end": 26.19,
+    "words": [
+      { "start": 24.37, "end": 24.42, "text": "Video " },
+      { "start": 24.42, "end": 24.54, "text": "is " },
+      { "start": 24.56, "end": 24.67, "text": "the " },
+      { "start": 24.67, "end": 25.21, "text": "mainstay " },
+      { "start": 25.21, "end": 25.32, "text": "of " },
+      { "start": 25.32, "end": 25.46, "text": "how " },
+      { "start": 25.46, "end": 25.59, "text": "we " },
+      { "start": 25.59, "end": 26.19, "text": "communicate " }
+    ],
+    "line": "Video is the mainstay of how we communicate "
+  },
+  {
+    "start": 26.22,
+    "end": 29.240000000000002,
+    "words": [
+      { "start": 26.22, "end": 26.53, "text": "our " },
+      { "start": 26.55, "end": 27.04, "text": "findings " },
+      { "start": 27.04, "end": 27.36, "text": "to " },
+      { "start": 27.38, "end": 27.68, "text": "our " },
+      { "start": 27.69, "end": 28.43, "text": "stakeholders. " },
+      { "start": 28.44, "end": 28.82, "text": "Anybody " },
+      { "start": 28.82, "end": 29.03, "text": "who's " },
+      { "start": 29.03, "end": 29.240000000000002, "text": "not " }
+    ],
+    "line": "our findings to our stakeholders. Anybody who's not "
+  },
+  {
+    "start": 29.240000000000002,
+    "end": 31.310000000000002,
+    "words": [
+      { "start": 29.240000000000002, "end": 29.3, "text": "a " },
+      { "start": 29.3, "end": 29.75, "text": "researcher " },
+      { "start": 29.75, "end": 30.009999999999998, "text": "here " },
+      { "start": 30.02, "end": 30.17, "text": "has " },
+      { "start": 30.17, "end": 30.25, "text": "an " },
+      { "start": 30.25, "end": 30.77, "text": "opportunity " },
+      { "start": 30.77, "end": 30.880000000000003, "text": "to " },
+      {
+        "start": 30.880000000000003,
+        "end": 31.310000000000002,
+        "text": "interact "
+      }
+    ],
+    "line": "a researcher here has an opportunity to interact "
+  },
+  {
+    "start": 31.310000000000002,
+    "end": 32.69,
+    "words": [
+      { "start": 31.310000000000002, "end": 31.42, "text": "with " },
+      { "start": 31.42, "end": 31.47, "text": "a " },
+      { "start": 31.47, "end": 31.88, "text": "consumer " },
+      {
+        "start": 31.880000000000003,
+        "end": 32.010000000000005,
+        "text": "and "
+      },
+      { "start": 32.019999999999996, "end": 32.18, "text": "see " },
+      { "start": 32.18, "end": 32.3, "text": "what " },
+      { "start": 32.3, "end": 32.45, "text": "it's " },
+      { "start": 32.45, "end": 32.69, "text": "like " }
+    ],
+    "line": "with a consumer and see what it's like "
+  },
+  {
+    "start": 32.69,
+    "end": 34.16,
+    "words": [
+      { "start": 32.69, "end": 32.81, "text": "for " },
+      { "start": 32.81, "end": 32.99, "text": "them " },
+      { "start": 32.99, "end": 33.11, "text": "to " },
+      { "start": 33.11, "end": 33.32, "text": "use " },
+      { "start": 33.32, "end": 33.45, "text": "our " },
+      { "start": 33.45, "end": 33.85, "text": "product " },
+      { "start": 33.85, "end": 33.980000000000004, "text": "in " },
+      { "start": 33.980000000000004, "end": 34.16, "text": "real " }
+    ],
+    "line": "for them to use our product in real "
+  },
+  {
+    "start": 34.16,
+    "end": 35.539999,
+    "words": [
+      { "start": 34.16, "end": 34.469999, "text": "time " },
+      { "start": 34.47, "end": 34.57, "text": "and " },
+      { "start": 34.57, "end": 34.66, "text": "how " },
+      { "start": 34.66, "end": 34.789999, "text": "they " },
+      { "start": 34.789999, "end": 35.019999, "text": "feel " },
+      { "start": 35.019999999999996, "end": 35.29, "text": "about " },
+      { "start": 35.29, "end": 35.539999, "text": "it. " }
+    ],
+    "line": "time and how they feel about it. "
+  },
+  {
+    "start": 35.61,
+    "end": 37.77,
+    "words": [
+      { "start": 35.61, "end": 35.87, "text": "When " },
+      { "start": 35.92, "end": 36.13, "text": "I " },
+      { "start": 36.13, "end": 36.27, "text": "am " },
+      { "start": 36.29, "end": 36.64, "text": "able " },
+      { "start": 36.64, "end": 36.83, "text": "to " },
+      { "start": 36.84, "end": 37.160000000000004, "text": "bring " },
+      { "start": 37.160000000000004, "end": 37.59, "text": "videos, " },
+      { "start": 37.59, "end": 37.77, "text": "not " }
+    ],
+    "line": "When I am able to bring videos, not "
+  },
+  {
+    "start": 37.77,
+    "end": 39.52,
+    "words": [
+      { "start": 37.77, "end": 37.92, "text": "just " },
+      { "start": 37.92, "end": 38.03, "text": "of " },
+      { "start": 38.03, "end": 38.24, "text": "one " },
+      { "start": 38.24, "end": 38.9, "text": "participant, " },
+      { "start": 38.9, "end": 39.01, "text": "but " },
+      { "start": 39.01, "end": 39.14, "text": "of " },
+      { "start": 39.14, "end": 39.44, "text": "three " },
+      { "start": 39.44, "end": 39.52, "text": "or " }
+    ],
+    "line": "just of one participant, but of three or "
+  },
+  {
+    "start": 39.52,
+    "end": 41.72,
+    "words": [
+      { "start": 39.52, "end": 39.78, "text": "four " },
+      { "start": 39.78, "end": 39.83, "text": "or " },
+      { "start": 39.83, "end": 40.19, "text": "five " },
+      { "start": 40.19, "end": 40.51, "text": "saying " },
+      { "start": 40.51, "end": 40.82, "text": "like, " },
+      { "start": 41.13, "end": 41.46, "text": "yeah, " },
+      { "start": 41.46, "end": 41.56, "text": "I " },
+      { "start": 41.56, "end": 41.72, "text": "could " }
+    ],
+    "line": "four or five saying like, yeah, I could "
+  },
+  {
+    "start": 41.72,
+    "end": 43.21,
+    "words": [
+      { "start": 41.72, "end": 41.89, "text": "see " },
+      { "start": 41.89, "end": 42, "text": "the " },
+      { "start": 42, "end": 42.38, "text": "value " },
+      { "start": 42.38, "end": 42.519999999999996, "text": "of " },
+      { "start": 42.52, "end": 42.67, "text": "this " },
+      { "start": 42.67, "end": 42.92, "text": "thing, " },
+      { "start": 42.92, "end": 43.04, "text": "but " },
+      { "start": 43.04, "end": 43.21, "text": "it's " }
+    ],
+    "line": "see the value of this thing, but it's "
+  },
+  {
+    "start": 43.22,
+    "end": 45.25,
+    "words": [
+      { "start": 43.22, "end": 43.51, "text": "not " },
+      { "start": 43.51, "end": 43.95, "text": "exactly " },
+      { "start": 43.95, "end": 44.06, "text": "what " },
+      { "start": 44.06, "end": 44.13, "text": "I " },
+      { "start": 44.13, "end": 44.269999, "text": "was " },
+      {
+        "start": 44.269999999999996,
+        "end": 44.879999999999995,
+        "text": "expecting "
+      },
+      { "start": 44.89, "end": 45.09, "text": "or " },
+      { "start": 45.14, "end": 45.25, "text": "see " }
+    ],
+    "line": "not exactly what I was expecting or see "
+  },
+  {
+    "start": 45.25,
+    "end": 46.97,
+    "words": [
+      { "start": 45.25, "end": 45.359999, "text": "the " },
+      { "start": 45.36, "end": 45.98, "text": "frustration " },
+      { "start": 45.980000000000004, "end": 46.08, "text": "of " },
+      { "start": 46.08, "end": 46.230000000000004, "text": "them " },
+      { "start": 46.230000000000004, "end": 46.49, "text": "trying " },
+      { "start": 46.49, "end": 46.57, "text": "to " },
+      { "start": 46.57, "end": 46.91, "text": "complete " },
+      { "start": 46.91, "end": 46.97, "text": "a " }
+    ],
+    "line": "the frustration of them trying to complete a "
+  },
+  {
+    "start": 46.97,
+    "end": 49.309999,
+    "words": [
+      { "start": 46.97, "end": 47.43, "text": "task " },
+      { "start": 47.43, "end": 47.55, "text": "and " },
+      { "start": 47.55, "end": 47.71, "text": "just " },
+      { "start": 47.72, "end": 48.04, "text": "really " },
+      { "start": 48.05, "end": 48.230000000000004, "text": "being " },
+      { "start": 48.230000000000004, "end": 48.86, "text": "confused. " },
+      { "start": 48.879999, "end": 49.159999, "text": "Like, " },
+      { "start": 49.209998999999996, "end": 49.309999, "text": "I " }
+    ],
+    "line": "task and just really being confused. Like, I "
+  },
+  {
+    "start": 49.31,
+    "end": 50.43,
+    "words": [
+      { "start": 49.31, "end": 49.54, "text": "want " },
+      { "start": 49.54, "end": 49.599999, "text": "you " },
+      { "start": 49.6, "end": 49.68, "text": "to " },
+      { "start": 49.68, "end": 49.83, "text": "hit " },
+      { "start": 49.83, "end": 49.969999, "text": "this " },
+      { "start": 49.97, "end": 50.19, "text": "button " },
+      { "start": 50.19, "end": 50.32, "text": "and " },
+      { "start": 50.32, "end": 50.43, "text": "you're " }
+    ],
+    "line": "want you to hit this button and you're "
+  },
+  {
+    "start": 50.43,
+    "end": 51.809999000000005,
+    "words": [
+      { "start": 50.43, "end": 50.62, "text": "not " },
+      { "start": 50.62, "end": 50.849999, "text": "hitting " },
+      { "start": 50.85, "end": 50.980000000000004, "text": "this " },
+      { "start": 50.980000000000004, "end": 51.3, "text": "button. " },
+      { "start": 51.3, "end": 51.46, "text": "And " },
+      { "start": 51.46, "end": 51.519999, "text": "I " },
+      { "start": 51.519999999999996, "end": 51.71, "text": "know " },
+      { "start": 51.71, "end": 51.809999000000005, "text": "that " }
+    ],
+    "line": "not hitting this button. And I know that "
+  },
+  {
+    "start": 51.84,
+    "end": 53.85,
+    "words": [
+      { "start": 51.84, "end": 51.97, "text": "you " },
+      { "start": 51.97, "end": 52.239999999999995, "text": "cannot " },
+      { "start": 52.24, "end": 52.42, "text": "see " },
+      { "start": 52.42, "end": 52.64, "text": "it. " },
+      { "start": 52.859999, "end": 53.069999, "text": "Like " },
+      { "start": 53.07, "end": 53.39, "text": "those " },
+      { "start": 53.42, "end": 53.74, "text": "things, " },
+      { "start": 53.74, "end": 53.85, "text": "you " }
+    ],
+    "line": "you cannot see it. Like those things, you "
+  },
+  {
+    "start": 53.85,
+    "end": 56.099999999999994,
+    "words": [
+      { "start": 53.85, "end": 54.179998999999995, "text": "can't " },
+      {
+        "start": 54.179998999999995,
+        "end": 54.539998999999995,
+        "text": "replace "
+      },
+      { "start": 54.539999, "end": 54.649999, "text": "it. " },
+      { "start": 54.65, "end": 54.73, "text": "You " },
+      {
+        "start": 54.730000000000004,
+        "end": 54.980000000000004,
+        "text": "can't "
+      },
+      { "start": 54.99, "end": 55.370000000000005, "text": "replace " },
+      { "start": 55.370000000000005, "end": 55.55, "text": "that " },
+      { "start": 55.58, "end": 56.099999999999994, "text": "immediate " }
+    ],
+    "line": "can't replace it. You can't replace that immediate "
+  },
+  {
+    "start": 56.1,
+    "end": 57.910000000000004,
+    "words": [
+      { "start": 56.1, "end": 56.57, "text": "reaction " },
+      { "start": 56.57, "end": 56.7, "text": "of " },
+      { "start": 56.7, "end": 56.89, "text": "like, " },
+      { "start": 56.91, "end": 57.09, "text": "Oh, " },
+      { "start": 57.09, "end": 57.21, "text": "I " },
+      { "start": 57.21, "end": 57.41, "text": "see " },
+      { "start": 57.41, "end": 57.81, "text": "exactly " },
+      { "start": 57.81, "end": 57.910000000000004, "text": "what's " }
+    ],
+    "line": "reaction of like, Oh, I see exactly what's "
+  },
+  {
+    "start": 57.95,
+    "end": 58.67,
+    "words": [
+      { "start": 57.95, "end": 58.19, "text": "going " },
+      { "start": 58.19, "end": 58.43, "text": "wrong " },
+      { "start": 58.44, "end": 58.67, "text": "here. " }
+    ],
+    "line": "going wrong here. "
+  },
+  {
+    "start": 58.86,
+    "end": 61.160000000000004,
+    "words": [
+      { "start": 58.86, "end": 59.26, "text": "This " },
+      { "start": 59.67, "end": 60.09, "text": "statement " },
+      { "start": 60.1, "end": 60.28, "text": "would " },
+      { "start": 60.29, "end": 60.54, "text": "make " },
+      { "start": 60.54, "end": 60.67, "text": "me " },
+      { "start": 60.67, "end": 60.870000000000005, "text": "sit " },
+      {
+        "start": 60.870000000000005,
+        "end": 60.989999999999995,
+        "text": "here "
+      },
+      { "start": 60.99, "end": 61.160000000000004, "text": "and " }
+    ],
+    "line": "This statement would make me sit here and "
+  },
+  {
+    "start": 61.17,
+    "end": 63.559999999999995,
+    "words": [
+      { "start": 61.17, "end": 61.47, "text": "think " },
+      { "start": 61.75, "end": 62.08, "text": "that's " },
+      { "start": 62.08, "end": 62.239999999999995, "text": "just " },
+      { "start": 62.24, "end": 62.36, "text": "like " },
+      { "start": 62.36, "end": 62.41, "text": "a " },
+      { "start": 62.41, "end": 62.74, "text": "difficult " },
+      { "start": 62.74, "end": 63.22, "text": "question. " },
+      {
+        "start": 63.269999999999996,
+        "end": 63.559999999999995,
+        "text": "That's "
+      }
+    ],
+    "line": "think that's just like a difficult question. That's "
+  },
+  {
+    "start": 63.559999999999995,
+    "end": 66.22999999999999,
+    "words": [
+      { "start": 63.559999999999995, "end": 63.619999, "text": "a " },
+      { "start": 63.62, "end": 63.879999999999995, "text": "good " },
+      { "start": 63.88, "end": 64.46000000000001, "text": "question. " },
+      { "start": 64.889999, "end": 65.079999, "text": "I " },
+      { "start": 65.08, "end": 65.32, "text": "have " },
+      { "start": 65.32, "end": 65.57, "text": "no " },
+      { "start": 65.57, "end": 65.94, "text": "idea. " },
+      { "start": 66.16, "end": 66.22999999999999, "text": "I " }
+    ],
+    "line": "a good question. I have no idea. I "
+  },
+  {
+    "start": 66.23,
+    "end": 69.24999999999999,
+    "words": [
+      { "start": 66.23, "end": 66.5, "text": "think " },
+      { "start": 66.5, "end": 66.76, "text": "that " },
+      { "start": 67.03, "end": 67.48, "text": "biggest " },
+      { "start": 67.48, "end": 68.09, "text": "thing " },
+      { "start": 68.139999, "end": 68.439999, "text": "is " },
+      { "start": 68.48, "end": 68.65, "text": "the " },
+      { "start": 68.65, "end": 69.04, "text": "fact " },
+      { "start": 69.04, "end": 69.24999999999999, "text": "that " }
+    ],
+    "line": "think that biggest thing is the fact that "
+  },
+  {
+    "start": 69.28,
+    "end": 72.41000000000001,
+    "words": [
+      { "start": 69.28, "end": 69.6, "text": "the " },
+      { "start": 69.62, "end": 70.65, "text": "organization " },
+      { "start": 70.85, "end": 70.91, "text": "has " },
+      { "start": 70.91, "end": 71.25, "text": "seen " },
+      { "start": 71.26, "end": 71.34, "text": "the " },
+      { "start": 71.34, "end": 71.74000000000001, "text": "value " },
+      { "start": 71.74000000000001, "end": 71.92999999999999, "text": "of " },
+      { "start": 71.93, "end": 72.41000000000001, "text": "research. " }
+    ],
+    "line": "the organization has seen the value of research. "
+  },
+  {
+    "start": 72.459999,
+    "end": 74.969999,
+    "words": [
+      { "start": 72.459999, "end": 72.629999, "text": "It " },
+      { "start": 72.629999, "end": 72.769999, "text": "is " },
+      { "start": 72.769999, "end": 72.959999, "text": "now " },
+      { "start": 72.959999, "end": 73.469999, "text": "embedded " },
+      { "start": 73.469999, "end": 73.899999, "text": "into " },
+      { "start": 73.959999, "end": 74.109999, "text": "the " },
+      { "start": 74.109999, "end": 74.489999, "text": "actual " },
+      { "start": 74.489999, "end": 74.969999, "text": "process " }
+    ],
+    "line": "It is now embedded into the actual process "
+  },
+  {
+    "start": 74.969999,
+    "end": 76.879999,
+    "words": [
+      { "start": 74.969999, "end": 75.099999, "text": "of " },
+      { "start": 75.099999, "end": 75.249999, "text": "how " },
+      { "start": 75.249999, "end": 75.379999, "text": "we " },
+      { "start": 75.379999, "end": 75.749999, "text": "create " },
+      { "start": 75.759999, "end": 76.19999899999999, "text": "features, " },
+      {
+        "start": 76.19999899999999,
+        "end": 76.33999899999999,
+        "text": "which "
+      },
+      { "start": 76.33999899999999, "end": 76.459999, "text": "it " },
+      { "start": 76.459999, "end": 76.879999, "text": "previously " }
+    ],
+    "line": "of how we create features, which it previously "
+  },
+  {
+    "start": 76.879999,
+    "end": 77.789999,
+    "words": [
+      { "start": 76.879999, "end": 77.299999, "text": "wasn't " },
+      { "start": 77.33999899999999, "end": 77.689999, "text": "engineers " },
+      { "start": 77.689999, "end": 77.789999, "text": "have " }
+    ],
+    "line": "wasn't engineers have "
+  },
+  {
+    "start": 78.11,
+    "end": 80.14,
+    "words": [
+      { "start": 78.11, "end": 78.16, "text": "From " },
+      { "start": 78.25, "end": 78.3, "text": "an " },
+      { "start": 78.3, "end": 78.95, "text": "appreciation " },
+      { "start": 78.96, "end": 79.23, "text": "for " },
+      { "start": 79.23, "end": 79.33, "text": "the " },
+      { "start": 79.33, "end": 79.71, "text": "users " },
+      { "start": 79.74, "end": 79.9, "text": "and " },
+      { "start": 79.9, "end": 80.14, "text": "want " }
+    ],
+    "line": "From an appreciation for the users and want "
+  },
+  {
+    "start": 80.15,
+    "end": 82.75,
+    "words": [
+      { "start": 80.15, "end": 80.41, "text": "to, " },
+      { "start": 80.72, "end": 80.8, "text": "to " },
+      { "start": 80.8, "end": 81.45, "text": "understand " },
+      { "start": 81.63, "end": 81.79, "text": "how " },
+      { "start": 81.79, "end": 81.87, "text": "do " },
+      { "start": 81.87, "end": 82, "text": "we " },
+      { "start": 82, "end": 82.33, "text": "drive " },
+      { "start": 82.34, "end": 82.75, "text": "value " }
+    ],
+    "line": "to, to understand how do we drive value "
+  },
+  {
+    "start": 82.76,
+    "end": 84.13,
+    "words": [
+      { "start": 82.76, "end": 82.89, "text": "for " },
+      { "start": 82.89, "end": 83, "text": "the " },
+      { "start": 83, "end": 83.28, "text": "user? " },
+      { "start": 83.28, "end": 83.37, "text": "How " },
+      { "start": 83.37, "end": 83.45, "text": "do " },
+      { "start": 83.45, "end": 83.55, "text": "we " },
+      { "start": 83.55, "end": 83.78, "text": "drive " },
+      { "start": 83.81, "end": 84.13, "text": "value " }
+    ],
+    "line": "for the user? How do we drive value "
+  },
+  {
+    "start": 84.13,
+    "end": 84.76,
+    "words": [
+      { "start": 84.13, "end": 84.25, "text": "for " },
+      { "start": 84.25, "end": 84.31, "text": "the " },
+      { "start": 84.31, "end": 84.76, "text": "business? " }
+    ],
+    "line": "for the business? "
+  },
+  {
+    "start": 84.81,
+    "end": 86.86,
+    "words": [
+      { "start": 84.81, "end": 84.89999999999999, "text": "I " },
+      {
+        "start": 84.89999999999999,
+        "end": 85.28999999999999,
+        "text": "believe "
+      },
+      { "start": 85.28999999999999, "end": 85.44, "text": "that " },
+      { "start": 85.44, "end": 85.56, "text": "as " },
+      { "start": 85.56, "end": 85.61999999999999, "text": "a " },
+      { "start": 85.61999999999999, "end": 86.23, "text": "company, " },
+      { "start": 86.39, "end": 86.52, "text": "the " },
+      { "start": 86.52, "end": 86.86, "text": "culture " }
+    ],
+    "line": "I believe that as a company, the culture "
+  },
+  {
+    "start": 86.86999999999999,
+    "end": 89.72999999999999,
+    "words": [
+      { "start": 86.86999999999999, "end": 87.13, "text": "has " },
+      { "start": 87.14999999999999, "end": 87.7, "text": "changed " },
+      { "start": 88.03, "end": 88.25, "text": "to " },
+      { "start": 88.25, "end": 88.57, "text": "take " },
+      { "start": 88.57, "end": 89.00999999999999, "text": "in " },
+      { "start": 89.06, "end": 89.2, "text": "the " },
+      { "start": 89.2, "end": 89.61, "text": "stories " },
+      { "start": 89.61, "end": 89.72999999999999, "text": "of " }
+    ],
+    "line": "has changed to take in the stories of "
+  },
+  {
+    "start": 89.72999999999999,
+    "end": 91.99,
+    "words": [
+      { "start": 89.72999999999999, "end": 89.84, "text": "our " },
+      { "start": 89.84, "end": 90.41, "text": "users " },
+      { "start": 90.46, "end": 90.78999999999999, "text": "and " },
+      { "start": 90.81, "end": 91, "text": "what " },
+      { "start": 91, "end": 91.11, "text": "their " },
+      { "start": 91.11, "end": 91.59, "text": "experience " },
+      { "start": 91.59, "end": 91.78, "text": "has " },
+      { "start": 91.78, "end": 91.99, "text": "been " }
+    ],
+    "line": "our users and what their experience has been "
+  },
+  {
+    "start": 91.99,
+    "end": 92.72,
+    "words": [
+      { "start": 91.99, "end": 92.13, "text": "with " },
+      { "start": 92.13, "end": 92.21, "text": "the " },
+      { "start": 92.21, "end": 92.72, "text": "Zebra. " }
+    ],
+    "line": "with the Zebra. "
+  },
+  {
+    "start": 97.71,
+    "end": 101.42999999999999,
+    "words": [
+      { "start": 97.71, "end": 97.75999999999999, "text": "We " },
+      { "start": 97.75999999999999, "end": 97.81, "text": "take " },
+      { "start": 97.86, "end": 97.91, "text": "your " },
+      { "start": 97.91, "end": 98.33, "text": "privacy " },
+      { "start": 98.33, "end": 98.38, "text": "really " },
+      { "start": 98.58999999999999, "end": 99.03, "text": "seriously. " },
+      { "start": 99.19, "end": 99.38, "text": "Like, " },
+      { "start": 101.17, "end": 101.42999999999999, "text": "Oh " }
+    ],
+    "line": "We take your privacy really seriously. Like, Oh "
+  },
+  {
+    "start": 101.42999999999999,
+    "end": 104.32,
+    "words": [
+      { "start": 101.42999999999999, "end": 101.75, "text": "my " },
+      { "start": 101.75, "end": 102.17, "text": "God, " },
+      { "start": 102.19, "end": 102.36, "text": "that's " },
+      { "start": 102.36, "end": 102.44999999999999, "text": "a " },
+      { "start": 102.44999999999999, "end": 102.69, "text": "good " },
+      { "start": 102.69999999999999, "end": 103.08, "text": "quote, " },
+      { "start": 103.41, "end": 104.13, "text": "privacy, " },
+      { "start": 104.13, "end": 104.32, "text": "but " }
+    ],
+    "line": "my God, that's a good quote, privacy, but "
+  },
+  {
+    "start": 104.32,
+    "end": 106.46,
+    "words": [
+      { "start": 104.32, "end": 104.5, "text": "not " },
+      { "start": 104.57, "end": 104.88, "text": "quite " },
+      { "start": 104.88, "end": 104.99, "text": "the " },
+      { "start": 104.99, "end": 105.42, "text": "same. " },
+      {
+        "start": 105.44999999999999,
+        "end": 106.14999999999999,
+        "text": "Yeah. "
+      },
+      { "start": 106.21, "end": 106.28999999999999, "text": "I " },
+      { "start": 106.28999999999999, "end": 106.38, "text": "guess " },
+      { "start": 106.38, "end": 106.46, "text": "we " }
+    ],
+    "line": "not quite the same. Yeah. I guess we "
+  },
+  {
+    "start": 106.46,
+    "end": 107.53999999999999,
+    "words": [
+      { "start": 106.46, "end": 106.55, "text": "can " },
+      { "start": 106.55, "end": 106.72999999999999, "text": "tag " },
+      { "start": 106.72999999999999, "end": 106.8, "text": "it " },
+      { "start": 106.8, "end": 106.91999999999999, "text": "as " },
+      { "start": 106.92, "end": 107.53999999999999, "text": "both. " }
+    ],
+    "line": "can tag it as both. "
+  },
+  {
+    "start": 108.450001,
+    "end": 111.43000099999999,
+    "words": [
+      { "start": 108.450001, "end": 108.85000099999999, "text": "Reduct " },
+      { "start": 108.940001, "end": 109.190001, "text": "has " },
+      { "start": 109.190001, "end": 109.65000099999999, "text": "made " },
+      { "start": 109.68000099999999, "end": 109.810001, "text": "the " },
+      {
+        "start": 109.82000099999999,
+        "end": 110.46000099999999,
+        "text": "barrier "
+      },
+      { "start": 110.480001, "end": 110.610001, "text": "of " },
+      { "start": 110.640001, "end": 111.140001, "text": "entry " },
+      { "start": 111.140001, "end": 111.43000099999999, "text": "to " }
+    ],
+    "line": "Reduct has made the barrier of entry to "
+  },
+  {
+    "start": 111.43000099999999,
+    "end": 113.99000099999999,
+    "words": [
+      {
+        "start": 111.43000099999999,
+        "end": 111.93000099999999,
+        "text": "including "
+      },
+      { "start": 111.940001, "end": 112.310001, "text": "video " },
+      { "start": 112.310001, "end": 112.550001, "text": "into " },
+      { "start": 112.550001, "end": 112.71000099999999, "text": "our " },
+      { "start": 112.71000099999999, "end": 113.160001, "text": "work " },
+      { "start": 113.220001, "end": 113.480001, "text": "very, " },
+      { "start": 113.480001, "end": 113.71000099999999, "text": "very, " },
+      {
+        "start": 113.71000099999999,
+        "end": 113.99000099999999,
+        "text": "very "
+      }
+    ],
+    "line": "including video into our work very, very, very "
+  },
+  {
+    "start": 114.030001,
+    "end": 114.200001,
+    "words": [{ "start": 114.030001, "end": 114.200001, "text": "low, " }],
+    "line": "low, "
+  },
+  {
+    "start": 114.31,
+    "end": 116.69,
+    "words": [
+      { "start": 114.31, "end": 114.71000000000001, "text": "Instead " },
+      { "start": 114.71000000000001, "end": 114.94, "text": "of " },
+      { "start": 114.98, "end": 115.3, "text": "taking " },
+      { "start": 115.34, "end": 115.72, "text": "hours " },
+      { "start": 115.72, "end": 115.85000000000001, "text": "and " },
+      { "start": 115.86, "end": 116.27, "text": "hours " },
+      { "start": 116.27, "end": 116.39, "text": "to " },
+      { "start": 116.39, "end": 116.69, "text": "edit " }
+    ],
+    "line": "Instead of taking hours and hours to edit "
+  },
+  {
+    "start": 116.69,
+    "end": 118.84,
+    "words": [
+      { "start": 116.69, "end": 117.03, "text": "something " },
+      { "start": 117.03, "end": 117.48, "text": "together. " },
+      { "start": 117.48, "end": 117.72, "text": "And " },
+      { "start": 117.73, "end": 117.9, "text": "I " },
+      { "start": 117.9, "end": 118.32000000000001, "text": "movie " },
+      { "start": 118.37, "end": 118.58, "text": "doing " },
+      { "start": 118.58, "end": 118.7, "text": "it " },
+      { "start": 118.7, "end": 118.84, "text": "in " }
+    ],
+    "line": "something together. And I movie doing it in "
+  },
+  {
+    "start": 118.84,
+    "end": 120.92,
+    "words": [
+      { "start": 118.84, "end": 119.26, "text": "Reduct " },
+      { "start": 119.27, "end": 119.56, "text": "is " },
+      { "start": 119.60000000000001, "end": 119.84, "text": "like " },
+      { "start": 119.84, "end": 119.9, "text": "a " },
+      { "start": 119.9, "end": 120.33, "text": "fraction " },
+      { "start": 120.33, "end": 120.46000000000001, "text": "of " },
+      { "start": 120.46000000000001, "end": 120.53, "text": "the " },
+      { "start": 120.53, "end": 120.92, "text": "time. " }
+    ],
+    "line": "Reduct is like a fraction of the time. "
+  },
+  {
+    "start": 121.11,
+    "end": 123.60000000000001,
+    "words": [
+      { "start": 121.11, "end": 121.32000000000001, "text": "As " },
+      { "start": 121.32000000000001, "end": 121.47, "text": "I'm " },
+      { "start": 121.47, "end": 122.06, "text": "doing " },
+      { "start": 122.16, "end": 122.72, "text": "studies, " },
+      { "start": 122.72, "end": 122.85000000000001, "text": "I'm " },
+      { "start": 122.85000000000001, "end": 123.04, "text": "able " },
+      { "start": 123.04, "end": 123.13, "text": "to " },
+      { "start": 123.13, "end": 123.60000000000001, "text": "quickly " }
+    ],
+    "line": "As I'm doing studies, I'm able to quickly "
+  },
+  {
+    "start": 123.60000000000001,
+    "end": 126.039999,
+    "words": [
+      { "start": 123.60000000000001, "end": 124.09, "text": "analyze " },
+      { "start": 124.1, "end": 124.52, "text": "things " },
+      { "start": 124.55, "end": 124.98, "text": "and " },
+      { "start": 124.989999, "end": 125.379999, "text": "load " },
+      { "start": 125.38, "end": 125.43, "text": "a " },
+      { "start": 125.43, "end": 125.63, "text": "lot " },
+      { "start": 125.63, "end": 125.7, "text": "of " },
+      { "start": 125.7, "end": 126.039999, "text": "clips " }
+    ],
+    "line": "analyze things and load a lot of clips "
+  },
+  {
+    "start": 126.04,
+    "end": 129.209999,
+    "words": [
+      { "start": 126.04, "end": 126.44, "text": "into " },
+      { "start": 126.47, "end": 127.04, "text": "my " },
+      { "start": 127.159999, "end": 127.859999, "text": "reports " },
+      { "start": 127.9, "end": 128.14, "text": "that " },
+      { "start": 128.159999, "end": 128.399999, "text": "help " },
+      { "start": 128.4, "end": 128.66, "text": "drive " },
+      { "start": 128.66, "end": 128.909999, "text": "home " },
+      { "start": 128.909999, "end": 129.209999, "text": "certain " }
+    ],
+    "line": "into my reports that help drive home certain "
+  },
+  {
+    "start": 129.21,
+    "end": 129.74,
+    "words": [{ "start": 129.21, "end": 129.74, "text": "points. " }],
+    "line": "points. "
+  },
+  {
+    "start": 129.869999,
+    "end": 133.249999,
+    "words": [
+      { "start": 129.869999, "end": 130.089999, "text": "It's " },
+      { "start": 130.129999, "end": 130.519999, "text": "very " },
+      { "start": 130.519999, "end": 130.88999900000002, "text": "easy " },
+      { "start": 130.88999900000002, "end": 131.319999, "text": "to " },
+      { "start": 131.35999900000002, "end": 131.749999, "text": "search " },
+      { "start": 131.749999, "end": 132.099999, "text": "for " },
+      { "start": 132.10999900000002, "end": 132.509999, "text": "specific " },
+      { "start": 132.509999, "end": 133.249999, "text": "keywords " }
+    ],
+    "line": "It's very easy to search for specific keywords "
+  },
+  {
+    "start": 133.38999900000002,
+    "end": 135.519999,
+    "words": [
+      { "start": 133.38999900000002, "end": 133.749999, "text": "within " },
+      { "start": 133.749999, "end": 133.849999, "text": "the " },
+      { "start": 133.849999, "end": 134.399999, "text": "transcript " },
+      { "start": 134.399999, "end": 134.88999900000002, "text": "itself. " },
+      { "start": 134.999999, "end": 135.099999, "text": "I " },
+      { "start": 135.099999, "end": 135.239999, "text": "don't " },
+      { "start": 135.249999, "end": 135.399999, "text": "have " },
+      { "start": 135.399999, "end": 135.519999, "text": "to " }
+    ],
+    "line": "within the transcript itself. I don't have to "
+  },
+  {
+    "start": 135.519999,
+    "end": 137.69999900000002,
+    "words": [
+      { "start": 135.519999, "end": 135.85999900000002, "text": "watch " },
+      {
+        "start": 135.85999900000002,
+        "end": 135.97999900000002,
+        "text": "the "
+      },
+      { "start": 135.97999900000002, "end": 136.299999, "text": "whole " },
+      { "start": 136.309999, "end": 136.709999, "text": "interview " },
+      { "start": 136.719999, "end": 136.959999, "text": "back " },
+      { "start": 136.959999, "end": 137.179999, "text": "over " },
+      { "start": 137.179999, "end": 137.519999, "text": "again, " },
+      { "start": 137.519999, "end": 137.69999900000002, "text": "which " }
+    ],
+    "line": "watch the whole interview back over again, which "
+  },
+  {
+    "start": 137.69999900000002,
+    "end": 140.13999900000002,
+    "words": [
+      { "start": 137.69999900000002, "end": 137.899999, "text": "is " },
+      { "start": 137.929998, "end": 138.619998, "text": "incredible. " },
+      { "start": 138.63999900000002, "end": 138.849999, "text": "We " },
+      { "start": 138.849999, "end": 139.309999, "text": "decreased " },
+      { "start": 139.309999, "end": 139.399999, "text": "the " },
+      { "start": 139.399999, "end": 139.63999900000002, "text": "time " },
+      { "start": 139.63999900000002, "end": 139.789999, "text": "it " },
+      { "start": 139.789999, "end": 140.13999900000002, "text": "took " }
+    ],
+    "line": "is incredible. We decreased the time it took "
+  },
+  {
+    "start": 140.19999900000002,
+    "end": 142.689999,
+    "words": [
+      { "start": 140.19999900000002, "end": 140.549999, "text": "to " },
+      { "start": 140.57999900000002, "end": 140.719999, "text": "get " },
+      { "start": 140.719999, "end": 140.85999800000002, "text": "our " },
+      {
+        "start": 140.85999900000002,
+        "end": 141.19999900000002,
+        "text": "studies "
+      },
+      { "start": 141.19999900000002, "end": 141.529999, "text": "done " },
+      { "start": 141.529999, "end": 141.91999900000002, "text": "by, " },
+      { "start": 142.349999, "end": 142.539999, "text": "I " },
+      { "start": 142.539999, "end": 142.689999, "text": "would " }
+    ],
+    "line": "to get our studies done by, I would "
+  },
+  {
+    "start": 142.689999,
+    "end": 144.489999,
+    "words": [
+      { "start": 142.689999, "end": 142.88999900000002, "text": "say " },
+      { "start": 142.88999900000002, "end": 143.019999, "text": "at " },
+      { "start": 143.019999, "end": 143.269999, "text": "least " },
+      { "start": 143.269999, "end": 143.509999, "text": "three " },
+      { "start": 143.509999, "end": 143.57999800000002, "text": "or " },
+      { "start": 143.57999900000002, "end": 143.819999, "text": "four " },
+      { "start": 143.819999, "end": 144.149999, "text": "working " },
+      { "start": 144.149999, "end": 144.489999, "text": "days. " }
+    ],
+    "line": "say at least three or four working days. "
+  },
+  {
+    "start": 144.559999,
+    "end": 146.909999,
+    "words": [
+      { "start": 144.559999, "end": 144.899999, "text": "Now " },
+      { "start": 144.899999, "end": 145.349999, "text": "video " },
+      { "start": 145.349999, "end": 145.60999900000002, "text": "is " },
+      { "start": 145.63999900000002, "end": 146.489999, "text": "100%. " },
+      { "start": 146.499998, "end": 146.559998, "text": "If " },
+      { "start": 146.569998, "end": 146.66999800000002, "text": "you " },
+      {
+        "start": 146.66999800000002,
+        "end": 146.79999800000002,
+        "text": "don't "
+      },
+      { "start": 146.799999, "end": 146.909999, "text": "have " }
+    ],
+    "line": "Now video is 100%. If you don't have "
+  },
+  {
+    "start": 146.909999,
+    "end": 148.659999,
+    "words": [
+      { "start": 146.909999, "end": 147.179998, "text": "video " },
+      { "start": 147.179998, "end": 147.29999800000002, "text": "as " },
+      { "start": 147.299999, "end": 147.439999, "text": "part " },
+      { "start": 147.439999, "end": 147.519999, "text": "of " },
+      { "start": 147.519999, "end": 147.60999900000002, "text": "your " },
+      { "start": 147.60999900000002, "end": 147.939999, "text": "findings " },
+      {
+        "start": 147.939999,
+        "end": 148.53999900000002,
+        "text": "presentations, "
+      },
+      { "start": 148.53999900000002, "end": 148.659999, "text": "that's " }
+    ],
+    "line": "video as part of your findings presentations, that's "
+  },
+  {
+    "start": 148.659999,
+    "end": 150.699999,
+    "words": [
+      { "start": 148.659999, "end": 148.709999, "text": "a " },
+      { "start": 148.709999, "end": 149.249999, "text": "problem " },
+      { "start": 149.459999, "end": 149.60999900000002, "text": "as " },
+      { "start": 149.60999900000002, "end": 149.679999, "text": "a " },
+      { "start": 149.679999, "end": 150.149999, "text": "researcher " },
+      { "start": 150.149999, "end": 150.399999, "text": "because " },
+      { "start": 150.399999, "end": 150.549999, "text": "there's " },
+      { "start": 150.549999, "end": 150.699999, "text": "just " }
+    ],
+    "line": "a problem as a researcher because there's just "
+  },
+  {
+    "start": 150.699999,
+    "end": 150.91999900000002,
+    "words": [
+      { "start": 150.699999, "end": 150.869999, "text": "no " },
+      { "start": 150.869999, "end": 150.91999900000002, "text": "excuse, " }
+    ],
+    "line": "no excuse, "
+  },
+  {
+    "start": 151.5,
+    "end": 153.65,
+    "words": [
+      { "start": 151.5, "end": 151.55, "text": "It's " },
+      { "start": 151.55, "end": 151.89, "text": "truly " },
+      { "start": 151.89, "end": 152.12, "text": "more " },
+      { "start": 152.12, "end": 152.83, "text": "embedded " },
+      { "start": 153.12, "end": 153.28, "text": "in " },
+      { "start": 153.28, "end": 153.37, "text": "the " },
+      { "start": 153.37, "end": 153.51, "text": "way " },
+      { "start": 153.51, "end": 153.65, "text": "we're " }
+    ],
+    "line": "It's truly more embedded in the way we're "
+  },
+  {
+    "start": 153.65,
+    "end": 154.83,
+    "words": [
+      { "start": 153.65, "end": 153.9, "text": "thinking " },
+      { "start": 153.91, "end": 154.15, "text": "about " },
+      { "start": 154.15, "end": 154.39, "text": "doing " },
+      { "start": 154.4, "end": 154.83, "text": "everything.  " }
+    ],
+    "line": "thinking about doing everything.  "
+  },
+  {
+    "start": 154.96,
+    "end": 156.67000000000002,
+    "words": [
+      { "start": 154.96, "end": 155.11, "text": "They " },
+      { "start": 155.19, "end": 155.28, "text": "say " },
+      { "start": 155.28, "end": 155.33, "text": "a " },
+      { "start": 155.33, "end": 155.68, "text": "picture's " },
+      { "start": 155.68, "end": 155.88, "text": "worth " },
+      { "start": 155.88, "end": 155.93, "text": "a " },
+      { "start": 155.93, "end": 156.27, "text": "thousand " },
+      { "start": 156.27, "end": 156.67000000000002, "text": "words, " }
+    ],
+    "line": "They say a picture's worth a thousand words, "
+  },
+  {
+    "start": 156.72,
+    "end": 158.04000000000002,
+    "words": [
+      { "start": 156.72, "end": 156.81, "text": "a " },
+      { "start": 156.81, "end": 157.09, "text": "video " },
+      { "start": 157.09, "end": 157.25, "text": "must " },
+      { "start": 157.25, "end": 157.37, "text": "be " },
+      { "start": 157.37, "end": 157.61, "text": "worth " },
+      { "start": 157.62, "end": 157.70000000000002, "text": "a " },
+      {
+        "start": 157.70000000000002,
+        "end": 158.04000000000002,
+        "text": "million. "
+      }
+    ],
+    "line": "a video must be worth a million. "
+  }
+]

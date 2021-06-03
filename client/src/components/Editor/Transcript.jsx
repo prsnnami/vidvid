@@ -2,7 +2,7 @@ import { Button } from '@chakra-ui/button';
 import { Box, Flex, Heading, Text } from '@chakra-ui/layout';
 import { Spinner } from '@chakra-ui/spinner';
 import React, { useEffect, useRef, useState } from 'react';
-import { debounce } from '../../utils';
+import { debounce, getTimeStamp } from '../../utils';
 import { useDebouncedCallback } from '../../utils/useDebouncedCallback';
 
 function scrollToContent(element, container, offsetValue = 0) {
@@ -15,13 +15,6 @@ function scrollToContent(element, container, offsetValue = 0) {
       container.scrollTop = offsetBottom - container.offsetHeight + offsetValue;
     }
   }
-}
-
-function getTimeStamp(start) {
-  const startValue = Math.floor(start);
-  let minute = Math.floor(startValue / 60);
-  let seconds = startValue % 60;
-  return `${('00' + minute).substr(-2)}:${('00' + seconds).substr(-2)}`;
 }
 
 export default function Transctipt({
