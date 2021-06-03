@@ -121,7 +121,7 @@ const Video = React.forwardRef(
               s.start < videoRef.current.currentTime &&
               s.end > videoRef.current.currentTime
             ) {
-              let lines = getWrapLines(ctx, s.line, canvasSize.width * 0.8);
+              let lines = getWrapLines(ctx, s.text, canvasSize.width * 0.8);
               lines.reverse().forEach((line, i) => {
                 ctx.strokeText(
                   line,

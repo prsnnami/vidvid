@@ -18,6 +18,7 @@ import { useNavigate, useParams } from 'react-router';
 import Transctipt from '../components/Editor/Transcript';
 import Video from '../components/Editor/Video';
 import { getSubtitle, loadTranscript } from '../utils';
+import Test from './Test';
 
 export default function Editor() {
   const { sharePath } = useParams();
@@ -92,7 +93,7 @@ export default function Editor() {
           <Box flex="1" overflowY="auto" ref={transcriptContainerRef}>
             <Heading px={4}>Transcript</Heading>
             <Box p={4} flex={1}>
-              <Transctipt
+              {/* <Transctipt
                 tx={transcript}
                 subtitle={subtitle}
                 transcriptContainerRef={transcriptContainerRef}
@@ -100,7 +101,16 @@ export default function Editor() {
                 onEdit={edit => {
                   setSubtitle(edit);
                 }}
-              />
+              /> */}
+              {subtitle && (
+                <Test
+                  video={videoRef.current}
+                  subtitle={subtitle}
+                  onEdit={edit => {
+                    setSubtitle(edit);
+                  }}
+                />
+              )}
             </Box>
           </Box>
           <Box id="video" flex="1" bg="gray.200" h="100%" overflowY="auto">

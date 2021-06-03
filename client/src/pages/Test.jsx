@@ -1,28 +1,36 @@
 // @refresh reset
 import { Button } from '@chakra-ui/button';
+import { Flex } from '@chakra-ui/layout';
 import { Box, Text as ChakraText } from '@chakra-ui/layout';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { createEditor, Editor, Text, Transforms } from 'slate';
+import { Spinner } from '@chakra-ui/spinner';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { createEditor, Editor, Node, Text, Transforms } from 'slate';
 
 import { Slate, Editable, withReact } from 'slate-react';
-import subtitle from '../subtitle.json';
+// import subtitle from '../subtitle.json';
 import {
   getTimeStamp,
   getSelectionNodes,
   handleSplitLine,
   handleMergeLine,
+  handleUpDownTraversal,
 } from '../utils';
-
-function Span(props) {
-  return <div {...props.attributes}>{props.children}</div>;
-}
 
 function isSameBlock(anchorPath, focusPath) {
   return anchorPath[0] === focusPath[0];
 }
 
-export default function Test() {
+export default function Test({ subtitle, onEdit, video }) {
   const editor = useMemo(() => withReact(createEditor()), []);
+  const refs = useRef({});
+
+  const [currentTime, setCurrentTime] = useState(0);
   const [value, setValue] = useState(
     subtitle.map(i => ({
       type: 'paragraph',
@@ -40,6 +48,45 @@ export default function Test() {
   useEffect(() => {
     window.editor = editor;
   }, []);
+
+  function handleTimeUpdated(e) {
+    // setCurrentTime(e.target.currentTime);
+    Object.values(refs.current).forEach(word => {
+      if (word.ref.current) {
+        word.ref.current.style.color = 'inherit';
+        word.ref.current.style['-webkit-text-stroke-width'] = 'inherit';
+
+        if (
+          word.end > e.target.currentTime &&
+          word.start < e.target.currentTime
+        ) {
+          word.ref.current.style.color = 'blue';
+          word.ref.current.style['-webkit-text-stroke-width'] = 'thin';
+        }
+      }
+    });
+  }
+
+  useEffect(() => {
+    // Update the document title using the browser API
+    if (video) {
+      // setDuration(mediaRef.current.duration);
+      video.addEventListener('timeupdate', handleTimeUpdated);
+    }
+    return function cleanup() {
+      // removeEventListener
+      video.removeEventListener('timeupdate', handleTimeUpdated);
+    };
+  }, [video]);
+
+  function serialize() {
+    return value.map(n => ({
+      start: n.line.start,
+      end: n.line.end,
+      text: Node.string(n),
+      words: n.line.words,
+    }));
+  }
 
   // Define a rendering function based on the element passed to `props`. We use
   // `useCallback` here to memoize the function for subsequent renders.
@@ -61,14 +108,7 @@ export default function Test() {
   const renderLeaf = useCallback(props => {
     // console.log(children);
     return (
-      <span
-        {...props.attributes}
-        className="test"
-        style={{
-          fontWeight: props.leaf.bold ? 'bold' : 'normal',
-          fontStyle: props.leaf.italic ? 'italic' : 'normal',
-        }}
-      >
+      <span {...props.attributes} className="test">
         {props.children}
       </span>
     );
@@ -84,11 +124,30 @@ export default function Test() {
         display="flex"
         {...props.attributes}
       >
-        {props.children}
+        <Flex flexWrap="wrap">{props.children}</Flex>
         {/* {props.words.map(word => (
         <span key={word.start}>{word.word}</span>
       ))} */}
       </Box>
+    );
+  }
+
+  function Span(props) {
+    let word = props.element.word;
+    useEffect(() => {
+      refs.current[props.children[0].key] = {
+        ref: props.attributes.ref,
+        ...word,
+      };
+    }, []);
+
+    return (
+      <div
+        onClick={() => (video.currentTime = word.start)}
+        {...props.attributes}
+      >
+        {props.children}
+      </div>
     );
   }
 
@@ -108,11 +167,15 @@ export default function Test() {
   // }, []);
 
   return (
-    <Box border="2px solid black" m="4">
+    <Box>
+      <Button onClick={() => console.log(refs)}>Log</Button>
       <Slate
         editor={editor}
         value={value}
-        onChange={newValue => setValue(newValue)}
+        onChange={newValue => {
+          setValue(newValue);
+          onEdit(serialize(newValue));
+        }}
       >
         <Editable
           renderElement={renderElement}
@@ -123,8 +186,11 @@ export default function Test() {
               handleSplitLine(editor);
             }
             if (event.key === 'Backspace') {
-              console.log('Backspave');
               handleMergeLine(editor, event);
+            }
+            if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+              event.preventDefault();
+              handleUpDownTraversal(editor, event.key);
             }
 
             //TODO: Manage inline nodes arrow traversal

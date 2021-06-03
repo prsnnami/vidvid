@@ -1,4 +1,5 @@
-import { Editor, Transforms } from 'slate';
+import { findByLabelText } from '@testing-library/dom';
+import { Editor, Node, Transforms } from 'slate';
 
 export function drawScaledImage(ctx, image, cs, is) {
   ctx.clearRect(0, 0, cs.width, cs.height);
@@ -60,8 +61,8 @@ export function getSubtitle(transcript) {
       return {
         start: chunk[0].start,
         end: chunk[chunk.length - 1].end,
-        words: chunk,
-        line: chunk.map(line => line.word).join(''),
+        words: chunk.map(word => ({ ...word, text: word.word })),
+        text: chunk.map(line => line.word).join(''),
       };
     });
     lines.push(...segmentChunks);
@@ -252,7 +253,7 @@ export function handleMergeLine(editor, event) {
       line: {
         start: previousLineNode.line.start,
         end: lineNode.line.end,
-        line: previousLineNode.line.line + lineNode.line.line,
+        line: previousLineNode.line.text + lineNode.line.text,
         words: [...previousLineNode.line.words, ...lineNode.line.words],
       },
     };
@@ -296,11 +297,69 @@ export function handleMergeLine(editor, event) {
             .children[0].text.length,
       },
     });
-
-    const wordNode = lineNode.children[wordIdx];
-    const word = wordNode.word;
-
-    // debugger;
-    console.log('merge');
   }
+}
+
+export function handleUpDownTraversal(editor, key) {
+  const { anchor, focus } = editor.selection;
+  const { offset: anchorOffset, path: anchorPath } = anchor;
+  const { offset: focusOffset } = focus;
+
+  if (focusOffset !== anchorOffset) return false;
+
+  const [lineIdx, wordIdx] = anchorPath;
+
+  const offset = getOffset(editor, lineIdx, wordIdx, anchorOffset);
+
+  let nextLine;
+  if (key === 'ArrowUp') nextLine = lineIdx - 1;
+  if (key === 'ArrowDown') nextLine = lineIdx + 1;
+
+  const point = getPointFromOffset(editor, nextLine, offset);
+
+  Transforms.setSelection(editor, {
+    anchor: point,
+    focus: point,
+  });
+}
+
+function getPointFromOffset(editor, lineIdx, totalOffset) {
+  let items = editor.children[lineIdx].children;
+
+  const fulltext = Node.string(editor.children[lineIdx]);
+  if (totalOffset >= fulltext.length) {
+    return {
+      path: [lineIdx, items.length - 1, 0],
+      offset: Node.string(items[items.length - 1]).length,
+    };
+  }
+
+  let path = [lineIdx, 0, 0];
+  let offset = totalOffset;
+  for (let i = 0; i < items.length; i++) {
+    let str = Node.string(items[i]);
+    if (offset < str.length) {
+      path[1] = i;
+      break;
+    }
+    offset -= str.length;
+  }
+
+  return {
+    path,
+    offset,
+  };
+}
+
+function getOffset(editor, lineIdx, wordIdx, anchorOffset) {
+  const text = editor.children[lineIdx].children.reduce((acc, curr, idx) => {
+    if (idx < wordIdx) acc = acc + curr.children[0].text;
+    if (idx === wordIdx) {
+      if (anchorOffset !== 0) {
+        acc = acc + curr.children[0].text.slice(0, anchorOffset);
+      }
+    }
+    return acc;
+  }, '');
+  return text.length;
 }
