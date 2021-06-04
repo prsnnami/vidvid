@@ -54,9 +54,6 @@ const Video = React.forwardRef(
         streaming: { bufferingGoal: 5, rebufferingGoal: 3 },
       });
       vid.onVideoRender?.();
-      // vid.oncanplay = function (e) {
-      //   console.log('can play', this);
-      // };
 
       vid.onloadeddata = function (e) {
         console.log('loadedData');
@@ -115,11 +112,12 @@ const Video = React.forwardRef(
           ctx.textAlign = 'center';
           ctx.lineWidth = 4;
           ctx.miterLimit = 2;
-
+          let textRender = false;
           subtitle.forEach(s => {
             if (
               s.start < videoRef.current.currentTime &&
-              s.end > videoRef.current.currentTime
+              s.end > videoRef.current.currentTime &&
+              !textRender
             ) {
               let lines = getWrapLines(ctx, s.text, canvasSize.width * 0.8);
               lines.reverse().forEach((line, i) => {
@@ -134,6 +132,7 @@ const Video = React.forwardRef(
                   canvasSize.height - canvasSize.height * 0.1 - i * 24
                 );
               });
+              textRender = true;
             }
           });
         }

@@ -157,6 +157,7 @@ export function handleSplitLine(editor) {
   const lineNode = editor.children[lineIdx];
   const wordNode = lineNode.children[wordIdx];
   const word = wordNode.word;
+  const wordText = Node.string(wordNode);
   if (wordIdx === 0 && anchorOffset === 0) {
     console.info('Beginning of line');
     return false;
@@ -169,7 +170,7 @@ export function handleSplitLine(editor) {
     return false;
   }
 
-  const [textBefore, textAfter] = splitTextAtOffset(word.text, anchorOffset);
+  const [textBefore, textAfter] = splitTextAtOffset(wordText, anchorOffset);
   if (textAfter.trim() === '' && wordIdx === lineNode.children.length - 1) {
     console.info('Empty Line Skip');
     return false;

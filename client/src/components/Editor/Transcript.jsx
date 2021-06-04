@@ -1,275 +1,278 @@
-import { Button } from '@chakra-ui/button';
-import { Box, Flex, Heading, Text } from '@chakra-ui/layout';
-import { Spinner } from '@chakra-ui/spinner';
-import React, { useEffect, useRef, useState } from 'react';
-import { debounce, getTimeStamp } from '../../utils';
-import { useDebouncedCallback } from '../../utils/useDebouncedCallback';
+// @refresh reset
+import { Box, Flex } from '@chakra-ui/layout';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { createEditor, Editor, Node, Text, Transforms } from 'slate';
+import { Editable, Slate, withReact } from 'slate-react';
+// import subtitle from '../subtitle.json';
+import {
+  getTimeStamp,
+  handleMergeLine,
+  handleSplitLine,
+  handleUpDownTraversal,
+} from '../../utils';
 
-function scrollToContent(element, container, offsetValue = 0) {
-  // container.scrollTop = element.offsetTop - offsetValue;
-  if (!container) return;
-  if (element.offsetTop > container.scrollTop) {
-    const offsetBottom = element.offsetTop + element.offsetHeight;
-    const scrollBottom = container.scrollTop + container.offsetHeight / 2;
-    if (offsetBottom > scrollBottom) {
-      container.scrollTop = offsetBottom - container.offsetHeight + offsetValue;
-    }
-  }
-}
+export default function Transcript({ subtitle, onEdit, video }) {
+  const editor = useMemo(() => withReact(createEditor()), []);
+  const refs = useRef({});
 
-export default function Transctipt({
-  tx: transcript,
-  subtitle: st,
-  video,
-  onEdit,
-  transcribeContainerRef,
-}) {
-  const [subtitle, setSubtitle] = useState(st);
-  useEffect(() => setSubtitle(st), [st]);
-
-  function editSubtitle(line, chunkIdx) {
-    setSubtitle(subtitle => {
-      let edit = [...subtitle];
-      edit[chunkIdx].line = line.split('\n')[0];
-      return edit;
-    });
-  }
-
-  useEffect(() => {
-    if (subtitle) {
-      onEdit(subtitle);
-    }
-  }, [subtitle, onEdit]);
-
-  const handleSubtitleEdit = useDebouncedCallback(
-    (line, chunkIdx) => editSubtitle(line, chunkIdx),
-    400
+  const [value, setValue] = useState(
+    subtitle.map(i => ({
+      type: 'paragraph',
+      line: i,
+      inline: true,
+      // children: [{ text: i.line, words: i.words }],
+      children: i.words.map(word => ({
+        type: 'span',
+        word: word,
+        children: [{ text: word.text }],
+      })),
+    }))
   );
 
-  function handleOnEnter(e, chunkIdx) {
-    e.preventDefault();
+  useEffect(() => {
+    window.editor = editor;
+  }, []);
 
-    let newText = e.target.innerText.split('\n')[0];
+  function handleTimeUpdated(e) {
+    // setCurrentTime(e.target.currentTime);
+    Object.values(refs.current).forEach(word => {
+      if (word.ref.current) {
+        word.ref.current.style.color = 'inherit';
+        word.ref.current.style['-webkit-text-stroke-width'] = 'inherit';
 
-    const wordSpans = e.target.lastChild.children;
-    let words = Array.from(wordSpans).map(
-      span => subtitle[chunkIdx].words[span.dataset.wordidx]
-    );
-    let chunk = {
-      line: words.map(i => i.word).join(''),
-      start: words[0].start,
-      end: words[words.length - 1].end,
-      words: words,
-    };
-
-    let editSubtitle = [...subtitle];
-    editSubtitle.splice(chunkIdx + 1, 0, chunk);
-
-    editSubtitle[chunkIdx].line = newText;
-    editSubtitle[chunkIdx].end = words[0].start;
-    editSubtitle[chunkIdx].words = editSubtitle[chunkIdx].words.map(
-      (i, idx) => {
-        if (idx >= wordSpans[0].dataset.wordidx) {
-          return {
-            ...i,
-            hidden: true,
-          };
+        if (
+          word.end > e.target.currentTime &&
+          word.start < e.target.currentTime
+        ) {
+          word.ref.current.style.color = 'blue';
+          word.ref.current.style['-webkit-text-stroke-width'] = 'thin';
         }
-        return i;
       }
-    );
-
-    setSubtitle(editSubtitle);
-  }
-
-  function handleBackspace(e, chunkIdx) {
-    let editSubtitle = [...subtitle];
-    if (chunkIdx === 0) return;
-    let curr = editSubtitle[chunkIdx];
-    let prev = editSubtitle[chunkIdx - 1];
-    prev.end = curr.end;
-    prev.line = prev.line + curr.line;
-    prev.words = [...prev.words, ...curr.words];
-
-    editSubtitle = editSubtitle.filter((i, idx) => idx !== chunkIdx);
-    setSubtitle(editSubtitle);
-  }
-
-  // const [transcript, setTranscript] = useState(tx);
-  // const transcribeContainerRef = useRef();
-  function onTimeUpdate() {
-    const t = video.currentTime;
-
-    let found = false;
-    transcript.segments.forEach(seg => {
-      seg.wdlist.forEach(({ wordRef }) => {
-        if (wordRef) wordRef.style.background = 'transparent';
-      });
-
-      if (seg.end < t) {
-        return;
-      }
-      if (found) {
-        return;
-      }
-
-      seg.wdlist.forEach(({ wordRef, end }) => {
-        if (found) {
-          return;
-        }
-        if (!wordRef) {
-          return;
-        }
-
-        if (end - 0.1 > t) {
-          wordRef.style.backgroundColor = 'rgba(251, 232, 177, 0.8)';
-          wordRef.style.borderRadius = '5px';
-          wordRef.style.transitionProperty = 'left, top, width, height';
-          wordRef.style.transitionDuration = '0.1s';
-
-          scrollToContent(wordRef, transcribeContainerRef?.current, 24);
-
-          found = true;
-        }
-      });
     });
   }
 
   useEffect(() => {
-    if (transcript && video) {
-      video.addEventListener('timeupdate', onTimeUpdate, false);
-      return () => {
-        video.removeEventListener('timeupdate', onTimeUpdate, false);
-      };
+    // Update the document title using the browser API
+    if (video) {
+      // setDuration(mediaRef.current.duration);
+      video.addEventListener('timeupdate', handleTimeUpdated);
     }
-  }, [transcript, video]);
+    return function cleanup() {
+      // removeEventListener
+      video.removeEventListener('timeupdate', handleTimeUpdated);
+    };
+  }, [video]);
 
-  if (!transcript || !subtitle)
+  function serialize(value) {
+    return value.map(n => ({
+      start: n.line.start,
+      end: n.line.end,
+      text: Node.string(n),
+      words: n.line.words,
+    }));
+  }
+
+  // Define a rendering function based on the element passed to `props`. We use
+  // `useCallback` here to memoize the function for subsequent renders.
+  const renderElement = useCallback(props => {
+    switch (props.element.type) {
+      case 'code':
+        return <CodeElement {...props} />;
+      case 'quote':
+        return <blockquote {...props.attributes}>{props.children}</blockquote>;
+      case 'span':
+        return <Span {...props} />;
+      case 'paragraph':
+        return <Paragraph {...props} />;
+      default:
+        return <DefaultElement {...props} />;
+    }
+  }, []);
+
+  const renderLeaf = useCallback(props => {
     return (
-      <Flex justifyContent="center" alignItems="center" h="300px">
-        <Spinner />
-      </Flex>
+      <span {...props.attributes} className="test">
+        {props.children}
+      </span>
     );
+  }, []);
+
+  function Paragraph(props) {
+    return (
+      <Box
+        _before={{
+          content: `"${getTimeStamp(props.element.line.start)}"`,
+          paddingX: 4,
+        }}
+        display="flex"
+        fontSize="16"
+        py="1.5"
+        {...props.attributes}
+      >
+        <Flex flexWrap="wrap">{props.children}</Flex>
+      </Box>
+    );
+  }
+
+  function Span(props) {
+    let word = props.element.word;
+    useEffect(() => {
+      refs.current[props.children[0].key] = {
+        ref: props.attributes.ref,
+        ...word,
+      };
+    }, []);
+
+    return (
+      <div
+        onClick={() => (video.currentTime = word.start)}
+        {...props.attributes}
+      >
+        {props.children}
+      </div>
+    );
+  }
 
   return (
     <Box>
-      {subtitle.map((chunk, chunkIdx) => (
-        <Flex
-          px="4"
-          py="2"
-          fontSize="18"
-          alignItems="baseline"
-          key={chunkIdx}
-          onClick={() => {
-            video.currentTime = chunk.words[0].start;
+      <Slate
+        editor={editor}
+        value={value}
+        onChange={newValue => {
+          setValue(newValue);
+          onEdit(serialize(newValue));
+        }}
+      >
+        <Editable
+          renderElement={renderElement}
+          renderLeaf={renderLeaf}
+          onKeyDown={event => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              handleSplitLine(editor);
+            }
+            if (event.key === 'Backspace') {
+              handleMergeLine(editor, event);
+            }
+            if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+              event.preventDefault();
+              handleUpDownTraversal(editor, event.key);
+            }
+
+            //TODO: Manage inline nodes arrow traversal
+            // if (isSameBlock(anchorPath, focusPath)) {
+            //   if (event.key === 'ArrowRight') {
+            //     if (
+            //       editor.children[editor.selection.anchor.path[0]].children[
+            //         editor.selection.anchor.path[1]
+            //       ].word.word.length === editor.selection.anchor.offset
+            //     ) {
+            //       Transforms.move(editor, { distance: 1, unit: 'character' });
+            //     }
+            //   }
+            //   if (event.key === 'ArrowLeft') {
+            //     if (editor.selection.anchor.offset === 0) {
+            //       console.log('gere');
+            //       Transforms.move(editor, {
+            //         distance: 1,
+            //         unit: 'character',
+            //         reverse: true,
+            //       });
+            //     }
+            //   }
+            // }
+
+            if (!event.ctrlKey) {
+              return;
+            }
+
+            // Replace the `onKeyDown` logic with our new commands.
+            switch (event.key) {
+              case '`': {
+                event.preventDefault();
+                CustomEditor.toggleCodeBlock(editor);
+                break;
+              }
+
+              case 'b': {
+                event.preventDefault();
+                CustomEditor.toggleBoldMark(editor);
+                break;
+              }
+
+              default:
+                break;
+            }
           }}
-        >
-          <Box pr="4" fontSize="sm">
-            {getTimeStamp(chunk.start)}
-          </Box>
-          <Box
-          // contentEditable
-          // suppressContentEditableWarning
-          >
-            <Box
-              onInput={e => handleSubtitleEdit(e.target.innerText, chunkIdx)}
-              contentEditable
-              suppressContentEditableWarning
-              onKeyUp={e => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleOnEnter(e, chunkIdx);
-                }
-                if (e.key === 'Backspace') {
-                  handleBackspace(e, chunkIdx);
-                }
-              }}
-              // onKeyDown={e => {
-              //   console.log('onkeypress');
-              //   if (e.key === 'Enter') {
-              //     e.preventDefault();
-              //     return false;
-              //   }
-              // }}
-            >
-              {chunk.words.map((word, wordIdx) => (
-                <span
-                  key={wordIdx}
-                  data-wordidx={wordIdx}
-                  onClick={e => {
-                    video.currentTime = word.start;
-                    e.stopPropagation();
-                  }}
-                  ref={wordRef => {
-                    word.wordRef = wordRef;
-                  }}
-                  hidden={word.hidden}
-                >
-                  {word.word}
-                </span>
-              ))}
-            </Box>
-          </Box>
-        </Flex>
-      ))}
+        />
+      </Slate>
     </Box>
   );
 }
 
-//   return (
-//     <Box>
-//       {transcript.segments.map((segment, segmentIdx) => (
-//         <Box key={segmentIdx} ref={transcribeContainerRef} py={2}>
-//           <Heading size="md">{segment.speaker_name}</Heading>
-//           {/* <Box>
-//             {segment.wdlist.map((word, wordIdx) => (
-//               <span
-//                 key={wordIdx}
-//                 onInput={e =>
-//                   onWordChange(segmentIdx, wordIdx, e.target.innerText)
-//                 }
-//                 ref={wordRef => {
-//                   word.wordRef = wordRef;
-//                 }}
-//               >
-//                 {word.word}
-//               </span>
-//             ))}
-//           </Box> */}
+// Define a React component renderer for our code blocks.
+const CodeElement = props => {
+  return (
+    <pre {...props.attributes}>
+      <code>{props.children}</code>
+    </pre>
+  );
+};
 
-//           <Box
-//           // contentEditable
-//           // suppressContentEditableWarning
-//           // onInput={e => console.log('onInput', e)}
-//           >
-//             {subtitle[segmentIdx].map((chunk, chunkIdx) => (
-//               <Text
-//                 as="span"
-//                 key={chunkIdx}
-//                 contentEditable
-//                 suppressContentEditableWarning
-//                 onInput={e => onEdit(e.target.innerText, segmentIdx, chunkIdx)}
-//               >
-//                 {chunk.words.map((word, wordIdx) => (
-//                   <span
-//                     key={wordIdx}
-//                     onBlur={e => console.log('changed')}
-//                     onClick={e => video.pause()}
-//                     // onInput={e =>
-//                     //   onWordChange(segmentIdx, wordIdx, e.target.innerText)
-//                     // }
-//                     ref={wordRef => {
-//                       word.wordRef = wordRef;
-//                     }}
-//                   >
-//                     {word.word}
-//                   </span>
-//                 ))}
-//               </Text>
-//             ))}
-//           </Box>
-//         </Box>
-//       ))}
-//     </Box>
-//   );
-// }
+const DefaultElement = props => {
+  return <p {...props.attributes}>{props.children}</p>;
+};
+
+const Leaf = props => {
+  return (
+    <span
+      {...props.attributes}
+      style={{ fontWeight: props.leaf.bold ? 'bold' : 'normal' }}
+    >
+      {props.children}
+    </span>
+  );
+};
+
+const CustomEditor = {
+  isBoldMarkActive(editor) {
+    const [match] = Editor.nodes(editor, {
+      match: n => n.bold === true,
+      universal: true,
+    });
+
+    return !!match;
+  },
+
+  isCodeBlockActive(editor) {
+    const [match] = Editor.nodes(editor, {
+      match: n => n.type === 'code',
+    });
+
+    return !!match;
+  },
+
+  toggleBoldMark(editor) {
+    const isActive = CustomEditor.isBoldMarkActive(editor);
+    Transforms.setNodes(
+      editor,
+      { bold: isActive ? null : true },
+      { match: n => Text.isText(n), split: true }
+    );
+  },
+
+  toggleCodeBlock(editor) {
+    const isActive = CustomEditor.isCodeBlockActive(editor);
+    Transforms.setNodes(
+      editor,
+      { type: isActive ? null : 'code' },
+      { match: n => Editor.isBlock(editor, n) }
+    );
+  },
+};

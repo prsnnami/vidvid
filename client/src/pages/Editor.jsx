@@ -15,10 +15,10 @@ import {
 import { Select } from '@chakra-ui/select';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import Transctipt from '../components/Editor/Transcript';
 import Video from '../components/Editor/Video';
 import { getSubtitle, loadTranscript } from '../utils';
-import Test from './Test';
+import { useDebouncedCallback } from '../utils/useDebouncedCallback';
+import Transcript from '../components/Editor/Transcript';
 
 export default function Editor() {
   const { sharePath } = useParams();
@@ -34,6 +34,11 @@ export default function Editor() {
   const aspectRatio = useState('16:9');
   const color = useState('#000000');
 
+  const handleSubtitleEdit = useDebouncedCallback(
+    subtitle => setSubtitle(subtitle),
+    400
+  );
+
   const navigate = useNavigate();
   const exportModal = useDisclosure();
 
@@ -48,7 +53,6 @@ export default function Editor() {
       setTranscript(transcript);
       let subtitle = getSubtitle(transcript);
       setSubtitle(subtitle);
-      console.log(subtitle);
     });
   }, []);
 
@@ -93,21 +97,12 @@ export default function Editor() {
           <Box flex="1" overflowY="auto" ref={transcriptContainerRef}>
             <Heading px={4}>Transcript</Heading>
             <Box p={4} flex={1}>
-              {/* <Transctipt
-                tx={transcript}
-                subtitle={subtitle}
-                transcriptContainerRef={transcriptContainerRef}
-                video={videoRef.current}
-                onEdit={edit => {
-                  setSubtitle(edit);
-                }}
-              /> */}
               {subtitle && (
-                <Test
+                <Transcript
                   video={videoRef.current}
                   subtitle={subtitle}
                   onEdit={edit => {
-                    setSubtitle(edit);
+                    handleSubtitleEdit(edit);
                   }}
                 />
               )}
