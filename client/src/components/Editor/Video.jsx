@@ -1,10 +1,15 @@
 import { Button } from '@chakra-ui/button';
 import { Input } from '@chakra-ui/input';
+import { Text } from '@chakra-ui/layout';
 import { Box, Flex, Stack } from '@chakra-ui/layout';
 import { Select } from '@chakra-ui/select';
+import { SliderTrack } from '@chakra-ui/slider';
+import { SliderThumb } from '@chakra-ui/slider';
+import { SliderFilledTrack } from '@chakra-ui/slider';
+import { Slider } from '@chakra-ui/slider';
 import { Spinner } from '@chakra-ui/spinner';
 import React, { useEffect, useState } from 'react';
-import { drawScaledImage, getWrapLines } from '../../utils';
+import { drawScaledImage, getTimeStamp, getWrapLines } from '../../utils';
 import { useDebouncedCallback } from '../../utils/useDebouncedCallback';
 import Canvas from '../VideoCanvas';
 
@@ -170,7 +175,7 @@ const Video = React.forwardRef(
     }
 
     return (
-      <Box>
+      <Flex direction="column" w="100%">
         <Stack direction="row" px="6" py="4">
           <Button
             bg="white"
@@ -202,7 +207,7 @@ const Video = React.forwardRef(
             onChange={e => handleColorChange(e.target.value)}
           />
         </Stack>
-        <Flex justifyContent="center" alignItems="center">
+        <Flex justifyContent="center" alignItems="center" flexGrow="1">
           <Box position="relative">
             <Flex
               justifyContent="center"
@@ -224,9 +229,64 @@ const Video = React.forwardRef(
             />
           </Box>
         </Flex>
-      </Box>
+        <Seeker video={videoRef.current} />
+      </Flex>
     );
   }
 );
 
 export default Video;
+
+function Seeker({ video }) {
+  const [progress, setProgress] = useState(0);
+  const [time, setTime] = useState(0);
+
+  function handleTimeUpdated(e) {
+    let currentTime = e.target.currentTime;
+    let duration = e.target.duration;
+    setTime(currentTime);
+
+    setProgress((currentTime / duration) * 100);
+  }
+
+  useEffect(() => {
+    // Update the document title using the browser API
+    if (video) {
+      // setDuration(mediaRef.current.duration);
+      video.addEventListener('timeupdate', handleTimeUpdated);
+    }
+    return function cleanup() {
+      if (video) {
+        // removeEventListener
+        video.removeEventListener('timeupdate', handleTimeUpdated);
+      }
+    };
+  }, [video]);
+
+  return (
+    <Flex p="1" pr="2" bg="white">
+      <Text
+        css={{
+          fontSize: '0.9em',
+          fontWeight: 500,
+          color: '#929292',
+          cursor: 'pointer',
+        }}
+        px="1"
+      >
+        {getTimeStamp(time)}
+      </Text>
+      <Slider
+        aria-label="slider-ex-1"
+        value={progress}
+        focusThumbOnChange={false}
+        ml="2"
+      >
+        <SliderTrack bg="gray.400">
+          <SliderFilledTrack bg="teal.500" />
+        </SliderTrack>
+        <SliderThumb bg="teal.500" />
+      </Slider>
+    </Flex>
+  );
+}

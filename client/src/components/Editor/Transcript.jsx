@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { createEditor, Editor, Node, Text, Transforms } from 'slate';
 import { Editable, Slate, withReact } from 'slate-react';
+import { withHistory } from 'slate-history';
 // import subtitle from '../subtitle.json';
 import {
   getTimeStamp,
@@ -18,7 +19,8 @@ import {
 } from '../../utils';
 
 export default function Transcript({ subtitle, onEdit, video }) {
-  const editor = useMemo(() => withReact(createEditor()), []);
+  // const editor = useMemo(() => withReact(createEditor()), []);
+  const editor = useMemo(() => withHistory(withReact(createEditor())), []);
   const refs = useRef({});
 
   const [value, setValue] = useState(
@@ -42,7 +44,7 @@ export default function Transcript({ subtitle, onEdit, video }) {
   function handleTimeUpdated(e) {
     // setCurrentTime(e.target.currentTime);
     Object.values(refs.current).forEach(word => {
-      if (word.ref.current) {
+      if (word.ref.current && !video.paused) {
         word.ref.current.style.color = 'inherit';
         word.ref.current.style['-webkit-text-stroke-width'] = 'inherit';
 
@@ -109,11 +111,19 @@ export default function Transcript({ subtitle, onEdit, video }) {
         _before={{
           content: `"${getTimeStamp(props.element.line.start)}"`,
           paddingX: 4,
+          fontSize: '0.9em',
+          fontWeight: 500,
+          color: '#929292',
+          cursor: 'pointer',
         }}
         display="flex"
         fontSize="16"
+        alignItems="baseline"
         py="1.5"
         {...props.attributes}
+        onClick={() => {
+          video.currentTime = props.element.line.start;
+        }}
       >
         <Flex flexWrap="wrap">{props.children}</Flex>
       </Box>
@@ -131,7 +141,9 @@ export default function Transcript({ subtitle, onEdit, video }) {
 
     return (
       <div
-        onClick={() => (video.currentTime = word.start)}
+        onClick={() => {
+          video.currentTime = word.start;
+        }}
         {...props.attributes}
       >
         {props.children}

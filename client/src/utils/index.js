@@ -151,6 +151,8 @@ export function handleSplitLine(editor) {
   const { offset: focusOffset } = focus;
 
   if (focusOffset !== anchorOffset) return false;
+  // Transforms.splitNodes(editor);
+  // return;
 
   const [lineIdx, wordIdx] = anchorPath;
 
@@ -175,6 +177,8 @@ export function handleSplitLine(editor) {
     console.info('Empty Line Skip');
     return false;
   }
+
+  Transforms.setSelection(editor.selection);
 
   const wordBefore = { ...word, text: textBefore };
   const wordNodeBefore = {
@@ -217,6 +221,13 @@ export function handleSplitLine(editor) {
     line: { ...lineNode.line, start: nodesAfter[0].word.start },
   };
 
+  /**
+   * TODO
+   *
+   * Instead of removing initial line, remove only nodes after cursor
+   * Current implementation breaks as when trying to undo , editor tries to revert to anchor which was deleted which causes it to
+   * fallback to the nearest line which is not the deleted line
+   */
   Transforms.removeNodes(editor, { at: [lineIdx] });
   Transforms.insertNodes(editor, [lineBefore, lineAfter], { at: [lineIdx] });
   // const nextPoint = Editor.after(editor, editor.selection.anchor);

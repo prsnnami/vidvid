@@ -94,7 +94,22 @@ export default function Editor() {
           <Button onClick={exportModal.onOpen}>Export Video</Button>
         </Flex>
         <Flex flexGrow="1" overflow="hidden">
-          <Box flex="1" overflowY="auto" ref={transcriptContainerRef}>
+          <Box
+            flex="1"
+            overflowY="auto"
+            ref={transcriptContainerRef}
+            paddingRight="4px"
+            css={{
+              '&::-webkit-scrollbar': {
+                width: 4,
+                height: 4,
+              },
+              '::-webkit-scrollbar-thumb': {
+                background: '#c4c4c4',
+                borderRadius: 4,
+              },
+            }}
+          >
             <Heading px={4}>Transcript</Heading>
             <Box p={4} flex={1}>
               {subtitle && (
@@ -108,7 +123,14 @@ export default function Editor() {
               )}
             </Box>
           </Box>
-          <Box id="video" flex="1" bg="gray.200" h="100%" overflowY="auto">
+          <Flex
+            id="video"
+            flex="1"
+            bg="gray.200"
+            h="100%"
+            overflowY="auto"
+            px="2"
+          >
             <Video
               ref={canvasRef}
               videoRef={videoRef}
@@ -118,7 +140,7 @@ export default function Editor() {
               aspectRatio={aspectRatio}
               setManifestUrl={setManifestUrl}
             />
-          </Box>
+          </Flex>
         </Flex>
       </Flex>
       <ExportModal
