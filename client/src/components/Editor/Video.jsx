@@ -241,14 +241,6 @@ function Seeker({ video }) {
   const [progress, setProgress] = useState(0);
   const [time, setTime] = useState(0);
 
-  function handleTimeUpdated(e) {
-    let currentTime = e.target.currentTime;
-    let duration = e.target.duration;
-    setTime(currentTime);
-
-    setProgress((currentTime / duration) * 100);
-  }
-
   useEffect(() => {
     // Update the document title using the browser API
     if (video) {
@@ -262,6 +254,26 @@ function Seeker({ video }) {
       }
     };
   }, [video]);
+
+  function handleTimeUpdated(e) {
+    let currentTime = e.target.currentTime;
+    let duration = e.target.duration;
+    setTime(currentTime);
+
+    setProgress((currentTime / duration) * 100);
+  }
+
+  function handleThumbSlide(progress) {
+    if (video) {
+      setProgress(progress);
+      video.currentTime = (progress * video.duration) / 100;
+    }
+  }
+
+  const debouncedHandleThumbSlide = useDebouncedCallback(
+    value => handleThumbSlide(value),
+    200
+  );
 
   return (
     <Flex p="1" pr="2" bg="white">
@@ -280,6 +292,9 @@ function Seeker({ video }) {
         aria-label="slider-ex-1"
         value={progress}
         focusThumbOnChange={false}
+        onChange={debouncedHandleThumbSlide}
+        onChangeStart={() => video.pause()}
+        onChangeEnd={() => video.play()}
         ml="2"
       >
         <SliderTrack bg="gray.400">
