@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import Editor from './pages/Editor';
 import Home from './pages/Home';
 import Reels from './pages/Reels';
+import Test from './pages/Test';
 
 function App() {
   return (

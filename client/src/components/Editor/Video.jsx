@@ -8,16 +8,19 @@ import { SliderThumb } from '@chakra-ui/slider';
 import { SliderFilledTrack } from '@chakra-ui/slider';
 import { Slider } from '@chakra-ui/slider';
 import { Spinner } from '@chakra-ui/spinner';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { drawScaledImage, getTimeStamp, getWrapLines } from '../../utils';
 import { useDebouncedCallback } from '../../utils/useDebouncedCallback';
 import Canvas from '../VideoCanvas';
+import ere from 'element-resize-event';
 
 async function loadManifest(shareUrl) {
   const manifestRet = await fetch(`/proxy/${shareUrl}/manifest-path.json`);
   const manifest = await manifestRet.json();
   return manifest;
 }
+
+const MAX_HEIGHT = 450;
 
 const Video = React.forwardRef(
   (
@@ -26,11 +29,16 @@ const Video = React.forwardRef(
   ) => {
     const [canvasSize, setCanvasSize] = useState({ height: 360, width: 640 });
     const [videoSize, setVideoSize] = useState({ height: 360, width: 480 });
+    const [wrapperSize, setWrapperSize] = useState({ height: 0, width: 0 });
+    const [scale, setScale] = useState(1);
+
     const [videoLoading, setVideoLoading] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
     const [poster, setPoster] = useState(null);
     const [buffering, setBuffering] = useState();
     const [videoPlayed, setVideoPlayed] = useState(false);
+
+    const wrapperRef = useRef();
 
     // const [color, setColor] = useState('#000000');
     const handleColorChange = useDebouncedCallback(
@@ -90,6 +98,39 @@ const Video = React.forwardRef(
         }
       };
     }, [sharePath]);
+
+    useEffect(() => {
+      const wrapper = wrapperRef.current;
+
+      setWrapperSize({
+        width: wrapper.offsetWidth,
+        height: wrapper.offsetHeight,
+      });
+
+      ere(wrapper, () => {
+        console.log('here');
+        setWrapperSize({
+          width: wrapper.offsetWidth,
+          height: wrapper.offsetHeight,
+        });
+      });
+    }, []);
+
+    useEffect(() => {
+      function updateState() {
+        let scale;
+        if (canvasSize.width > canvasSize.height) {
+          scale = wrapperSize.width / canvasSize.width;
+        } else {
+          scale = wrapperSize.height / canvasSize.height;
+        }
+
+        scale = Math.min(scale, MAX_HEIGHT / canvasSize.height);
+
+        setScale(scale);
+      }
+      updateState();
+    }, [wrapperSize, canvasSize]);
 
     function drawThumbnail(ctx) {
       if (!videoLoading && poster) {
@@ -174,8 +215,21 @@ const Video = React.forwardRef(
       setCanvasSize({ height, width });
     }
 
+    const containerHeight = scale * canvasSize.height;
+    const containerWidth = scale * canvasSize.width;
+
     return (
-      <Flex direction="column" w="100%">
+      <Flex
+        flexDirection="column"
+        // alignItems="center"
+        justifyContent="flex-start"
+        h="100%"
+        w="100%"
+        pt="4"
+        margin="0 auto"
+        overflow="hidden"
+        ref={wrapperRef}
+      >
         <Stack direction="row" px="6" py="4">
           <Button
             bg="white"
@@ -195,10 +249,10 @@ const Video = React.forwardRef(
             onChange={handleDimensionsChange}
             value={aspectRatio[0]}
           >
-            <option>1:1</option>
-            <option>16:9</option>
-            <option>9:16</option>
-            <option>4:5</option>
+            <option value="1:1">1:1 Square</option>
+            <option value="16:9">16:9 Horizontal</option>
+            <option value="9:16">9:16 Vertical</option>
+            <option value="4:5">4:5 Portrait</option>
           </Select>
           <Input
             background="white"
@@ -207,28 +261,55 @@ const Video = React.forwardRef(
             onChange={e => handleColorChange(e.target.value)}
           />
         </Stack>
-        <Flex justifyContent="center" alignItems="center" flexGrow="1">
-          <Box position="relative">
-            <Flex
-              justifyContent="center"
-              alignItems="center"
-              position="absolute"
-              h="100%"
-              w="100%"
-              bg="rgba(0,0,0,0.2)"
-              hidden={!(buffering || videoLoading)}
+        <Box>
+          <Box
+            style={{
+              maxWidth: '100%',
+              overflow: 'hidden',
+              width: containerWidth + 'px',
+              height: containerHeight + 'px',
+              margin: '0 auto',
+            }}
+          >
+            <Box
+              style={{
+                width: canvasSize.width,
+                height: canvasSize.height,
+                transform: 'scale(' + scale + ')',
+                transformOrigin: '0 0 0',
+              }}
             >
-              <Spinner color="teal" size="xl" thickness="8px" />
-            </Flex>
-            <Canvas
-              ref={canvasRef}
-              draw={draw}
-              height={canvasSize.height}
-              width={canvasSize.width}
-              color={color[0]}
-            />
+              <Box
+                w={canvasSize.width}
+                h={canvasSize.height}
+                position="relative"
+              >
+                <Flex position="relative">
+                  <Flex
+                    justifyContent="center"
+                    alignItems="center"
+                    position="absolute"
+                    h="100%"
+                    w="100%"
+                    bg="rgba(0,0,0,0.2)"
+                    hidden={!(buffering || videoLoading)}
+                  >
+                    <Spinner color="teal" size="xl" thickness="8px" />
+                  </Flex>
+                  <Canvas
+                    ref={canvasRef}
+                    draw={draw}
+                    height={canvasSize.height}
+                    width={canvasSize.width}
+                    color={color[0]}
+                  />
+                </Flex>
+              </Box>
+            </Box>
           </Box>
-        </Flex>
+        </Box>
+        <Box className="spacer" flexGrow="1" />
+
         <Seeker video={videoRef.current} />
       </Flex>
     );
@@ -240,6 +321,7 @@ export default Video;
 function Seeker({ video }) {
   const [progress, setProgress] = useState(0);
   const [time, setTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
   useEffect(() => {
     // Update the document title using the browser API
@@ -259,13 +341,14 @@ function Seeker({ video }) {
     let currentTime = e.target.currentTime;
     let duration = e.target.duration;
     setTime(currentTime);
+    setDuration(duration);
 
     setProgress((currentTime / duration) * 100);
   }
 
   function handleThumbSlide(progress) {
     if (video) {
-      setProgress(progress);
+      // setProgress(progress);
       video.currentTime = (progress * video.duration) / 100;
     }
   }
@@ -292,9 +375,9 @@ function Seeker({ video }) {
         aria-label="slider-ex-1"
         value={progress}
         focusThumbOnChange={false}
-        onChange={debouncedHandleThumbSlide}
-        onChangeStart={() => video.pause()}
-        onChangeEnd={() => video.play()}
+        onChange={progress => setProgress(progress)}
+        // onChangeStart={() => video.pause()}
+        onChangeEnd={debouncedHandleThumbSlide}
         ml="2"
       >
         <SliderTrack bg="gray.400">
@@ -302,6 +385,17 @@ function Seeker({ video }) {
         </SliderTrack>
         <SliderThumb bg="teal.500" />
       </Slider>
+      <Text
+        css={{
+          fontSize: '0.9em',
+          fontWeight: 500,
+          color: '#929292',
+          cursor: 'pointer',
+        }}
+        px="1"
+      >
+        {getTimeStamp(duration)}
+      </Text>
     </Flex>
   );
 }
