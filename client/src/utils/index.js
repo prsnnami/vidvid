@@ -178,14 +178,7 @@ export function handleSplitLine(editor) {
     return false;
   }
 
-  Transforms.setSelection(editor.selection);
-
-  const wordBefore = { ...word, text: textBefore };
-  const wordNodeBefore = {
-    type: 'span',
-    word: wordBefore,
-    children: [{ text: wordBefore.text }],
-  };
+  Transforms.splitNodes(editor);
 
   const wordAfter = { ...word, text: textAfter };
   const wordNodeAfter = {
@@ -194,47 +187,42 @@ export function handleSplitLine(editor) {
     children: [{ text: wordAfter.text }],
   };
 
-  let nodesBefore = lineNode.children.slice(0, wordIdx);
   let nodesAfter = lineNode.children.slice(
     wordIdx + 1,
     lineNode.children.length
   );
 
-  if (wordBefore.text.trim() !== '') {
-    nodesBefore = [...nodesBefore, wordNodeBefore];
-  }
   if (wordAfter.text.trim() !== '') {
     nodesAfter = [wordNodeAfter, ...nodesAfter];
   }
 
-  let lineBefore = {
-    ...lineNode,
-    children: nodesBefore,
-    line: {
-      ...lineNode.line,
-      end: nodesBefore[nodesBefore.length - 1].word.end,
-    },
-  };
   let lineAfter = {
     ...lineNode,
     children: nodesAfter,
     line: { ...lineNode.line, start: nodesAfter[0].word.start },
   };
 
-  /**
-   * TODO
-   *
-   * Instead of removing initial line, remove only nodes after cursor
-   * Current implementation breaks as when trying to undo , editor tries to revert to anchor which was deleted which causes it to
-   * fallback to the nearest line which is not the deleted line
-   */
-  Transforms.removeNodes(editor, { at: [lineIdx] });
-  Transforms.insertNodes(editor, [lineBefore, lineAfter], { at: [lineIdx] });
+  console.log(Node.last(editor, [lineIdx]));
+
+  Transforms.removeNodes(editor, {
+    at: {
+      anchor: { path: [lineIdx, wordIdx + 1, 0], offset: 0 },
+      focus: {
+        path: [lineIdx, lineNode.children.length, 0],
+        offset: Node.string(Node.last(editor, [lineIdx])[0]).length,
+      },
+    },
+  });
+  Transforms.insertNodes(editor, [lineAfter], {
+    at: [lineIdx + 1],
+  });
   // const nextPoint = Editor.after(editor, editor.selection.anchor);
+
   Transforms.setSelection(editor, {
     anchor: { path: [lineIdx + 1, 0, 0], offset: 0 },
     focus: { path: [lineIdx + 1, 0, 0], offset: 0 },
   });
+
   // debugger;
 
   return false;

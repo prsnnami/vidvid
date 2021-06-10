@@ -51,6 +51,7 @@ export default function Editor() {
 
     loadTranscript(shareUrl).then(transcript => {
       setTranscript(transcript);
+      console.log(transcript);
       let subtitle = getSubtitle(transcript);
       setSubtitle(subtitle);
     });
