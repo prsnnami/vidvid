@@ -141,7 +141,8 @@ export default function Transcript({ subtitle, onEdit, video }) {
 
     return (
       <div
-        onClick={() => {
+        onClick={e => {
+          e.stopPropagation();
           video.currentTime = word.start;
         }}
         {...props.attributes}
