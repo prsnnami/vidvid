@@ -11,7 +11,7 @@ import { Spinner } from '@chakra-ui/spinner';
 import React, { useEffect, useRef, useState } from 'react';
 import { drawScaledImage, getTimeStamp, getWrapLines } from '../../utils';
 import { useDebouncedCallback } from '../../utils/useDebouncedCallback';
-import { FaPause, FaPlay } from 'react-icons/fa';
+import { FaPause, FaPlay, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import Canvas from '../VideoCanvas';
 import ere from 'element-resize-event';
 import { Icon, IconButton } from '@chakra-ui/react';
@@ -235,19 +235,6 @@ const Video = React.forwardRef(
         ref={wrapperRef}
       >
         <Stack direction="row" py="4">
-          {/* <Button
-            bg="white"
-            onClick={() => {
-              if (!videoRef.current) return;
-              if (videoRef.current.paused) {
-                videoRef.current.play();
-              } else {
-                videoRef.current.pause();
-              }
-            }}
-          >
-            {!isPlaying ? 'Play' : 'Pause'}
-          </Button> */}
           <Select
             background="white"
             onChange={handleDimensionsChange}
@@ -424,6 +411,15 @@ function Seeker({ video }) {
           {getTimeStamp(duration)}
         </Text>
       </Flex>
+      <IconButton
+        bg="white"
+        mx={2}
+        icon={video && !video.muted ? <FaVolumeUp /> : <FaVolumeMute />}
+        onClick={() => {
+          video.muted = !video.muted;
+        }}
+        boxShadow="none"
+      />
     </Flex>
   );
 }
