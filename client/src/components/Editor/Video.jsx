@@ -11,8 +11,10 @@ import { Spinner } from '@chakra-ui/spinner';
 import React, { useEffect, useRef, useState } from 'react';
 import { drawScaledImage, getTimeStamp, getWrapLines } from '../../utils';
 import { useDebouncedCallback } from '../../utils/useDebouncedCallback';
+import { FaPause, FaPlay } from 'react-icons/fa';
 import Canvas from '../VideoCanvas';
 import ere from 'element-resize-event';
+import { Icon, IconButton } from '@chakra-ui/react';
 
 async function loadManifest(shareUrl) {
   const manifestRet = await fetch(`/proxy/${shareUrl}/manifest-path.json`);
@@ -90,7 +92,9 @@ const Video = React.forwardRef(
       videoRef.current = vid;
       init(vid);
       return () => {
+        console.log('cleanup', vid);
         if (vid) {
+          vid.pause();
           vid.remove();
         }
         if (videoRef.current) {
@@ -230,8 +234,8 @@ const Video = React.forwardRef(
         overflow="hidden"
         ref={wrapperRef}
       >
-        <Stack direction="row" px="6" py="4">
-          <Button
+        <Stack direction="row" py="4">
+          {/* <Button
             bg="white"
             onClick={() => {
               if (!videoRef.current) return;
@@ -243,7 +247,7 @@ const Video = React.forwardRef(
             }}
           >
             {!isPlaying ? 'Play' : 'Pause'}
-          </Button>
+          </Button> */}
           <Select
             background="white"
             onChange={handleDimensionsChange}
@@ -359,43 +363,67 @@ function Seeker({ video }) {
   );
 
   return (
-    <Flex p="1" pr="2" bg="white">
-      <Text
-        css={{
-          fontSize: '0.9em',
-          fontWeight: 500,
-          color: '#929292',
-          cursor: 'pointer',
+    <Flex w="100%">
+      <IconButton
+        bg="white"
+        mx={2}
+        icon={video && video.paused ? <FaPlay /> : <FaPause />}
+        onClick={() => {
+          if (!video) return;
+
+          if (video.paused) {
+            video.play();
+          } else {
+            video.pause();
+          }
         }}
-        px="1"
+        boxShadow="none"
+      />
+      <Flex
+        p="1"
+        pr="2"
+        bg="white"
+        flexGrow={1}
+        alignItems="center"
+        borderRadius={4}
       >
-        {getTimeStamp(time)}
-      </Text>
-      <Slider
-        aria-label="slider-ex-1"
-        value={progress}
-        focusThumbOnChange={false}
-        onChange={progress => setProgress(progress)}
-        // onChangeStart={() => video.pause()}
-        onChangeEnd={debouncedHandleThumbSlide}
-        ml="2"
-      >
-        <SliderTrack bg="gray.400">
-          <SliderFilledTrack bg="teal.500" />
-        </SliderTrack>
-        <SliderThumb bg="teal.500" />
-      </Slider>
-      <Text
-        css={{
-          fontSize: '0.9em',
-          fontWeight: 500,
-          color: '#929292',
-          cursor: 'pointer',
-        }}
-        px="1"
-      >
-        {getTimeStamp(duration)}
-      </Text>
+        <Text
+          css={{
+            fontSize: '0.9em',
+            fontWeight: 500,
+            color: '#929292',
+            cursor: 'pointer',
+          }}
+          px="1"
+        >
+          {getTimeStamp(time)}
+        </Text>
+        <Slider
+          aria-label="slider-ex-1"
+          value={progress}
+          focusThumbOnChange={false}
+          onChange={progress => setProgress(progress)}
+          // onChangeStart={() => video.pause()}
+          onChangeEnd={debouncedHandleThumbSlide}
+          ml="2"
+        >
+          <SliderTrack bg="gray.400">
+            <SliderFilledTrack bg="teal.500" />
+          </SliderTrack>
+          <SliderThumb bg="teal.500" />
+        </Slider>
+        <Text
+          css={{
+            fontSize: '0.9em',
+            fontWeight: 500,
+            color: '#929292',
+            cursor: 'pointer',
+          }}
+          px="1"
+        >
+          {getTimeStamp(duration)}
+        </Text>
+      </Flex>
     </Flex>
   );
 }
