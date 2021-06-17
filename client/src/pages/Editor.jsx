@@ -33,6 +33,7 @@ export default function Editor() {
 
   const aspectRatio = useState('16:9');
   const color = useState('#000000');
+  const textColor = useState('#ffffff');
 
   const handleSubtitleEdit = useDebouncedCallback(
     subtitle => setSubtitle(subtitle),
@@ -138,6 +139,7 @@ export default function Editor() {
               sharePath={sharePath}
               subtitle={subtitle}
               color={color}
+              textColor={textColor}
               aspectRatio={aspectRatio}
               setManifestUrl={setManifestUrl}
             />

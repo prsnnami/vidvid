@@ -14,7 +14,15 @@ import { useDebouncedCallback } from '../../utils/useDebouncedCallback';
 import { FaPause, FaPlay, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import Canvas from '../VideoCanvas';
 import ere from 'element-resize-event';
-import { Icon, IconButton } from '@chakra-ui/react';
+import {
+  Icon,
+  IconButton,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+} from '@chakra-ui/react';
 
 async function loadManifest(shareUrl) {
   const manifestRet = await fetch(`/proxy/${shareUrl}/manifest-path.json`);
@@ -26,7 +34,15 @@ const MAX_HEIGHT = 450;
 
 const Video = React.forwardRef(
   (
-    { videoRef, sharePath, subtitle, color, aspectRatio, setManifestUrl },
+    {
+      videoRef,
+      sharePath,
+      subtitle,
+      color,
+      aspectRatio,
+      setManifestUrl,
+      textColor,
+    },
     canvasRef
   ) => {
     const [canvasSize, setCanvasSize] = useState({ height: 360, width: 640 });
@@ -39,6 +55,7 @@ const Video = React.forwardRef(
     const [poster, setPoster] = useState(null);
     const [buffering, setBuffering] = useState();
     const [videoPlayed, setVideoPlayed] = useState(false);
+    const [value, setValue] = React.useState(22);
 
     const wrapperRef = useRef();
 
@@ -47,6 +64,14 @@ const Video = React.forwardRef(
       value => color[1](value),
       200
     );
+
+    const handleTextColorChange = useDebouncedCallback(
+      value => textColor[1](value),
+      200
+    );
+
+    const format = val => val + ' px';
+    const parse = val => Number(val.replace(/^\px/, ''));
 
     async function init(vid) {
       let shareUrl = 'https://app.reduct.video/e/' + sharePath;
@@ -157,8 +182,8 @@ const Video = React.forwardRef(
           drawThumbnail(ctx);
         } else {
           drawScaledImage(ctx, videoRef.current, canvasSize, videoSize);
-          ctx.font = '22px Arial';
-          ctx.fillStyle = 'white';
+          ctx.font = value + 'px Arial';
+          ctx.fillStyle = textColor[0];
           ctx.textAlign = 'center';
           ctx.lineWidth = 4;
           ctx.miterLimit = 2;
@@ -174,12 +199,12 @@ const Video = React.forwardRef(
                 ctx.strokeText(
                   line,
                   canvasSize.width / 2,
-                  canvasSize.height - canvasSize.height * 0.1 - i * 24
+                  canvasSize.height - canvasSize.height * 0.1 - i * (value + 2)
                 );
                 ctx.fillText(
                   line,
                   canvasSize.width / 2,
-                  canvasSize.height - canvasSize.height * 0.1 - i * 24
+                  canvasSize.height - canvasSize.height * 0.1 - i * (value + 2)
                 );
               });
               textRender = true;
@@ -235,6 +260,30 @@ const Video = React.forwardRef(
         ref={wrapperRef}
       >
         <Stack direction="row" py="4">
+          <NumberInput
+            onChange={valueString => setValue(parse(valueString))}
+            value={format(value)}
+            step={2}
+            defaultValue={22}
+            min={10}
+            max={40}
+            bg="white"
+            borderRadius={8}
+          >
+            <NumberInputField />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+          <Input
+            background="white"
+            type="color"
+            w="80px"
+            px="1"
+            value={textColor[0]}
+            onChange={e => handleTextColorChange(e.target.value)}
+          />
           <Select
             background="white"
             onChange={handleDimensionsChange}
@@ -249,6 +298,8 @@ const Video = React.forwardRef(
             background="white"
             type="color"
             value={color[0]}
+            w="80px"
+            px="1"
             onChange={e => handleColorChange(e.target.value)}
           />
         </Stack>
@@ -416,6 +467,7 @@ function Seeker({ video }) {
         mx={2}
         icon={video && !video.muted ? <FaVolumeUp /> : <FaVolumeMute />}
         onClick={() => {
+          console.dir(video);
           video.muted = !video.muted;
         }}
         boxShadow="none"

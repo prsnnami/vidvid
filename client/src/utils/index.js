@@ -12,7 +12,7 @@ export function drawScaledImage(ctx, image, cs, is) {
 }
 
 export function getWrapLines(ctx, text, maxWidth) {
-  var words = text.split(' ');
+  var words = text.trim().split(' ');
   var lines = [];
   var currentLine = words[0];
 
