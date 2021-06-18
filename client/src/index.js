@@ -17,6 +17,15 @@ const theme = extendTheme({
         fontFamily: 'montserrat',
         scrollBehavior: 'smooth',
       },
+      '#font-picker': {
+        width: '100%',
+        borderRadius: '8px',
+        boxShadow: 'none',
+        border: '1px solid #E2E8F0',
+        button: {
+          background: 'white',
+        },
+      },
     },
   },
 });

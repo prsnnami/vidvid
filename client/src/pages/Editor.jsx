@@ -20,6 +20,18 @@ import { getSubtitle, loadTranscript } from '../utils';
 import { useDebouncedCallback } from '../utils/useDebouncedCallback';
 import Transcript from '../components/Editor/Transcript';
 
+const OpenSans = {
+  variants: ['regular'],
+  files: {
+    regular:
+      'http://fonts.gstatic.com/s/opensans/v20/mem8YaGs126MiZpBA-U1UpcaXcl0Aw.ttf',
+  },
+  category: 'sans-serif',
+  kind: 'webfonts#webfont',
+  family: 'Open Sans',
+  id: 'open-sans',
+};
+
 export default function Editor() {
   const { sharePath } = useParams();
   const canvasRef = useRef();
@@ -34,6 +46,9 @@ export default function Editor() {
   const aspectRatio = useState('16:9');
   const color = useState('#000000');
   const textColor = useState('#ffffff');
+  const fontSize = React.useState(22);
+  const activeFontFamily = useState(OpenSans);
+  const textPosition = useState(10);
 
   const handleSubtitleEdit = useDebouncedCallback(
     subtitle => setSubtitle(subtitle),
@@ -66,13 +81,22 @@ export default function Editor() {
       subtitle: subtitle.map(i => ({
         start: i.start,
         end: i.end,
-        line: i.line,
+        text: i.text,
       })),
       url: 'https://app.reduct.video/e/' + sharePath,
       manifest_url: manifestUrl,
       a_r: aspectRatio[0],
       color: color[0],
+      textColor: textColor[0],
+      font:
+        activeFontFamily[0].id === 'open-sans'
+          ? OpenSans.files.regular
+          : activeFontFamily[0].files.regular,
+      fontFamily: activeFontFamily[0].family,
+      fontSize: fontSize[0],
+      textPosition: textPosition[0],
     };
+
     fetch('/borderer/generate', {
       method: 'POST',
       body: JSON.stringify(body),
@@ -97,7 +121,7 @@ export default function Editor() {
         </Flex>
         <Flex flexGrow="1" overflow="hidden">
           <Box
-            flex="1"
+            flex={1}
             overflowY="auto"
             ref={transcriptContainerRef}
             paddingRight="4px"
@@ -127,11 +151,21 @@ export default function Editor() {
           </Box>
           <Flex
             id="video"
-            flex="1"
+            flex="2"
             bg="gray.200"
             h="100%"
             overflowY="auto"
-            px="2"
+            css={{
+              '&::-webkit-scrollbar': {
+                width: 4,
+                height: 4,
+              },
+              '::-webkit-scrollbar-thumb': {
+                background: '#c4c4c4',
+                borderRadius: 4,
+              },
+            }}
+            // px="2"
           >
             <Video
               ref={canvasRef}
@@ -142,6 +176,9 @@ export default function Editor() {
               textColor={textColor}
               aspectRatio={aspectRatio}
               setManifestUrl={setManifestUrl}
+              fontSize={fontSize}
+              activeFontFamily={activeFontFamily}
+              textPosition={textPosition}
             />
           </Flex>
         </Flex>
@@ -151,14 +188,19 @@ export default function Editor() {
         onClose={exportModal.onClose}
         onSubmit={onSubmit}
         loading={exportLoading}
+        manifestUrl={manifestUrl}
       />
     </>
   );
 }
 
-function ExportModal({ isOpen, onClose, onSubmit, loading }) {
+function ExportModal({ isOpen, manifestUrl, onClose, onSubmit, loading }) {
   const nameRef = useRef();
   const selectRef = useRef();
+
+  //TODO: Get video resolutions from manifest
+
+  console.log(manifestUrl);
 
   function handleSubmit(e) {
     e.preventDefault();

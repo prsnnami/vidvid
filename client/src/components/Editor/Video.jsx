@@ -15,6 +15,9 @@ import { FaPause, FaPlay, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import Canvas from '../VideoCanvas';
 import ere from 'element-resize-event';
 import {
+  FormControl,
+  FormLabel,
+  Heading,
   Icon,
   IconButton,
   NumberDecrementStepper,
@@ -23,6 +26,7 @@ import {
   NumberInputField,
   NumberInputStepper,
 } from '@chakra-ui/react';
+import FontPicker from 'font-picker-react';
 
 async function loadManifest(shareUrl) {
   const manifestRet = await fetch(`/proxy/${shareUrl}/manifest-path.json`);
@@ -42,6 +46,9 @@ const Video = React.forwardRef(
       aspectRatio,
       setManifestUrl,
       textColor,
+      fontSize,
+      activeFontFamily,
+      textPosition,
     },
     canvasRef
   ) => {
@@ -55,7 +62,6 @@ const Video = React.forwardRef(
     const [poster, setPoster] = useState(null);
     const [buffering, setBuffering] = useState();
     const [videoPlayed, setVideoPlayed] = useState(false);
-    const [value, setValue] = React.useState(22);
 
     const wrapperRef = useRef();
 
@@ -182,7 +188,7 @@ const Video = React.forwardRef(
           drawThumbnail(ctx);
         } else {
           drawScaledImage(ctx, videoRef.current, canvasSize, videoSize);
-          ctx.font = value + 'px Arial';
+          ctx.font = fontSize[0] + 'px ' + activeFontFamily[0].family;
           ctx.fillStyle = textColor[0];
           ctx.textAlign = 'center';
           ctx.lineWidth = 4;
@@ -199,12 +205,16 @@ const Video = React.forwardRef(
                 ctx.strokeText(
                   line,
                   canvasSize.width / 2,
-                  canvasSize.height - canvasSize.height * 0.1 - i * (value + 2)
+                  canvasSize.height -
+                    (canvasSize.height * textPosition[0]) / 100 -
+                    i * (fontSize[0] + 2)
                 );
                 ctx.fillText(
                   line,
                   canvasSize.width / 2,
-                  canvasSize.height - canvasSize.height * 0.1 - i * (value + 2)
+                  canvasSize.height -
+                    (canvasSize.height * textPosition[0]) / 100 -
+                    i * (fontSize[0] + 2)
                 );
               });
               textRender = true;
@@ -256,54 +266,11 @@ const Video = React.forwardRef(
         w="100%"
         pt="4"
         margin="0 auto"
-        overflow="hidden"
+        // overflow="hidden"
+        // overflowY="auto"
         ref={wrapperRef}
       >
-        <Stack direction="row" py="4">
-          <NumberInput
-            onChange={valueString => setValue(parse(valueString))}
-            value={format(value)}
-            step={2}
-            defaultValue={22}
-            min={10}
-            max={40}
-            bg="white"
-            borderRadius={8}
-          >
-            <NumberInputField />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
-          <Input
-            background="white"
-            type="color"
-            w="80px"
-            px="1"
-            value={textColor[0]}
-            onChange={e => handleTextColorChange(e.target.value)}
-          />
-          <Select
-            background="white"
-            onChange={handleDimensionsChange}
-            value={aspectRatio[0]}
-          >
-            <option value="1:1">1:1 Square</option>
-            <option value="16:9">16:9 Horizontal</option>
-            <option value="9:16">9:16 Vertical</option>
-            <option value="4:5">4:5 Portrait</option>
-          </Select>
-          <Input
-            background="white"
-            type="color"
-            value={color[0]}
-            w="80px"
-            px="1"
-            onChange={e => handleColorChange(e.target.value)}
-          />
-        </Stack>
-        <Box>
+        <Box py="2">
           <Box
             style={{
               maxWidth: '100%',
@@ -349,10 +316,123 @@ const Video = React.forwardRef(
               </Box>
             </Box>
           </Box>
+          <Seeker video={videoRef.current} />
         </Box>
-        <Box className="spacer" flexGrow="1" />
+        {/* <Box className="spacer" flexGrow="1" /> */}
 
-        <Seeker video={videoRef.current} />
+        <Flex flexGrow="1">
+          <Flex
+            direction="column"
+            w="100%"
+            m="2"
+            bg="white"
+            borderRadius="8"
+            p="4"
+          >
+            <Heading size="md">Video Settings</Heading>
+            <Stack py="4">
+              <FormControl id="a_r" isRequired>
+                <FormLabel>Aspect Ratio</FormLabel>
+                <Select
+                  size="sm"
+                  background="white"
+                  onChange={handleDimensionsChange}
+                  value={aspectRatio[0]}
+                >
+                  <option value="1:1">1:1 Square</option>
+                  <option value="16:9">16:9 Horizontal</option>
+                  <option value="9:16">9:16 Vertical</option>
+                  <option value="4:5">4:5 Portrait</option>
+                </Select>
+              </FormControl>
+              <FormControl id="color" isRequired>
+                <FormLabel>Background Color</FormLabel>
+                <Input
+                  size="sm"
+                  background="white"
+                  type="color"
+                  value={color[0]}
+                  px="1"
+                  onChange={e => handleColorChange(e.target.value)}
+                />
+              </FormControl>
+            </Stack>
+          </Flex>
+          <Flex
+            direction="column"
+            w="100%"
+            m="2"
+            bg="white"
+            borderRadius="8"
+            p="4"
+          >
+            <Heading size="md">Subtitle Settings</Heading>
+            <Stack py="4">
+              <FormControl id="font_family" isRequired>
+                <FormLabel>Font Family</FormLabel>
+                <FontPicker
+                  apiKey={process.env.REACT_APP_GOOGLE_FONTS_API_KEY}
+                  activeFontFamily={activeFontFamily[0].family}
+                  variants={['regular']}
+                  onChange={nextFont => {
+                    console.log(nextFont);
+                    activeFontFamily[1](nextFont);
+                  }}
+                  limit={200}
+                />
+              </FormControl>
+              <FormControl id="font_size" isRequired>
+                <FormLabel>Font Size</FormLabel>
+                <NumberInput
+                  size="sm"
+                  onChange={valueString => fontSize[1](parse(valueString))}
+                  value={format(fontSize[0])}
+                  step={2}
+                  defaultValue={22}
+                  min={10}
+                  max={40}
+                  bg="white"
+                  borderRadius={8}
+                >
+                  <NumberInputField />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
+              </FormControl>
+              <FormControl id="color" isRequired>
+                <FormLabel>Font Color</FormLabel>
+                <Input
+                  size="sm"
+                  background="white"
+                  type="color"
+                  px="1"
+                  value={textColor[0]}
+                  onChange={e => handleTextColorChange(e.target.value)}
+                />
+              </FormControl>
+              <FormControl id="position" isRequired>
+                <FormLabel>Text Position</FormLabel>
+                <Slider
+                  size="sm"
+                  aria-label="slider-ex-1"
+                  value={textPosition[0]}
+                  focusThumbOnChange={false}
+                  onChange={progress => textPosition[1](progress)}
+                  ml="2"
+                  min={10}
+                  max={90}
+                >
+                  <SliderTrack bg="gray.400">
+                    <SliderFilledTrack bg="teal.500" />
+                  </SliderTrack>
+                  <SliderThumb bg="teal.500" />
+                </Slider>
+              </FormControl>
+            </Stack>
+          </Flex>
+        </Flex>
       </Flex>
     );
   }
