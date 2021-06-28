@@ -29,7 +29,7 @@ export default function Home() {
             <Heading>Welcome to Borderer</Heading>
             <Input
               ref={inputRef}
-              defaultValue="https://app.reduct.video/e/how-the-zebra-gets-research-in-front-of-everyone-from-the-ceo-to-individual-designers-engineers-and-pms-3-mins-f08661432b-7f13df6723f0bd72c4d6"
+              defaultValue="https://app.reduct.video/e/borderer-testing-84e3ce2ba0-f81df100c4861287a746"
               placeholder="Enter video share link"
             />
             <Button type="submit">Go!</Button>

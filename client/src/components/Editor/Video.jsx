@@ -52,7 +52,7 @@ const Video = React.forwardRef(
     },
     canvasRef
   ) => {
-    const [canvasSize, setCanvasSize] = useState({ height: 360, width: 640 });
+    const [canvasSize, setCanvasSize] = useState({ height: 1080, width: 1920 });
     const [videoSize, setVideoSize] = useState({ height: 360, width: 480 });
     const [wrapperSize, setWrapperSize] = useState({ height: 0, width: 0 });
     const [scale, setScale] = useState(1);
@@ -207,14 +207,14 @@ const Video = React.forwardRef(
                   canvasSize.width / 2,
                   canvasSize.height -
                     (canvasSize.height * textPosition[0]) / 100 -
-                    i * (fontSize[0] + 2)
+                    i * (fontSize[0] * 1.2)
                 );
                 ctx.fillText(
                   line,
                   canvasSize.width / 2,
                   canvasSize.height -
                     (canvasSize.height * textPosition[0]) / 100 -
-                    i * (fontSize[0] + 2)
+                    i * (fontSize[0] * 1.2)
                 );
               });
               textRender = true;
@@ -231,20 +231,20 @@ const Video = React.forwardRef(
 
       switch (ar) {
         case '1:1':
-          width = 640;
-          height = 640;
+          width = 1920;
+          height = 1920;
           break;
         case '16:9':
-          width = 640;
-          height = 360;
+          width = 1920;
+          height = 1080;
           break;
         case '9:16':
-          width = 360;
-          height = 640;
+          width = 1080;
+          height = 1920;
           break;
         case '4:5':
-          width = 360;
-          height = 450;
+          width = 1080;
+          height = 1350;
           break;
         default:
           height = canvasSize.height;
@@ -390,7 +390,7 @@ const Video = React.forwardRef(
                   step={2}
                   defaultValue={22}
                   min={10}
-                  max={40}
+                  max={200}
                   bg="white"
                   borderRadius={8}
                 >
@@ -413,7 +413,7 @@ const Video = React.forwardRef(
                 />
               </FormControl>
               <FormControl id="position" isRequired>
-                <FormLabel>Text Position</FormLabel>
+                <FormLabel>Text Position ({textPosition[0]})</FormLabel>
                 <Slider
                   size="sm"
                   aria-label="slider-ex-1"

@@ -97,12 +97,16 @@ export default function Editor() {
       textPosition: textPosition[0],
     };
 
+    // console.log(body);
+    // setExportLoading(false);
+    // return;
+
     fetch('/borderer/generate', {
       method: 'POST',
       body: JSON.stringify(body),
     }).then(res => {
       setExportLoading(false);
-      navigate('/reels');
+      // navigate('/reels');
     });
   }
 

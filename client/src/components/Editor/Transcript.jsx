@@ -121,7 +121,7 @@ export default function Transcript({ subtitle, onEdit, video }) {
         alignItems="baseline"
         py="1.5"
         {...props.attributes}
-        onClick={() => {
+        onDoubleClick={() => {
           video.currentTime = props.element.line.start;
         }}
       >
@@ -141,7 +141,7 @@ export default function Transcript({ subtitle, onEdit, video }) {
 
     return (
       <div
-        onClick={e => {
+        onDoubleClick={e => {
           e.stopPropagation();
           video.currentTime = word.start;
         }}
