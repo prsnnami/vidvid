@@ -106,7 +106,7 @@ export default function Editor() {
       body: JSON.stringify(body),
     }).then(res => {
       setExportLoading(false);
-      // navigate('/reels');
+      navigate('/reels');
     });
   }
 
