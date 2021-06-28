@@ -53,6 +53,9 @@ jobs:
           
           #build react app
           cd /home/punit/reduct-experiments/client
+          cat > .env << EOF
+          REACT_APP_GOOGLE_FONTS_API_KEY=${{ secrets.GOOGLE_FONTS_API_KEY }}
+          EOF
           npm i
           npm run build
           chmod 600 /var/www/html
