@@ -54,6 +54,8 @@ def generate_reel_view(request):
     font_family = body.get("fontFamily")
     font_size = body.get("fontSize") or 22
     text_position = body.get("textPosition") or 10
+    outline_width = body.get("outlineWidth") or 2
+    outline_color = body.get("outlineColor") or "#000000"
 
     if (
         not subtitle
@@ -88,6 +90,8 @@ def generate_reel_view(request):
             font_family,
             font_size,
             text_position,
+            outline_width,
+            outline_color,
         ),
     )
     p.start()

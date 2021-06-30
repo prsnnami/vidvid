@@ -24,6 +24,12 @@ aspect_ratios = {
 }
 
 
+def rgb_to_bgr(rgb):
+    rgb = rgb.split("#")[1]
+    bgr = rgb[-2:] + rgb[2:4] + rgb[:2]
+    return bgr
+
+
 def get_timestamp(time):
     hour = time // 3600
     time %= 3600
@@ -35,7 +41,17 @@ def get_timestamp(time):
 
 
 def generate_subtitle(
-    id, subtitle, height, width, font_family, font_size, margin_x, margin_bottom, primary_color, outline_width
+    id,
+    subtitle,
+    height,
+    width,
+    font_family,
+    font_size,
+    margin_x,
+    margin_bottom,
+    primary_color,
+    outline_width,
+    outline_color,
 ):
 
     dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -53,6 +69,7 @@ def generate_subtitle(
             "margin_bottom": margin_bottom,
             "primary_color": primary_color,
             "outline_width": outline_width,
+            "outline_color": outline_color,
         }
     )
     print(result)
@@ -188,7 +205,20 @@ def download_reduct_stream(id, url, manifest_path, quality):
 #     srt.close()
 
 
-def burn_subtitles(id, name, text_color, font_link, font_family, font_size, text_position, a_r, quality, subtitle):
+def burn_subtitles(
+    id,
+    name,
+    text_color,
+    font_link,
+    font_family,
+    font_size,
+    text_position,
+    a_r,
+    quality,
+    subtitle,
+    outline_width,
+    outline_color,
+):
     dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
     subtitle_path = f"{dir_path}/tmp/{id}/subtitle.ass"
@@ -196,8 +226,6 @@ def burn_subtitles(id, name, text_color, font_link, font_family, font_size, text
     output_path = f"{dir_path}/tmp/{id}/{name}.mp4"
     fonts_dir = f"{dir_path}/media/fonts"
 
-    rgb = text_color.split("#")[1]
-    bgr = rgb[-2:] + rgb[2:4] + rgb[:2]
     probe = ffmpeg.probe(input_path)
     video_stream = next((stream for stream in probe["streams"] if stream["codec_type"] == "video"), None)
     height = int(video_stream["height"])
@@ -208,15 +236,14 @@ def burn_subtitles(id, name, text_color, font_link, font_family, font_size, text
 
     scale = max(max(height / preview_height, 1), max(width / preview_width, 1))
 
-    outline_width = 10 if quality == "1080p" else (6 if quality == "480p" else 1)
-
     # c_font_size = scale * font_size * quality / preview_height
     c_font_size = font_size * 1.4 * width / preview_width
+    c_outline_width = float(outline_width) * width / preview_width / 2
 
     c_margin_v = height * text_position / 100
     c_margin_x = width / 10
     print("----------------------------------------------")
-    print(scale, height, width, c_font_size, c_margin_x, c_margin_v)
+    print(outline_width, c_outline_width)
     print("----------------------------------------------")
 
     generate_subtitle(
@@ -228,8 +255,9 @@ def burn_subtitles(id, name, text_color, font_link, font_family, font_size, text
         font_size=c_font_size,
         margin_x=c_margin_x,
         margin_bottom=c_margin_v,
-        primary_color=bgr,
-        outline_width=outline_width,
+        primary_color=rgb_to_bgr(text_color),
+        outline_width=c_outline_width,
+        outline_color=rgb_to_bgr(outline_color),
     )
 
     if not os.path.isdir(fonts_dir):
@@ -291,7 +319,20 @@ def generate_thumbnail(id, name):
 
 
 def generate_reel(
-    subtitle, url, manifest_url, name, a_r, color, quality, text_color, font, font_family, font_size, text_position
+    subtitle,
+    url,
+    manifest_url,
+    name,
+    a_r,
+    color,
+    quality,
+    text_color,
+    font,
+    font_family,
+    font_size,
+    text_position,
+    outline_width,
+    outline_color,
 ):
     id = str(uuid.uuid4())
 
@@ -323,6 +364,8 @@ def generate_reel(
         a_r=a_r,
         quality=quality,
         subtitle=subtitle,
+        outline_width=outline_width,
+        outline_color=outline_color,
     )
     meta["output"] = f"{id}/{name}.mp4"
     with open("tmp/" + id + "/meta.json", "w") as file:
