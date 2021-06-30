@@ -15,6 +15,26 @@ from pytube import YouTube
 from requests.utils import requote_uri
 from .mail import send_mail
 import urllib.request
+from fontTools import ttLib
+
+FONT_SPECIFIER_NAME_ID = 4
+FONT_SPECIFIER_FAMILY_ID = 1
+
+
+def shortName(font):
+    """Get the short name from the font's names table"""
+    name = ""
+    for record in font["name"].names:
+        if b"\x00" in record.string:
+            name_str = record.string.decode("utf-16-be")
+        else:
+            name_str = record.string.decode("utf-8")
+        if record.nameID == FONT_SPECIFIER_NAME_ID and not name:
+            name = name_str
+        if name:
+            break
+    return name
+
 
 aspect_ratios = {
     "16:9": {"height": 1080, "width": 1920},
@@ -246,12 +266,20 @@ def burn_subtitles(
     print(outline_width, c_outline_width)
     print("----------------------------------------------")
 
+    if not os.path.isdir(fonts_dir):
+        os.makedirs(fonts_dir)
+
+    if not os.path.exists(f"{fonts_dir}/{font_family}.ttf"):
+        urllib.request.urlretrieve(font_link, f"{fonts_dir}/{font_family}.ttf")
+
+    font = ttLib.TTFont(f"{fonts_dir}/{font_family}.ttf")
+
     generate_subtitle(
         id,
         subtitle,
         height,
         width,
-        font_family=font_family,
+        font_family=shortName(font),
         font_size=c_font_size,
         margin_x=c_margin_x,
         margin_bottom=c_margin_v,
@@ -259,12 +287,6 @@ def burn_subtitles(
         outline_width=c_outline_width,
         outline_color=rgb_to_bgr(outline_color),
     )
-
-    if not os.path.isdir(fonts_dir):
-        os.makedirs(fonts_dir)
-
-    if not os.path.exists(f"{fonts_dir}/{font_family}.ttf"):
-        urllib.request.urlretrieve(font_link, f"{fonts_dir}/{font_family}.ttf")
 
     # subprocess.run(['ffmpeg', '-i', input_path, '-vf',
     #                f"subtitles={subtitle_path}:fontsdir={fonts_dir}:force_style='Outline=2,OutlineColour=&H000000&,FontName={font_family},Fontsize={c_font_size},PrimaryColour=&H{bgr}&,OutlineColour=&H000000&,MarginV={c_margin_v},MarginL={c_margin_x},MarginR={c_margin_x}'", '-vcodec', 'h264', output_path])
