@@ -111,14 +111,12 @@ export default function Editor() {
   }
 
   function getSRT() {
-    console.log(subtitle);
     let srtText = subtitle.reduce((acc, curr, index) => {
       acc += `${index + 1}.\n${getSRTTimestamp(
         curr.start
       )} --> ${getSRTTimestamp(curr.end)}\n${curr.text}\n`;
       return acc;
     }, '');
-    console.log(srtText);
 
     let element = document.createElement('a');
     element.setAttribute(
