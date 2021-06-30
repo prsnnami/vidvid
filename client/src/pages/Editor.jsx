@@ -46,9 +46,13 @@ export default function Editor() {
   const aspectRatio = useState('16:9');
   const color = useState('#000000');
   const textColor = useState('#ffffff');
-  const fontSize = React.useState(22);
+  const fontSize = React.useState(75);
   const activeFontFamily = useState(OpenSans);
   const textPosition = useState(10);
+  const outlineWidth = useState(2);
+  const outlineColor = useState('#000000');
+  const fontWeight = useState(400);
+  const italic = useState(false);
 
   const handleSubtitleEdit = useDebouncedCallback(
     subtitle => setSubtitle(subtitle),
@@ -73,8 +77,90 @@ export default function Editor() {
     });
   }, []);
 
+  // def create_srt(id, subtitle):
+  //     dir_path = os.path.dirname(os.path.dirname(
+  //         os.path.realpath(__file__)))
+  //     srt = open(f'{dir_path}/tmp/{id}/subtitle.srt', 'w')
+  //     count = 1
+  //     for line in subtitle:
+  //         srt.write(f'{count}')
+  //         srt.write('\n')
+  //         srt.write(
+  //             f"{get_timestamp(line['start'])} --> {get_timestamp(line['end'])}")
+  //         srt.write('\n')
+  //         srt.write(line['text'])
+  //         srt.write('\n')
+  //         srt.write('\n')
+  //         count += 1
+  //     srt.close()
+
+  function padStart(num) {
+    return String(Math.round(num)).padStart(2, '0');
+  }
+
+  function getSRTTimestamp(time) {
+    let hour = time / 3600;
+    time %= 3600;
+    let minutes = time / 60;
+    time %= 60;
+    let seconds = Math.floor(time);
+    let milliseconds = (time % 1) * 100;
+    return `${padStart(hour)}:${padStart(minutes)}:${padStart(
+      seconds
+    )},${padStart(milliseconds)}`;
+  }
+
+  function getSRT() {
+    console.log(subtitle);
+    let srtText = subtitle.reduce((acc, curr, index) => {
+      acc += `${index + 1}.\n${getSRTTimestamp(
+        curr.start
+      )} --> ${getSRTTimestamp(curr.end)}\n${curr.text}\n`;
+      return acc;
+    }, '');
+    console.log(srtText);
+
+    let element = document.createElement('a');
+    element.setAttribute(
+      'href',
+      'data:text/plain;charset=utf-8,' + encodeURIComponent(srtText)
+    );
+    element.setAttribute('download', 'subtitles.srt');
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+  }
+
+  function getFontLink() {
+    if (activeFontFamily[0].id === 'open-sans') {
+      return OpenSans.files.regular;
+    } else {
+      if (
+        activeFontFamily[0].files[fontWeight[0] + (italic[0] ? 'italic' : '')]
+      ) {
+        console.log(fontWeight[0] + (italic[0] ? 'italic' : ''));
+        return activeFontFamily[0].files[
+          fontWeight[0] + (italic[0] ? 'italic' : '')
+        ];
+      } else {
+        return activeFontFamily[0].files.regular;
+      }
+    }
+  }
+
+  function getFontFamily() {
+    let fontFamily = activeFontFamily[0].family + ' ' + fontWeight[0];
+    if (italic[0]) fontFamily = fontFamily + ' italic';
+    return fontFamily;
+  }
+
   function onSubmit(name, quality) {
     setExportLoading(true);
+
     let body = {
       name,
       quality,
@@ -88,13 +174,12 @@ export default function Editor() {
       a_r: aspectRatio[0],
       color: color[0],
       textColor: textColor[0],
-      font:
-        activeFontFamily[0].id === 'open-sans'
-          ? OpenSans.files.regular
-          : activeFontFamily[0].files.regular,
-      fontFamily: activeFontFamily[0].family,
+      font: getFontLink(),
+      fontFamily: getFontFamily(),
       fontSize: fontSize[0],
       textPosition: textPosition[0],
+      outlineWidth: outlineWidth[0],
+      outlineColor: outlineColor[0],
     };
 
     // console.log(body);
@@ -121,7 +206,10 @@ export default function Editor() {
           justifyContent="flex-end"
           bg="teal.500"
         >
-          <Button onClick={exportModal.onOpen}>Export Video</Button>
+          <Stack direction="row">
+            <Button onClick={getSRT}>Download SRT</Button>
+            <Button onClick={exportModal.onOpen}>Export Video</Button>
+          </Stack>
         </Flex>
         <Flex flexGrow="1" overflow="hidden">
           <Box
@@ -140,7 +228,9 @@ export default function Editor() {
               },
             }}
           >
-            <Heading px={4}>Transcript</Heading>
+            <Heading px={4} className="apply-font">
+              Transcript
+            </Heading>
             <Box p={4} flex={1}>
               {subtitle && (
                 <Transcript
@@ -183,6 +273,10 @@ export default function Editor() {
               fontSize={fontSize}
               activeFontFamily={activeFontFamily}
               textPosition={textPosition}
+              outlineWidth={outlineWidth}
+              outlineColor={outlineColor}
+              fontWeight={fontWeight}
+              italic={italic}
             />
           </Flex>
         </Flex>

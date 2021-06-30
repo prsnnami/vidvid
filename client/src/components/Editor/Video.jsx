@@ -15,6 +15,7 @@ import { FaPause, FaPlay, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import Canvas from '../VideoCanvas';
 import ere from 'element-resize-event';
 import {
+  Checkbox,
   FormControl,
   FormLabel,
   Heading,
@@ -49,6 +50,10 @@ const Video = React.forwardRef(
       fontSize,
       activeFontFamily,
       textPosition,
+      outlineColor,
+      outlineWidth,
+      fontWeight,
+      italic,
     },
     canvasRef
   ) => {
@@ -188,11 +193,20 @@ const Video = React.forwardRef(
           drawThumbnail(ctx);
         } else {
           drawScaledImage(ctx, videoRef.current, canvasSize, videoSize);
-          ctx.font = fontSize[0] + 'px ' + activeFontFamily[0].family;
+          ctx.font =
+            (italic[0] ? 'italic' : 'normal') +
+            ' normal ' +
+            fontWeight[0] +
+            ' ' +
+            fontSize[0] +
+            'px ' +
+            activeFontFamily[0].family;
           ctx.fillStyle = textColor[0];
           ctx.textAlign = 'center';
-          ctx.lineWidth = 4;
+          ctx.lineWidth = outlineWidth[0];
+          ctx.strokeStyle = outlineColor[0];
           ctx.miterLimit = 2;
+
           let textRender = false;
           subtitle.forEach(s => {
             if (
@@ -373,7 +387,26 @@ const Video = React.forwardRef(
                 <FontPicker
                   apiKey={process.env.REACT_APP_GOOGLE_FONTS_API_KEY}
                   activeFontFamily={activeFontFamily[0].family}
-                  variants={['regular']}
+                  variants={[
+                    '100',
+                    '100italic',
+                    '200',
+                    '200italic',
+                    '300',
+                    '300italic',
+                    'regular',
+                    'italic',
+                    '500',
+                    '500italic',
+                    '600',
+                    '600italic',
+                    '700',
+                    '700italic',
+                    '800',
+                    '800italic',
+                    '900',
+                    '900italic',
+                  ]}
                   onChange={nextFont => {
                     console.log(nextFont);
                     activeFontFamily[1](nextFont);
@@ -400,6 +433,34 @@ const Video = React.forwardRef(
                     <NumberDecrementStepper />
                   </NumberInputStepper>
                 </NumberInput>
+              </FormControl>
+              <FormControl id="font_size" isRequired>
+                <FormLabel>Italic</FormLabel>
+                <Checkbox
+                  checked={italic[0]}
+                  onChange={e => italic[1](e.target.checked)}
+                >
+                  Italic
+                </Checkbox>
+              </FormControl>
+              <FormControl id="font_size" isRequired>
+                <FormLabel>Font Weight</FormLabel>
+                <Select
+                  size="sm"
+                  background="white"
+                  onChange={e => fontWeight[1](e.target.value)}
+                  value={fontWeight[0]}
+                >
+                  <option value="100">100</option>
+                  <option value="200">200</option>
+                  <option value="300">300</option>
+                  <option value="400">400</option>
+                  <option value="500">500</option>
+                  <option value="600">600</option>
+                  <option value="700">700</option>
+                  <option value="800">800</option>
+                  <option value="900">900</option>
+                </Select>
               </FormControl>
               <FormControl id="color" isRequired>
                 <FormLabel>Font Color</FormLabel>
@@ -429,6 +490,37 @@ const Video = React.forwardRef(
                   </SliderTrack>
                   <SliderThumb bg="teal.500" />
                 </Slider>
+              </FormControl>
+              <FormControl id="position" isRequired>
+                <FormLabel>Outline Width</FormLabel>
+                <NumberInput
+                  size="sm"
+                  onChange={e => outlineWidth[1](e)}
+                  value={outlineWidth[0]}
+                  step={0.5}
+                  defaultValue={2}
+                  min={0}
+                  max={50}
+                  bg="white"
+                  borderRadius={8}
+                >
+                  <NumberInputField />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
+              </FormControl>
+              <FormControl id="position" isRequired>
+                <FormLabel>Outline Color</FormLabel>
+                <Input
+                  size="sm"
+                  background="white"
+                  type="color"
+                  px="1"
+                  value={outlineColor[0]}
+                  onChange={e => outlineColor[1](e.target.value)}
+                />
               </FormControl>
             </Stack>
           </Flex>
