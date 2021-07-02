@@ -219,6 +219,18 @@ export default function Transcript({ subtitle, onEdit, video }) {
                 break;
               }
 
+              case ' ': {
+                event.preventDefault();
+                if (!video) return;
+
+                if (video.paused) {
+                  video.play();
+                } else {
+                  video.pause();
+                }
+                break;
+              }
+
               default:
                 break;
             }

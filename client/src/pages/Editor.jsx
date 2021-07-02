@@ -19,6 +19,7 @@ import Video from '../components/Editor/Video';
 import { getSubtitle, loadTranscript } from '../utils';
 import { useDebouncedCallback } from '../utils/useDebouncedCallback';
 import Transcript from '../components/Editor/Transcript';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 const OpenSans = {
   variants: ['regular'],
@@ -61,6 +62,16 @@ export default function Editor() {
 
   const navigate = useNavigate();
   const exportModal = useDisclosure();
+
+  useHotkeys('ctrl+space', () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  });
 
   useEffect(() => {
     let shareUrl = 'https://app.reduct.video/e/' + sharePath;
