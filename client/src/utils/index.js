@@ -178,7 +178,9 @@ export function handleSplitLine(editor) {
     return false;
   }
 
-  Transforms.splitNodes(editor);
+  if (textBefore.trim() !== '') {
+    Transforms.splitNodes(editor);
+  }
 
   const wordAfter = { ...word, text: textAfter };
   const wordNodeAfter = {

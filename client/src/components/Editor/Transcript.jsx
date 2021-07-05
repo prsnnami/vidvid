@@ -159,7 +159,16 @@ export default function Transcript({ subtitle, onEdit, video }) {
         value={value}
         onChange={newValue => {
           setValue(newValue);
-          onEdit(serialize(newValue));
+          let x = serialize(newValue).map((line, idx, arr) => {
+            if (idx < arr.length - 1) {
+              return {
+                ...line,
+                end: arr[idx + 1].start,
+              };
+            }
+            return line;
+          });
+          onEdit(x);
         }}
       >
         <Editable
