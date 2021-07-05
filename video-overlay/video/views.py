@@ -56,8 +56,10 @@ def generate_reel_view(request):
     text_position = body.get("textPosition") or 10
     outline_width = body.get("outlineWidth") or 2
     outline_color = body.get("outlineColor") or "#000000"
-    # font_weight = body.get("fontWeight") or 400
-    # italic = body.get("italic") or False
+    show_title = body.get("showTitle") or False
+    title_position = body.get("titlePosition") or 85
+    title_text_size = body.get("titleTextSize") or 150
+    title = body.get("title")
 
     if (
         not subtitle
@@ -94,6 +96,10 @@ def generate_reel_view(request):
             text_position,
             outline_width,
             outline_color,
+            show_title,
+            title_position,
+            title,
+            title_text_size
             # font_weight,
             # italic,
         ),

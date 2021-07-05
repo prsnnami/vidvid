@@ -61,6 +61,7 @@ def burn_subtitles(
 
     subtitle_path = f"{dir_path}/tmp/{id}/subtitle.ass"
     output_path = f"{dir_path}/tmp/{id}/{name}.mp4"
+    output_path_2 = f"{dir_path}/tmp/{id}/{name}_1.mp4"
     fonts_dir = f"{dir_path}/media/fonts"
 
     rgb = text_color.split("#")[1]
@@ -84,16 +85,16 @@ def burn_subtitles(
     print(scale, height, width, c_font_size, c_margin_x, c_margin_v)
     print("----------------------------------------------")
 
-    generate_subtitle(
-        id,
-        subtitle,
-        height,
-        width,
-        font_size=c_font_size,
-        margin_x=c_margin_x,
-        margin_bottom=c_margin_v,
-        primary_color=bgr,
-    )
+    # generate_subtitle(
+    #     id,
+    #     subtitle,
+    #     height,
+    #     width,
+    #     font_size=c_font_size,
+    #     margin_x=c_margin_x,
+    #     margin_bottom=c_margin_v,
+    #     primary_color=bgr,
+    # )
 
     if not os.path.isdir(fonts_dir):
         os.makedirs(fonts_dir)
@@ -103,7 +104,20 @@ def burn_subtitles(
 
     # subprocess.run(['ffmpeg', '-i', input_path, '-vf',
     #                f"subtitles={subtitle_path}:fontsdir={fonts_dir}:force_style='Outline=2,OutlineColour=&H000000&,FontName={font_family},Fontsize={c_font_size},PrimaryColour=&H{bgr}&,OutlineColour=&H000000&,MarginV={c_margin_v},MarginL={c_margin_x},MarginR={c_margin_x}'", '-vcodec', 'h264', output_path])
-    subprocess.run(["ffmpeg", "-i", input_path, "-vf", f"ass={subtitle_path}:fontsdir={fonts_dir}", output_path])
+    # subprocess.run(["ffmpeg", "-i", input_path, "-vf", f"ass={subtitle_path}:fontsdir={fonts_dir}", output_path, "-y"])
+    c_title_margin_y = height - height * 46 / 100
+    c_title_font_size = 100 * width / preview_width
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-i",
+            output_path,
+            "-vf",
+            f"drawtext=fontfile='{fonts_dir}/{font_family}.ttf':text='Transcript':fontcolor=white:fontsize={c_title_font_size}:x=(w-text_w)/2:y=({c_title_margin_y}-text_h/100*80)",
+            output_path_2,
+            "-y",
+        ]
+    )
 
 
 def main():
@@ -112,7 +126,7 @@ def main():
     font = "http://fonts.gstatic.com/s/didactgothic/v14/ahcfv8qz1zt6hCC5G4F_P4ASpUySp0LlcyQ.ttf"
     textColor = "#ffffff"
     font_size = 90
-    a_r = "9:16"
+    a_r = "16:9"
     textPosition = 10
     subtitle = [
         {"start": 1.16999899999999, "end": 4.269999999999996, "text": "What can weasdasd design now as an outcome "},
@@ -125,7 +139,7 @@ def main():
         name="1080",
         text_color=textColor,
         font_link=font,
-        font_family="Didact Gothic",
+        font_family="Open Sans",
         font_size=font_size,
         text_position=textPosition,
         input_path=f"{dir_path}/tmp/123/output_resized_1080p.mp4",

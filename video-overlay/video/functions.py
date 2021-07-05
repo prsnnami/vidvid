@@ -238,6 +238,10 @@ def burn_subtitles(
     subtitle,
     outline_width,
     outline_color,
+    show_title,
+    title_position,
+    title,
+    title_text_size,
 ):
     dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -290,7 +294,26 @@ def burn_subtitles(
 
     # subprocess.run(['ffmpeg', '-i', input_path, '-vf',
     #                f"subtitles={subtitle_path}:fontsdir={fonts_dir}:force_style='Outline=2,OutlineColour=&H000000&,FontName={font_family},Fontsize={c_font_size},PrimaryColour=&H{bgr}&,OutlineColour=&H000000&,MarginV={c_margin_v},MarginL={c_margin_x},MarginR={c_margin_x}'", '-vcodec', 'h264', output_path])
-    subprocess.run(["ffmpeg", "-i", input_path, "-vf", f"ass={subtitle_path}:fontsdir={fonts_dir}", output_path])
+    if show_title:
+        subtitled_video_path = f"{dir_path}/tmp/{id}/output_subtitled.mp4"
+        c_title_font_size = title_text_size * width / preview_width
+        c_title_margin_y = height - height * title_position / 100
+
+        subprocess.run(
+            ["ffmpeg", "-i", input_path, "-vf", f"ass={subtitle_path}:fontsdir={fonts_dir}", subtitled_video_path]
+        )
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-i",
+                subtitled_video_path,
+                "-vf",
+                f"drawtext=fontfile='{fonts_dir}/{font_family}.ttf':text='{title}':fontcolor={text_color}:fontsize={c_title_font_size}:x=(w-text_w)/2:y=({c_title_margin_y}-text_h/100*80)",
+                output_path,
+            ]
+        )
+    else:
+        subprocess.run(["ffmpeg", "-i", input_path, "-vf", f"ass={subtitle_path}:fontsdir={fonts_dir}", output_path])
 
 
 def resize_video(id, a_r, color):
@@ -355,6 +378,10 @@ def generate_reel(
     text_position,
     outline_width,
     outline_color,
+    show_title,
+    title_position,
+    title,
+    title_text_size,
 ):
     id = str(uuid.uuid4())
 
@@ -388,6 +415,10 @@ def generate_reel(
         subtitle=subtitle,
         outline_width=outline_width,
         outline_color=outline_color,
+        show_title=show_title,
+        title_position=title_position,
+        title=title,
+        title_text_size=title_text_size,
     )
     meta["output"] = f"{id}/{name}.mp4"
     with open("tmp/" + id + "/meta.json", "w") as file:
