@@ -54,6 +54,10 @@ const Video = React.forwardRef(
       outlineWidth,
       fontWeight,
       italic,
+      showTitle,
+      titlePosition,
+      titleTextSize,
+      title,
     },
     canvasRef
   ) => {
@@ -234,6 +238,25 @@ const Video = React.forwardRef(
               textRender = true;
             }
           });
+          if (showTitle[0]) {
+            ctx.font =
+              'normal normal ' +
+              fontWeight[0] +
+              ' ' +
+              titleTextSize[0] +
+              'px ' +
+              activeFontFamily[0].family;
+            ctx.strokeText(
+              title,
+              canvasSize.width / 2,
+              canvasSize.height - (canvasSize.height * titlePosition[0]) / 100
+            );
+            ctx.fillText(
+              title,
+              canvasSize.width / 2,
+              canvasSize.height - (canvasSize.height * titlePosition[0]) / 100
+            );
+          }
         }
       }
     }
@@ -369,6 +392,53 @@ const Video = React.forwardRef(
                   px="1"
                   onChange={e => handleColorChange(e.target.value)}
                 />
+              </FormControl>
+              <FormControl id="font_size" isRequired>
+                <FormLabel>Show title?</FormLabel>
+                <Checkbox
+                  checked={showTitle[0]}
+                  onChange={e => showTitle[1](e.target.checked)}
+                >
+                  Show Title
+                </Checkbox>
+              </FormControl>
+              <FormControl id="position" isRequired>
+                <FormLabel>Title Position ({titlePosition[0]})</FormLabel>
+                <Slider
+                  size="sm"
+                  aria-label="slider-ex-1"
+                  value={titlePosition[0]}
+                  focusThumbOnChange={false}
+                  onChange={progress => titlePosition[1](progress)}
+                  ml="2"
+                  min={10}
+                  max={90}
+                >
+                  <SliderTrack bg="gray.400">
+                    <SliderFilledTrack bg="teal.500" />
+                  </SliderTrack>
+                  <SliderThumb bg="teal.500" />
+                </Slider>
+              </FormControl>
+              <FormControl id="font_size" isRequired>
+                <FormLabel>Title Font Size</FormLabel>
+                <NumberInput
+                  size="sm"
+                  onChange={valueString => titleTextSize[1](parse(valueString))}
+                  value={format(titleTextSize[0])}
+                  step={2}
+                  defaultValue={22}
+                  min={10}
+                  max={200}
+                  bg="white"
+                  borderRadius={8}
+                >
+                  <NumberInputField />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
               </FormControl>
             </Stack>
           </Flex>

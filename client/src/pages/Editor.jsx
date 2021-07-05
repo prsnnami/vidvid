@@ -54,6 +54,10 @@ export default function Editor() {
   const outlineColor = useState('#000000');
   const fontWeight = useState(400);
   const italic = useState(false);
+  const showTitle = useState(false);
+  const titlePosition = useState(85);
+  const titleTextSize = useState(150);
+  const [title, setTitle] = useState('Transcript');
 
   const handleSubtitleEdit = useDebouncedCallback(
     subtitle => setSubtitle(subtitle),
@@ -189,6 +193,10 @@ export default function Editor() {
       textPosition: textPosition[0],
       outlineWidth: outlineWidth[0],
       outlineColor: outlineColor[0],
+      showTitle: showTitle[0],
+      titlePosition: titlePosition[0],
+      titleTextSize: titleTextSize[0],
+      title: title,
     };
 
     // console.log(body);
@@ -238,7 +246,13 @@ export default function Editor() {
             }}
           >
             <Heading px={4} className="apply-font">
-              Transcript
+              <span
+                contentEditable
+                suppressContentEditableWarning
+                onInput={e => setTitle(e.target.innerText)}
+              >
+                Transcript
+              </span>
             </Heading>
             <Box p={4} flex={1}>
               {subtitle && (
@@ -286,6 +300,10 @@ export default function Editor() {
               outlineColor={outlineColor}
               fontWeight={fontWeight}
               italic={italic}
+              showTitle={showTitle}
+              titlePosition={titlePosition}
+              titleTextSize={titleTextSize}
+              title={title}
             />
           </Flex>
         </Flex>
