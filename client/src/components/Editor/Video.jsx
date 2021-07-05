@@ -457,31 +457,31 @@ const Video = React.forwardRef(
                 <FontPicker
                   apiKey={process.env.REACT_APP_GOOGLE_FONTS_API_KEY}
                   activeFontFamily={activeFontFamily[0].family}
-                  variants={[
-                    '100',
-                    '100italic',
-                    '200',
-                    '200italic',
-                    '300',
-                    '300italic',
-                    'regular',
-                    'italic',
-                    '500',
-                    '500italic',
-                    '600',
-                    '600italic',
-                    '700',
-                    '700italic',
-                    '800',
-                    '800italic',
-                    '900',
-                    '900italic',
-                  ]}
+                  // variants={[
+                  //   '100',
+                  //   '100italic',
+                  //   '200',
+                  //   '200italic',
+                  //   '300',
+                  //   '300italic',
+                  //   'regular',
+                  //   'italic',
+                  //   '500',
+                  //   '500italic',
+                  //   '600',
+                  //   '600italic',
+                  //   '700',
+                  //   '700italic',
+                  //   '800',
+                  //   '800italic',
+                  //   '900',
+                  //   '900italic',
+                  // ]}
                   onChange={nextFont => {
                     console.log(nextFont);
                     activeFontFamily[1](nextFont);
                   }}
-                  limit={200}
+                  limit={400}
                 />
               </FormControl>
               <FormControl id="font_size" isRequired>
