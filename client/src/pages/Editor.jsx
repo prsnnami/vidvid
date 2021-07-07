@@ -110,7 +110,7 @@ export default function Editor() {
   //     srt.close()
 
   function padStart(num) {
-    return String(Math.round(num)).padStart(2, '0');
+    return String(Math.floor(num)).padStart(2, '0');
   }
 
   function getSRTTimestamp(time) {
