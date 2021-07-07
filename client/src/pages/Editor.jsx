@@ -127,9 +127,9 @@ export default function Editor() {
 
   function getSRT() {
     let srtText = subtitle.reduce((acc, curr, index) => {
-      acc += `${index + 1}.\n${getSRTTimestamp(
+      acc += `${index + 1}\n${getSRTTimestamp(
         curr.start
-      )} --> ${getSRTTimestamp(curr.end)}\n${curr.text}\n`;
+      )} --> ${getSRTTimestamp(curr.end)}\n${curr.text}\n\n`;
       return acc;
     }, '');
 
