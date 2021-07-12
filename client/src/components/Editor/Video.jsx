@@ -72,6 +72,8 @@ const Video = React.forwardRef(
     const [buffering, setBuffering] = useState();
     const [videoPlayed, setVideoPlayed] = useState(false);
 
+    const [showOutline, setShowOutline] = useState(false);
+
     const wrapperRef = useRef();
 
     // const [color, setColor] = useState('#000000');
@@ -257,6 +259,25 @@ const Video = React.forwardRef(
               canvasSize.height - (canvasSize.height * titlePosition[0]) / 100
             );
           }
+
+          if (showOutline && aspectRatio[0] === '9:16') {
+            console.log('hear');
+            ctx.beginPath();
+            ctx.strokeStyle = 'teal';
+            ctx.moveTo(0, 284);
+            ctx.lineTo(1080, 284);
+            ctx.moveTo(0, 1636);
+            ctx.lineTo(1080, 1636);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.strokeStyle = 'blue';
+            ctx.moveTo(0, 420);
+            ctx.lineTo(1080, 420);
+            ctx.moveTo(0, 1500);
+            ctx.lineTo(1080, 1500);
+            ctx.stroke();
+          }
         }
       }
     }
@@ -366,7 +387,12 @@ const Video = React.forwardRef(
             borderRadius="8"
             p="4"
           >
-            <Heading size="md">Video Settings</Heading>
+            <Heading
+              size="md"
+              onClick={() => console.log({ showOutline, aspectRatio })}
+            >
+              Video Settings
+            </Heading>
             <Stack py="4">
               <FormControl id="a_r" isRequired>
                 <FormLabel>Aspect Ratio</FormLabel>
@@ -381,6 +407,15 @@ const Video = React.forwardRef(
                   <option value="9:16">9:16 Vertical</option>
                   <option value="4:5">4:5 Portrait</option>
                 </Select>
+              </FormControl>
+              <FormControl id="grid" isRequired>
+                <FormLabel>Show Grid</FormLabel>
+                <Checkbox
+                  checked={showOutline}
+                  onChange={e => setShowOutline(e.target.checked)}
+                >
+                  Show Grid
+                </Checkbox>
               </FormControl>
               <FormControl id="color" isRequired>
                 <FormLabel>Background Color</FormLabel>
