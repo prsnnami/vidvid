@@ -261,7 +261,6 @@ const Video = React.forwardRef(
           }
 
           if (showOutline && aspectRatio[0] === '9:16') {
-            console.log('hear');
             ctx.beginPath();
             ctx.strokeStyle = 'teal';
             ctx.moveTo(0, 284);
