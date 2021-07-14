@@ -58,6 +58,7 @@ export default function Editor() {
   const titlePosition = useState(85);
   const titleTextSize = useState(150);
   const [title, setTitle] = useState('Transcript');
+  const fontUppercase = useState(false);
 
   const handleSubtitleEdit = useDebouncedCallback(
     subtitle => setSubtitle(subtitle),
@@ -180,7 +181,7 @@ export default function Editor() {
       subtitle: subtitle.map(i => ({
         start: i.start,
         end: i.end,
-        text: i.text,
+        text: fontUppercase[0] ? i.text.toUpperCase() : i.text,
       })),
       url: 'https://app.reduct.video/e/' + sharePath,
       manifest_url: manifestUrl,
@@ -304,6 +305,7 @@ export default function Editor() {
               titlePosition={titlePosition}
               titleTextSize={titleTextSize}
               title={title}
+              fontUppercase={fontUppercase}
             />
           </Flex>
         </Flex>

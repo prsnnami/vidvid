@@ -58,6 +58,7 @@ const Video = React.forwardRef(
       titlePosition,
       titleTextSize,
       title,
+      fontUppercase,
     },
     canvasRef
   ) => {
@@ -222,6 +223,9 @@ const Video = React.forwardRef(
             ) {
               let lines = getWrapLines(ctx, s.text, canvasSize.width * 0.8);
               lines.reverse().forEach((line, i) => {
+                if (fontUppercase[0]) {
+                  line = line.toUpperCase();
+                }
                 ctx.strokeText(
                   line,
                   canvasSize.width / 2,
@@ -518,6 +522,15 @@ const Video = React.forwardRef(
                   limit={400}
                 />
               </FormControl>
+              <FormControl id="uppercase" isRequired>
+                <FormLabel>Uppercase</FormLabel>
+                <Checkbox
+                  checked={fontUppercase[0]}
+                  onChange={e => fontUppercase[1](e.target.checked)}
+                >
+                  Uppercase
+                </Checkbox>
+              </FormControl>
               <FormControl id="font_size" isRequired>
                 <FormLabel>Font Size</FormLabel>
                 <NumberInput
@@ -538,6 +551,7 @@ const Video = React.forwardRef(
                   </NumberInputStepper>
                 </NumberInput>
               </FormControl>
+
               <FormControl id="font_size" isRequired>
                 <FormLabel>Italic</FormLabel>
                 <Checkbox
