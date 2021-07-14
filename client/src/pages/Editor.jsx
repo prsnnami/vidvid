@@ -139,7 +139,7 @@ export default function Editor() {
       'href',
       'data:text/plain;charset=utf-8,' + encodeURIComponent(srtText)
     );
-    element.setAttribute('download', 'subtitles.srt');
+    element.setAttribute('download', title + '.srt');
 
     element.style.display = 'none';
     document.body.appendChild(element);
