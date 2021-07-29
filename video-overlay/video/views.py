@@ -8,6 +8,7 @@ from uuid import uuid4
 from django.http import FileResponse, HttpResponse, HttpResponseBadRequest
 from django.http.response import HttpResponseBase, HttpResponseNotFound, HttpResponseServerError, JsonResponse
 from django.shortcuts import render
+from rest_framework import viewsets, permissions
 
 from .functions import (
     add_overlay,
@@ -20,6 +21,8 @@ from .functions import (
     resize_video,
     send_video,
 )
+from .models import Project
+from .serializers import ProjectSerializer
 
 # Create your views here.
 
@@ -143,3 +146,23 @@ def get_reels(request):
         return JsonResponse(response)
     except:
         return HttpResponseServerError()
+
+
+class ProjectViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows project to be viewed or edited.
+    """
+
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+
+
+# class GroupViewSet(viewsets.ModelViewSet):
+#     """
+#     API endpoint that allows groups to be viewed or edited.
+#     """
+
+#     queryset = Group.objects.all()
+#     serializer_class = GroupSerializer
+#     permission_classes = [permissions.IsAuthenticated]
