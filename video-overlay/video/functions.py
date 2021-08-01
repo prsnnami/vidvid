@@ -9,6 +9,7 @@ import subprocess
 import ffmpeg
 from math import floor
 from string import Template
+import shutil
 
 from moviepy.editor import ColorClip, CompositeVideoClip, VideoFileClip
 from pytube import YouTube
@@ -434,3 +435,10 @@ def generate_reel(
     meta["thumbnail"] = f"/media/thumbnails/{id}.png"
     with open("tmp/" + id + "/meta.json", "w") as file:
         json.dump(meta, file)
+
+def delete_reel(id):
+    dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + f"/tmp/{id}"
+    try:
+        shutil.rmtree(dir_path)
+    except OSError as e:
+        print ("Error: %s - %s." % (e.filename, e.strerror))

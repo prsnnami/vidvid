@@ -20,6 +20,7 @@ from .functions import (
     get_timestamp,
     resize_video,
     send_video,
+    delete_reel,
 )
 from .models import Project
 from .serializers import ProjectSerializer
@@ -146,6 +147,20 @@ def get_reels(request):
             except:
                 continue
         return JsonResponse(response)
+    except:
+        return HttpResponseServerError()
+
+
+def delete_reel_view(request):
+    if request.method != "POST":
+        return HttpResponseBadRequest()
+
+    try:
+        body = json.loads(request.body)
+        id = body.get("id")
+        print(id)
+        delete_reel(id)
+        return HttpResponse("Success")
     except:
         return HttpResponseServerError()
 
