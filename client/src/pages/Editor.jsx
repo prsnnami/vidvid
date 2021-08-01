@@ -1,25 +1,16 @@
 import { Button } from '@chakra-ui/button';
-import { FormControl, FormLabel } from '@chakra-ui/form-control';
 import { useDisclosure } from '@chakra-ui/hooks';
-import { Input } from '@chakra-ui/input';
 import { Box, Flex, Heading, Stack } from '@chakra-ui/layout';
-import {
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-} from '@chakra-ui/modal';
-import { Select } from '@chakra-ui/select';
 import React, { useEffect, useRef, useState } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { useMutation } from 'react-query';
 import { useNavigate, useParams } from 'react-router';
+import Transcript from '../components/Editor/Transcript';
 import Video from '../components/Editor/Video';
+import ExportModal from '../components/ExportModal';
+import SaveModal from '../components/SaveModal';
 import { getSubtitle, loadTranscript } from '../utils';
 import { useDebouncedCallback } from '../utils/useDebouncedCallback';
-import Transcript from '../components/Editor/Transcript';
-import { useHotkeys } from 'react-hotkeys-hook';
 
 const OpenSans = {
   variants: ['regular'],
@@ -39,34 +30,61 @@ export default function Editor() {
   const videoRef = useRef();
   const transcriptContainerRef = useRef();
 
-  const [transcript, setTranscript] = useState();
-  const [subtitle, setSubtitle] = useState();
-  const [manifestUrl, setManifestUrl] = useState();
   const [exportLoading, setExportLoading] = useState(false);
+  const [videoMeta, setVideoMeta] = useState({
+    transcript: null,
+    subtitle: null,
+    manifestUrl: null,
+    aspectRatio: '16:9',
+    color: '#000000',
+    textColor: '#ffffff',
+    fontSize: 75,
+    activeFontFamily: OpenSans,
+    textPosition: 10,
+    outlineWidth: 2,
+    outlineColor: '#000000',
+    fontWeight: 400,
+    italic: false,
+    showTitle: false,
+    titlePosition: 85,
+    titleTextSize: 150,
+    title: 'Transcript',
+    fontUppercase: false,
+  });
 
-  const aspectRatio = useState('16:9');
-  const color = useState('#000000');
-  const textColor = useState('#ffffff');
-  const fontSize = React.useState(75);
-  const activeFontFamily = useState(OpenSans);
-  const textPosition = useState(10);
-  const outlineWidth = useState(2);
-  const outlineColor = useState('#000000');
-  const fontWeight = useState(400);
-  const italic = useState(false);
-  const showTitle = useState(false);
-  const titlePosition = useState(85);
-  const titleTextSize = useState(150);
-  const [title, setTitle] = useState('Transcript');
-  const fontUppercase = useState(false);
+  function updateMeta(key, change) {
+    setVideoMeta(videoMeta => ({ ...videoMeta, [key]: change }));
+  }
+
+  // const [transcript, setTranscript] = useState();
+  // const [subtitle, setSubtitle] = useState();
+  // const [manifestUrl, setManifestUrl] = useState();
+  // const [exportLoading, setExportLoading] = useState(false);
+
+  // const aspectRatio = useState('16:9');
+  // const color = useState('#000000');
+  // const textColor = useState('#ffffff');
+  // const fontSize = React.useState(75);
+  // const activeFontFamily = useState(OpenSans);
+  // const textPosition = useState(10);
+  // const outlineWidth = useState(2);
+  // const outlineColor = useState('#000000');
+  // const fontWeight = useState(400);
+  // const italic = useState(false);
+  // const showTitle = useState(false);
+  // const titlePosition = useState(85);
+  // const titleTextSize = useState(150);
+  // const [title, setTitle] = useState('Transcript');
+  // const fontUppercase = useState(false);
 
   const handleSubtitleEdit = useDebouncedCallback(
-    subtitle => setSubtitle(subtitle),
+    subtitle => updateMeta('subtitle', subtitle),
     400
   );
 
   const navigate = useNavigate();
   const exportModal = useDisclosure();
+  const saveModal = useDisclosure();
 
   useHotkeys('ctrl+space', () => {
     if (videoRef.current) {
@@ -86,29 +104,12 @@ export default function Editor() {
     }
 
     loadTranscript(shareUrl).then(transcript => {
-      setTranscript(transcript);
+      updateMeta('transcript', transcript);
       console.log(transcript);
       let subtitle = getSubtitle(transcript);
-      setSubtitle(subtitle);
+      updateMeta('subtitle', subtitle);
     });
   }, []);
-
-  // def create_srt(id, subtitle):
-  //     dir_path = os.path.dirname(os.path.dirname(
-  //         os.path.realpath(__file__)))
-  //     srt = open(f'{dir_path}/tmp/{id}/subtitle.srt', 'w')
-  //     count = 1
-  //     for line in subtitle:
-  //         srt.write(f'{count}')
-  //         srt.write('\n')
-  //         srt.write(
-  //             f"{get_timestamp(line['start'])} --> {get_timestamp(line['end'])}")
-  //         srt.write('\n')
-  //         srt.write(line['text'])
-  //         srt.write('\n')
-  //         srt.write('\n')
-  //         count += 1
-  //     srt.close()
 
   function padStart(num) {
     return String(Math.floor(num)).padStart(2, '0');
@@ -127,7 +128,7 @@ export default function Editor() {
   }
 
   function getSRT() {
-    let srtText = subtitle.reduce((acc, curr, index) => {
+    let srtText = videoMeta.subtitle.reduce((acc, curr, index) => {
       acc += `${index + 1}\n${getSRTTimestamp(
         curr.start
       )} --> ${getSRTTimestamp(curr.end)}\n${curr.text}\n\n`;
@@ -139,7 +140,7 @@ export default function Editor() {
       'href',
       'data:text/plain;charset=utf-8,' + encodeURIComponent(srtText)
     );
-    element.setAttribute('download', title + '.srt');
+    element.setAttribute('download', videoMeta.title + '.srt');
 
     element.style.display = 'none';
     document.body.appendChild(element);
@@ -150,27 +151,68 @@ export default function Editor() {
   }
 
   function getFontLink() {
-    if (activeFontFamily[0].id === 'open-sans') {
+    if (videoMeta.activeFontFamily.id === 'open-sans') {
       return OpenSans.files.regular;
     } else {
       if (
-        activeFontFamily[0].files[fontWeight[0] + (italic[0] ? 'italic' : '')]
+        videoMeta.activeFontFamily.files[
+          videoMeta.fontWeight + (videoMeta.italic ? 'italic' : '')
+        ]
       ) {
-        console.log(fontWeight[0] + (italic[0] ? 'italic' : ''));
-        return activeFontFamily[0].files[
-          fontWeight[0] + (italic[0] ? 'italic' : '')
+        return videoMeta.activeFontFamily.files[
+          videoMeta.fontWeight + (videoMeta.italic ? 'italic' : '')
         ];
       } else {
-        return activeFontFamily[0].files.regular;
+        return videoMeta.activeFontFamily.files.regular;
       }
     }
   }
 
   function getFontFamily() {
-    let fontFamily = activeFontFamily[0].family + ' ' + fontWeight[0];
-    if (italic[0]) fontFamily = fontFamily + ' italic';
+    let fontFamily =
+      videoMeta.activeFontFamily.family + ' ' + videoMeta.fontWeight;
+    if (videoMeta.italic) fontFamily = fontFamily + ' italic';
     return fontFamily;
   }
+
+  const saveProjectMutation = useMutation(async function (project_name) {
+    let body = {
+      subtitle: videoMeta.subtitle.map(i => ({
+        ...i,
+        start: i.start,
+        end: i.end,
+        text: videoMeta.fontUppercase ? i.text.toUpperCase() : i.text,
+      })),
+      url: 'https://app.reduct.video/e/' + sharePath,
+      manifest_url: videoMeta.manifestUrl,
+      a_r: videoMeta.aspectRatio,
+      color: videoMeta.color,
+      textColor: videoMeta.textColor,
+      font: getFontLink(),
+      fontFamily: getFontFamily(),
+      fontSize: videoMeta.fontSize,
+      textPosition: videoMeta.textPosition,
+      outlineWidth: videoMeta.outlineWidth,
+      outlineColor: videoMeta.outlineColor,
+      showTitle: videoMeta.showTitle,
+      titlePosition: videoMeta.titlePosition,
+      titleTextSize: videoMeta.titleTextSize,
+      title: videoMeta.title,
+    };
+
+    console.log('here');
+
+    await fetch('/borderer/projects/', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ project_name, layers: body }),
+    })
+      .then(res => res.json())
+      .then(res => navigate('/project/' + res.id));
+  });
 
   function onSubmit(name, quality) {
     setExportLoading(true);
@@ -178,31 +220,28 @@ export default function Editor() {
     let body = {
       name,
       quality,
-      subtitle: subtitle.map(i => ({
+      subtitle: videoMeta.subtitle.map(i => ({
+        ...i,
         start: i.start,
         end: i.end,
-        text: fontUppercase[0] ? i.text.toUpperCase() : i.text,
+        text: videoMeta.fontUppercase ? i.text.toUpperCase() : i.text,
       })),
       url: 'https://app.reduct.video/e/' + sharePath,
-      manifest_url: manifestUrl,
-      a_r: aspectRatio[0],
-      color: color[0],
-      textColor: textColor[0],
+      manifest_url: videoMeta.manifestUrl,
+      a_r: videoMeta.aspectRatio,
+      color: videoMeta.color,
+      textColor: videoMeta.textColor,
       font: getFontLink(),
       fontFamily: getFontFamily(),
-      fontSize: fontSize[0],
-      textPosition: textPosition[0],
-      outlineWidth: outlineWidth[0],
-      outlineColor: outlineColor[0],
-      showTitle: showTitle[0],
-      titlePosition: titlePosition[0],
-      titleTextSize: titleTextSize[0],
-      title: title,
+      fontSize: videoMeta.fontSize,
+      textPosition: videoMeta.textPosition,
+      outlineWidth: videoMeta.outlineWidth,
+      outlineColor: videoMeta.outlineColor,
+      showTitle: videoMeta.showTitle,
+      titlePosition: videoMeta.titlePosition,
+      titleTextSize: videoMeta.titleTextSize,
+      title: videoMeta.title,
     };
-
-    // console.log(body);
-    // setExportLoading(false);
-    // return;
 
     fetch('/borderer/generate', {
       method: 'POST',
@@ -225,6 +264,7 @@ export default function Editor() {
           bg="teal.500"
         >
           <Stack direction="row">
+            <Button onClick={saveModal.onOpen}>Save Project</Button>
             <Button onClick={getSRT}>Download SRT</Button>
             <Button onClick={exportModal.onOpen}>Export Video</Button>
           </Stack>
@@ -250,16 +290,16 @@ export default function Editor() {
               <span
                 contentEditable
                 suppressContentEditableWarning
-                onInput={e => setTitle(e.target.innerText)}
+                onInput={e => updateMeta('title', e.target.innerText)}
               >
                 Transcript
               </span>
             </Heading>
             <Box p={4} flex={1}>
-              {subtitle && (
+              {videoMeta.subtitle && (
                 <Transcript
                   video={videoRef.current}
-                  subtitle={subtitle}
+                  subtitle={videoMeta.subtitle}
                   onEdit={edit => {
                     handleSubtitleEdit(edit);
                   }}
@@ -289,23 +329,25 @@ export default function Editor() {
               ref={canvasRef}
               videoRef={videoRef}
               sharePath={sharePath}
-              subtitle={subtitle}
-              color={color}
-              textColor={textColor}
-              aspectRatio={aspectRatio}
-              setManifestUrl={setManifestUrl}
-              fontSize={fontSize}
-              activeFontFamily={activeFontFamily}
-              textPosition={textPosition}
-              outlineWidth={outlineWidth}
-              outlineColor={outlineColor}
-              fontWeight={fontWeight}
-              italic={italic}
-              showTitle={showTitle}
-              titlePosition={titlePosition}
-              titleTextSize={titleTextSize}
-              title={title}
-              fontUppercase={fontUppercase}
+              // subtitle={subtitle}
+              // color={color}
+              // textColor={textColor}
+              // aspectRatio={aspectRatio}
+              // setManifestUrl={setManifestUrl}
+              // fontSize={fontSize}
+              // activeFontFamily={activeFontFamily}
+              // textPosition={textPosition}
+              // outlineWidth={outlineWidth}
+              // outlineColor={outlineColor}
+              // fontWeight={fontWeight}
+              // italic={italic}
+              // showTitle={showTitle}
+              // titlePosition={titlePosition}
+              // titleTextSize={titleTextSize}
+              // title={title}
+              // fontUppercase={fontUppercase}
+              videoMeta={videoMeta}
+              updateMeta={updateMeta}
             />
           </Flex>
         </Flex>
@@ -315,59 +357,14 @@ export default function Editor() {
         onClose={exportModal.onClose}
         onSubmit={onSubmit}
         loading={exportLoading}
-        manifestUrl={manifestUrl}
+        manifestUrl={videoMeta.manifestUrl}
+      />
+      <SaveModal
+        isOpen={saveModal.isOpen}
+        onClose={saveModal.onClose}
+        onSubmit={saveProjectMutation.mutate}
+        loading={saveProjectMutation.isLoading}
       />
     </>
-  );
-}
-
-function ExportModal({ isOpen, manifestUrl, onClose, onSubmit, loading }) {
-  const nameRef = useRef();
-  const selectRef = useRef();
-
-  //TODO: Get video resolutions from manifest
-
-  console.log(manifestUrl);
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    onSubmit(nameRef.current.value, selectRef.current.value);
-  }
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <form onSubmit={handleSubmit}>
-          <ModalHeader>Export</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Stack>
-              <FormControl id="name" isRequired>
-                <FormLabel>Enter File Name</FormLabel>
-                <Input ref={nameRef} placeholder="Enter file name" />
-              </FormControl>
-              <FormControl id="quality" isRequired>
-                <FormLabel>Select Video Quality</FormLabel>
-                <Select ref={selectRef} placeholder="Select Video Quality">
-                  <option value="240p">240p</option>
-                  <option value="480p">480p</option>
-                  <option value="1080p">1080p</option>
-                </Select>
-              </FormControl>
-            </Stack>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} isLoading={loading} type="submit">
-              Export
-            </Button>
-            <Button variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </form>
-      </ModalContent>
-    </Modal>
   );
 }

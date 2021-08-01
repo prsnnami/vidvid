@@ -67,7 +67,7 @@ export default function Transcript({ subtitle, onEdit, video }) {
     }
     return function cleanup() {
       // removeEventListener
-      video.removeEventListener('timeupdate', handleTimeUpdated);
+      if (video) video.removeEventListener('timeupdate', handleTimeUpdated);
     };
   }, [video]);
 
@@ -159,7 +159,14 @@ export default function Transcript({ subtitle, onEdit, video }) {
         value={value}
         onChange={newValue => {
           setValue(newValue);
-          let x = serialize(newValue).map((line, idx, arr) => {
+          let serializedValue = serialize(newValue).map((line, idx, arr) => {
+            line.words = line.words.map((word, wordIdx) => {
+              return {
+                ...word,
+                text: newValue[idx].children[wordIdx].children[0].text,
+                word: newValue[idx].children[wordIdx].children[0].text,
+              };
+            });
             if (idx < arr.length - 1) {
               return {
                 ...line,
@@ -168,7 +175,7 @@ export default function Transcript({ subtitle, onEdit, video }) {
             }
             return line;
           });
-          onEdit(x);
+          onEdit(serializedValue);
         }}
       >
         <Editable

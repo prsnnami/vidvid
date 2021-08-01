@@ -63,6 +63,7 @@ def generate_reel_view(request):
     title_position = body.get("titlePosition") or 85
     title_text_size = body.get("titleTextSize") or 150
     title = body.get("title")
+    font_uppercase = body.get("fontUppercase") or False
 
     if (
         not subtitle
@@ -102,7 +103,8 @@ def generate_reel_view(request):
             show_title,
             title_position,
             title,
-            title_text_size
+            title_text_size,
+            font_uppercase
             # font_weight,
             # italic,
         ),

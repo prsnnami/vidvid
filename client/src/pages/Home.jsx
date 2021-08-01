@@ -2,16 +2,11 @@ import { Button } from '@chakra-ui/button';
 import { Input } from '@chakra-ui/input';
 import { Box, Flex, Heading, Stack } from '@chakra-ui/layout';
 import React, { useRef } from 'react';
-import { useQuery } from 'react-query';
 import { useNavigate } from 'react-router';
 
 export default function Home() {
   const inputRef = useRef();
   const navigate = useNavigate();
-
-  const projectQuery = useQuery('projects', async () => {
-    return await fetch('/borderer/projects').then(res => res.json());
-  });
 
   function submit(e) {
     e.preventDefault();
@@ -25,8 +20,6 @@ export default function Home() {
 
     navigate('/editor/' + split[1]);
   }
-
-  console.log(projectQuery);
 
   return (
     <Flex justifyContent="center" alignItems="center" h="100%" w="100%">
