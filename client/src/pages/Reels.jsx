@@ -15,8 +15,6 @@ export default function Reels() {
     refetchInterval: 5000,
   });
 
-  console.log(reelsQuery.data);
-
   return (
     <Box px="4" pt="6">
       <Heading>Reels</Heading>
@@ -106,7 +104,7 @@ function Reel({ reel, id }) {
             Download
           </Button>
           <Button
-            loading={deleteReelMutation.isLoading}
+            isLoading={deleteReelMutation.isLoading}
             onClick={() => deleteReel(id)}
           >
             Delete

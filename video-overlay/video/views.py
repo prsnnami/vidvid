@@ -9,6 +9,7 @@ from django.http import FileResponse, HttpResponse, HttpResponseBadRequest
 from django.http.response import HttpResponseBase, HttpResponseNotFound, HttpResponseServerError, JsonResponse
 from django.shortcuts import render
 from rest_framework import viewsets, permissions
+import time
 
 from .functions import (
     add_overlay,
