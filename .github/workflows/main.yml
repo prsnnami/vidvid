@@ -53,7 +53,7 @@ jobs:
           
           pip3 install -r requirements.txt
           pm2 kill
-          python3 manages.py migrate
+          python3 manage.py migrate
           pm2 start manage.py --interpreter python3 --name django -- runserver
           
           
