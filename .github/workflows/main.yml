@@ -44,10 +44,16 @@ jobs:
           cat > demo/.env << EOF
           SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}
           BASE_URL=${{ secrets.BASE_URL }}
+          DB_NAME=borderer
+          DB_USERNAME=postgres
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DB_HOST=127.0.0.1
+          DB_PORT=5432
           EOF
           
           pip3 install -r requirements.txt
           pm2 kill
+          python3 manages.py migrate
           pm2 start manage.py --interpreter python3 --name django -- runserver
           
           
