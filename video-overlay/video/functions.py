@@ -9,6 +9,7 @@ import subprocess
 import ffmpeg
 from math import floor
 from string import Template
+import shutil
 
 from moviepy.editor import ColorClip, CompositeVideoClip, VideoFileClip
 from pytube import YouTube
@@ -72,6 +73,7 @@ def generate_subtitle(
     primary_color,
     outline_width,
     outline_color,
+    font_uppercase,
 ):
 
     dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -98,7 +100,7 @@ def generate_subtitle(
     srt.write(result)
     for line in subtitle:
         srt.write(
-            f"Dialogue: 0,{get_timestamp(line['start'])},{get_timestamp(line['end'])},Default,,0,0,0,,{line['text']}"
+            f"Dialogue: 0,{get_timestamp(line['start'])},{get_timestamp(line['end'])},Default,,0,0,0,,{line['text'] if not font_uppercase else line['text'].upper()}"
         )
         srt.write("\n")
 
@@ -242,6 +244,7 @@ def burn_subtitles(
     title_position,
     title,
     title_text_size,
+    font_uppercase,
 ):
     dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -290,6 +293,7 @@ def burn_subtitles(
         primary_color=rgb_to_bgr(text_color),
         outline_width=c_outline_width,
         outline_color=rgb_to_bgr(outline_color),
+        font_uppercase=font_uppercase,
     )
 
     # subprocess.run(['ffmpeg', '-i', input_path, '-vf',
@@ -382,6 +386,7 @@ def generate_reel(
     title_position,
     title,
     title_text_size,
+    font_uppercase,
 ):
     id = str(uuid.uuid4())
 
@@ -419,6 +424,7 @@ def generate_reel(
         title_position=title_position,
         title=title,
         title_text_size=title_text_size,
+        font_uppercase=font_uppercase,
     )
     meta["output"] = f"{id}/{name}.mp4"
     with open("tmp/" + id + "/meta.json", "w") as file:
@@ -429,3 +435,10 @@ def generate_reel(
     meta["thumbnail"] = f"/media/thumbnails/{id}.png"
     with open("tmp/" + id + "/meta.json", "w") as file:
         json.dump(meta, file)
+
+def delete_reel(id):
+    dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + f"/tmp/{id}"
+    try:
+        shutil.rmtree(dir_path)
+    except OSError as e:
+        print ("Error: %s - %s." % (e.filename, e.strerror))

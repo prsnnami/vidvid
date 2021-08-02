@@ -3,7 +3,7 @@ import { Image } from '@chakra-ui/image';
 import { Box, Flex, Grid, Heading, Stack, Text } from '@chakra-ui/layout';
 import { Spinner } from '@chakra-ui/spinner';
 import React from 'react';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 
 async function getReels() {
   return fetch('/borderer/get_reels').then(res => res.json());
@@ -14,6 +14,8 @@ export default function Reels() {
     // Refetch the data every second
     refetchInterval: 5000,
   });
+
+  console.log(reelsQuery.data);
 
   return (
     <Box px="4" pt="6">
@@ -35,45 +37,82 @@ export default function Reels() {
             wrap="wrap"
           >
             {Object.keys(reelsQuery.data).map(reel => (
-              <Stack spacing="2" key={reel}>
-                <Flex
-                  height="200px"
-                  w="200px"
-                  key={reel}
-                  bgColor="gray.400"
-                  justifyContent="center"
-                  alignItems="center"
-                >
-                  {reelsQuery.data[reel].thumbnail ? (
-                    <Image
-                      src={'/borderer' + reelsQuery.data[reel].thumbnail}
-                      h="100%"
-                      w="100%"
-                      objectFit="cover"
-                    />
-                  ) : (
-                    <Spinner />
-                  )}
-                </Flex>
-                <Stack direction="row">
-                  <Text>{reelsQuery.data[reel].name}</Text>
-                  <Button
-                    as="a"
-                    target="_blank"
-                    href={
-                      '/borderer/download?file=' +
-                      encodeURIComponent(reelsQuery.data[reel].output)
-                    }
-                    disabled={!reelsQuery.data[reel].output}
-                  >
-                    Download
-                  </Button>
-                </Stack>
-              </Stack>
+              <Reel key={reel} reel={reelsQuery.data[reel]} id={reel} />
             ))}
           </Grid>
         )}
       </Box>
     </Box>
+  );
+}
+
+function Reel({ reel, id }) {
+  const deleteReelMutation = useMutation(async id => {
+    return await fetch('/borderer/delete_reel', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id }),
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Not 2xx response');
+        } else {
+          return res.json();
+        }
+      })
+      .catch(e => {
+        throw e;
+      });
+  });
+
+  function deleteReel(id) {
+    if (window.confirm('Are You sure you want to delete this reel?')) {
+      deleteReelMutation.mutate(id);
+    }
+  }
+
+  return (
+    <Stack spacing="2">
+      <Flex
+        height="200px"
+        w="200px"
+        bgColor="gray.400"
+        justifyContent="center"
+        alignItems="center"
+      >
+        {reel.thumbnail ? (
+          <Image
+            src={'/borderer' + reel.thumbnail}
+            h="100%"
+            w="100%"
+            objectFit="cover"
+          />
+        ) : (
+          <Spinner />
+        )}
+      </Flex>
+      <Stack>
+        <Text>{reel.name}</Text>
+        <Stack direction="row">
+          <Button
+            as="a"
+            target="_blank"
+            href={'/borderer/download?file=' + encodeURIComponent(reel.output)}
+            disabled={!reel.output}
+          >
+            Download
+          </Button>
+          <Button
+            loading={deleteReelMutation.isLoading}
+            onClick={() => deleteReel(id)}
+          >
+            Delete
+          </Button>
+        </Stack>
+      </Stack>
+    </Stack>
   );
 }

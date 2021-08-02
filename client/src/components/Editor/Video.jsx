@@ -38,14 +38,11 @@ async function loadManifest(shareUrl) {
 const MAX_HEIGHT = 450;
 
 const Video = React.forwardRef(
-  (
-    {
-      videoRef,
-      sharePath,
+  ({ videoRef, sharePath, videoMeta, updateMeta }, canvasRef) => {
+    const {
       subtitle,
       color,
       aspectRatio,
-      setManifestUrl,
       textColor,
       fontSize,
       activeFontFamily,
@@ -59,9 +56,7 @@ const Video = React.forwardRef(
       titleTextSize,
       title,
       fontUppercase,
-    },
-    canvasRef
-  ) => {
+    } = videoMeta;
     const [canvasSize, setCanvasSize] = useState({ height: 1080, width: 1920 });
     const [videoSize, setVideoSize] = useState({ height: 360, width: 480 });
     const [wrapperSize, setWrapperSize] = useState({ height: 0, width: 0 });
@@ -79,12 +74,12 @@ const Video = React.forwardRef(
 
     // const [color, setColor] = useState('#000000');
     const handleColorChange = useDebouncedCallback(
-      value => color[1](value),
+      value => updateMeta('color', value),
       200
     );
 
     const handleTextColorChange = useDebouncedCallback(
-      value => textColor[1](value),
+      value => updateMeta('textColor', value),
       200
     );
 
@@ -100,7 +95,7 @@ const Video = React.forwardRef(
       setPoster(`${shareUrl}/posterframe.jpg`);
 
       const manifest = await loadManifest(shareUrl);
-      setManifestUrl(manifest);
+      updateMeta('manifestUrl', manifest);
 
       // Initialize Reduct player
 
@@ -161,6 +156,8 @@ const Video = React.forwardRef(
           height: wrapper.offsetHeight,
         });
       });
+
+      if (aspectRatio) handleDimensionsChange(aspectRatio);
     }, []);
 
     useEffect(() => {
@@ -201,17 +198,17 @@ const Video = React.forwardRef(
         } else {
           drawScaledImage(ctx, videoRef.current, canvasSize, videoSize);
           ctx.font =
-            (italic[0] ? 'italic' : 'normal') +
+            (italic ? 'italic' : 'normal') +
             ' normal ' +
-            fontWeight[0] +
+            fontWeight +
             ' ' +
-            fontSize[0] +
+            fontSize +
             'px ' +
-            activeFontFamily[0].family;
-          ctx.fillStyle = textColor[0];
+            activeFontFamily.family;
+          ctx.fillStyle = textColor;
           ctx.textAlign = 'center';
-          ctx.lineWidth = outlineWidth[0];
-          ctx.strokeStyle = outlineColor[0];
+          ctx.lineWidth = outlineWidth;
+          ctx.strokeStyle = outlineColor;
           ctx.miterLimit = 2;
 
           let textRender = false;
@@ -223,48 +220,48 @@ const Video = React.forwardRef(
             ) {
               let lines = getWrapLines(ctx, s.text, canvasSize.width * 0.8);
               lines.reverse().forEach((line, i) => {
-                if (fontUppercase[0]) {
+                if (fontUppercase) {
                   line = line.toUpperCase();
                 }
                 ctx.strokeText(
                   line,
                   canvasSize.width / 2,
                   canvasSize.height -
-                    (canvasSize.height * textPosition[0]) / 100 -
-                    i * (fontSize[0] * 1.2)
+                    (canvasSize.height * textPosition) / 100 -
+                    i * (fontSize * 1.2)
                 );
                 ctx.fillText(
                   line,
                   canvasSize.width / 2,
                   canvasSize.height -
-                    (canvasSize.height * textPosition[0]) / 100 -
-                    i * (fontSize[0] * 1.2)
+                    (canvasSize.height * textPosition) / 100 -
+                    i * (fontSize * 1.2)
                 );
               });
               textRender = true;
             }
           });
-          if (showTitle[0]) {
+          if (showTitle) {
             ctx.font =
               'normal normal ' +
-              fontWeight[0] +
+              fontWeight +
               ' ' +
-              titleTextSize[0] +
+              titleTextSize +
               'px ' +
-              activeFontFamily[0].family;
+              activeFontFamily.family;
             ctx.strokeText(
               title,
               canvasSize.width / 2,
-              canvasSize.height - (canvasSize.height * titlePosition[0]) / 100
+              canvasSize.height - (canvasSize.height * titlePosition) / 100
             );
             ctx.fillText(
               title,
               canvasSize.width / 2,
-              canvasSize.height - (canvasSize.height * titlePosition[0]) / 100
+              canvasSize.height - (canvasSize.height * titlePosition) / 100
             );
           }
 
-          if (showOutline && aspectRatio[0] === '9:16') {
+          if (showOutline && aspectRatio === '9:16') {
             ctx.beginPath();
             ctx.strokeStyle = 'teal';
             ctx.moveTo(0, 284);
@@ -285,9 +282,8 @@ const Video = React.forwardRef(
       }
     }
 
-    function handleDimensionsChange(e) {
-      const ar = e.target.value;
-      aspectRatio[1](ar);
+    function handleDimensionsChange(ar) {
+      updateMeta('aspectRatio', ar);
       let height, width;
 
       switch (ar) {
@@ -371,7 +367,7 @@ const Video = React.forwardRef(
                     draw={draw}
                     height={canvasSize.height}
                     width={canvasSize.width}
-                    color={color[0]}
+                    color={color}
                   />
                 </Flex>
               </Box>
@@ -402,8 +398,8 @@ const Video = React.forwardRef(
                 <Select
                   size="sm"
                   background="white"
-                  onChange={handleDimensionsChange}
-                  value={aspectRatio[0]}
+                  onChange={e => handleDimensionsChange(e.target.value)}
+                  value={aspectRatio}
                 >
                   <option value="1:1">1:1 Square</option>
                   <option value="16:9">16:9 Horizontal</option>
@@ -426,7 +422,7 @@ const Video = React.forwardRef(
                   size="sm"
                   background="white"
                   type="color"
-                  value={color[0]}
+                  value={color}
                   px="1"
                   onChange={e => handleColorChange(e.target.value)}
                 />
@@ -434,20 +430,20 @@ const Video = React.forwardRef(
               <FormControl id="font_size" isRequired>
                 <FormLabel>Show title?</FormLabel>
                 <Checkbox
-                  checked={showTitle[0]}
-                  onChange={e => showTitle[1](e.target.checked)}
+                  checked={showTitle}
+                  onChange={e => updateMeta('title', e.target.checked)}
                 >
                   Show Title
                 </Checkbox>
               </FormControl>
               <FormControl id="position" isRequired>
-                <FormLabel>Title Position ({titlePosition[0]})</FormLabel>
+                <FormLabel>Title Position ({titlePosition})</FormLabel>
                 <Slider
                   size="sm"
                   aria-label="slider-ex-1"
-                  value={titlePosition[0]}
+                  value={titlePosition}
                   focusThumbOnChange={false}
-                  onChange={progress => titlePosition[1](progress)}
+                  onChange={progress => updateMeta('titlePosition', progress)}
                   ml="2"
                   min={10}
                   max={90}
@@ -462,8 +458,10 @@ const Video = React.forwardRef(
                 <FormLabel>Title Font Size</FormLabel>
                 <NumberInput
                   size="sm"
-                  onChange={valueString => titleTextSize[1](parse(valueString))}
-                  value={format(titleTextSize[0])}
+                  onChange={valueString =>
+                    updateMeta('titleTextSize', parse(valueString))
+                  }
+                  value={format(titleTextSize)}
                   step={2}
                   defaultValue={22}
                   min={10}
@@ -494,7 +492,7 @@ const Video = React.forwardRef(
                 <FormLabel>Font Family</FormLabel>
                 <FontPicker
                   apiKey={process.env.REACT_APP_GOOGLE_FONTS_API_KEY}
-                  activeFontFamily={activeFontFamily[0].family}
+                  activeFontFamily={activeFontFamily.family}
                   // variants={[
                   //   '100',
                   //   '100italic',
@@ -517,7 +515,7 @@ const Video = React.forwardRef(
                   // ]}
                   onChange={nextFont => {
                     console.log(nextFont);
-                    activeFontFamily[1](nextFont);
+                    updateMeta('activeFontFamily', nextFont);
                   }}
                   limit={400}
                 />
@@ -525,8 +523,8 @@ const Video = React.forwardRef(
               <FormControl id="uppercase" isRequired>
                 <FormLabel>Uppercase</FormLabel>
                 <Checkbox
-                  checked={fontUppercase[0]}
-                  onChange={e => fontUppercase[1](e.target.checked)}
+                  checked={fontUppercase}
+                  onChange={e => updateMeta('fontUppercase', e.target.checked)}
                 >
                   Uppercase
                 </Checkbox>
@@ -535,8 +533,10 @@ const Video = React.forwardRef(
                 <FormLabel>Font Size</FormLabel>
                 <NumberInput
                   size="sm"
-                  onChange={valueString => fontSize[1](parse(valueString))}
-                  value={format(fontSize[0])}
+                  onChange={valueString =>
+                    updateMeta('fontSize', parse(valueString))
+                  }
+                  value={format(fontSize)}
                   step={2}
                   defaultValue={22}
                   min={10}
@@ -555,8 +555,8 @@ const Video = React.forwardRef(
               <FormControl id="font_size" isRequired>
                 <FormLabel>Italic</FormLabel>
                 <Checkbox
-                  checked={italic[0]}
-                  onChange={e => italic[1](e.target.checked)}
+                  checked={italic}
+                  onChange={e => updateMeta('italic', e.target.checked)}
                 >
                   Italic
                 </Checkbox>
@@ -566,8 +566,8 @@ const Video = React.forwardRef(
                 <Select
                   size="sm"
                   background="white"
-                  onChange={e => fontWeight[1](e.target.value)}
-                  value={fontWeight[0]}
+                  onChange={e => updateMeta('fontWeight', e.target.value)}
+                  value={fontWeight}
                 >
                   <option value="100">100</option>
                   <option value="200">200</option>
@@ -587,18 +587,18 @@ const Video = React.forwardRef(
                   background="white"
                   type="color"
                   px="1"
-                  value={textColor[0]}
+                  value={textColor}
                   onChange={e => handleTextColorChange(e.target.value)}
                 />
               </FormControl>
               <FormControl id="position" isRequired>
-                <FormLabel>Text Position ({textPosition[0]})</FormLabel>
+                <FormLabel>Text Position ({textPosition})</FormLabel>
                 <Slider
                   size="sm"
                   aria-label="slider-ex-1"
-                  value={textPosition[0]}
+                  value={textPosition}
                   focusThumbOnChange={false}
-                  onChange={progress => textPosition[1](progress)}
+                  onChange={progress => updateMeta('textPosition', progress)}
                   ml="2"
                   min={10}
                   max={90}
@@ -613,8 +613,8 @@ const Video = React.forwardRef(
                 <FormLabel>Outline Width</FormLabel>
                 <NumberInput
                   size="sm"
-                  onChange={e => outlineWidth[1](e)}
-                  value={outlineWidth[0]}
+                  onChange={e => updateMeta('outlineWidth', e)}
+                  value={outlineWidth}
                   step={0.5}
                   defaultValue={2}
                   min={0}
@@ -636,8 +636,8 @@ const Video = React.forwardRef(
                   background="white"
                   type="color"
                   px="1"
-                  value={outlineColor[0]}
-                  onChange={e => outlineColor[1](e.target.value)}
+                  value={outlineColor}
+                  onChange={e => updateMeta('outlineColor', e.target.value)}
                 />
               </FormControl>
             </Stack>

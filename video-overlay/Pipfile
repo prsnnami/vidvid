@@ -59,6 +59,10 @@ Django = "==3.2"
 Pillow = "==8.2.0"
 black = "*"
 fonttools = "*"
+djangorestframework = "*"
+markdown = "*"
+django-filter = "*"
+psycopg2 = "*"
 
 [dev-packages]
 
