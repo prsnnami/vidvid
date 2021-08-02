@@ -14,6 +14,8 @@ from pathlib import Path
 import os
 import environ
 
+
+env = environ.Env()
 environ.Env.read_env()
 
 
@@ -114,11 +116,11 @@ WSGI_APPLICATION = "demo.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "borderer",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
+        "NAME": env('DB_NAME'),
+        "USER": env('DB_USERNAME'),
+        "PASSWORD": env('DB_PASSWORD'),
+        "HOST": env('DB_HOST'),
+        "PORT": env('DB_PORT'),
     }
 }
 
