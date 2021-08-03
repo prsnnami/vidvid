@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { useParams } from 'react-router';
 import Editor from '../components/Editor/Editor';
@@ -17,6 +17,22 @@ const OpenSans = {
 
 export default function Project() {
   const { id } = useParams();
+
+  useEffect(() => {
+    document.addEventListener(
+      'keydown',
+      function (e) {
+        if (
+          e.keyCode === 83 &&
+          (navigator.platform.match('Mac') ? e.metaKey : e.ctrlKey)
+        ) {
+          e.preventDefault();
+          //your implementation or function calls
+        }
+      },
+      false
+    );
+  }, []);
 
   const [videoMeta, setVideoMeta] = useState({
     transcript: null,
@@ -40,6 +56,7 @@ export default function Project() {
   });
 
   const syncProjectMutation = useMutation(async body => {
+    console.log('call ghere');
     return await fetch('/borderer/projects/' + id + '/', {
       method: 'PATCH',
       headers: {

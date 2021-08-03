@@ -160,9 +160,9 @@ export default function Transcript({ subtitle, onEdit, video }) {
         onChange={newValue => {
           setValue(newValue);
           let serializedValue = serialize(newValue).map((line, idx, arr) => {
-            line.words = line.words.map((word, wordIdx) => {
+            line.words = newValue[idx].children.map((child, wordIdx) => {
               return {
-                ...word,
+                ...child.word,
                 text: newValue[idx].children[wordIdx].children[0].text,
                 word: newValue[idx].children[wordIdx].children[0].text,
               };

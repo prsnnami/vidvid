@@ -52,7 +52,6 @@ export default function Editor({
   syncProjectMutation,
   saveProjectMutation,
 }) {
-  console.log({ sharePath });
   const [exportLoading, setExportLoading] = useState(false);
 
   const canvasRef = useRef();
@@ -78,6 +77,19 @@ export default function Editor({
       }
     }
   });
+
+  // useHotkeys(
+  //   'ctrl+s',
+  //   () => {
+  //     if (projectId) {
+  //       let body = getBody();
+  //       syncProjectMutation.mutate(body);
+  //     }
+  //   },
+  //   {
+  //     filterPreventDefault: false,
+  //   }
+  // );
 
   useEffect(() => {
     if (!projectId) {
@@ -250,10 +262,10 @@ export default function Editor({
                 onClick={syncProject}
                 isLoading={syncProjectMutation.isLoading}
               >
-                Sync Project
+                Save
               </Button>
             ) : (
-              <Button onClick={saveModal.onOpen}>Save Project</Button>
+              <Button onClick={saveModal.onOpen}>Add Project</Button>
             )}
             <Button onClick={getSRT}>Download SRT</Button>
             <Button onClick={exportModal.onOpen}>Export Video</Button>
