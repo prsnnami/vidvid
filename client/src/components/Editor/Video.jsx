@@ -431,7 +431,7 @@ const Video = React.forwardRef(
                 <FormLabel>Show title?</FormLabel>
                 <Checkbox
                   checked={showTitle}
-                  onChange={e => updateMeta('title', e.target.checked)}
+                  onChange={e => updateMeta('showTitle', e.target.checked)}
                 >
                   Show Title
                 </Checkbox>
