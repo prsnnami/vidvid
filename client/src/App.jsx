@@ -5,7 +5,16 @@ import Home from './pages/Home';
 import Project from './pages/Project';
 import Reels from './pages/Reels';
 import Projects from './pages/Projects';
-import { Box, Button, Flex, Stack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  Stack,
+  FormControl,
+  Select,
+  FormLabel,
+  Input,
+} from '@chakra-ui/react';
 import { fabric } from 'fabric';
 import ere from 'element-resize-event';
 
@@ -37,6 +46,7 @@ const shareUrl =
 
 function useVideo() {
   const videoRef = useRef();
+  const [loading, setLoading] = useState(true);
 
   async function loadManifest(shareUrl) {
     const manifestRet = await fetch(`/proxy/${shareUrl}/manifest-path.json`);
@@ -48,8 +58,6 @@ function useVideo() {
     async function init() {
       if (videoRef.current) return;
       const vid = document.createElement('video');
-      vid.height = 1080;
-      vid.width = 1920;
       vid.style.objectFit = 'fill';
 
       videoRef.current = vid;
@@ -67,6 +75,7 @@ function useVideo() {
         console.log('loadedData');
         vid.height = this.videoHeight;
         vid.width = this.videoWidth;
+        setLoading(false);
       };
     }
     init();
@@ -81,7 +90,7 @@ function useVideo() {
     return;
   }
 
-  return { video: videoRef.current, toggleVideo };
+  return { video: videoRef.current, toggleVideo, loading };
 }
 
 function useCanvas() {
@@ -91,16 +100,30 @@ function useCanvas() {
   useEffect(() => {
     const initCanvas = () => {
       fabric.Object.prototype.transparentCorners = false;
+      // fabric.devicePixelRatio = Math.max(
+      //   Math.floor(fabric.devicePixelRatio),
+      //   1
+      // );
+
       fabric.Object.prototype.cornerColor = 'blue';
       fabric.Object.prototype.cornerStyle = 'circle';
       fabric.Object.prototype.setControlsVisibility({ mtr: false });
+      fabric.Canvas.prototype.getItemByName = function (name) {
+        let objects = this.getObjects();
+        let object = objects.find(i => i.name === name);
+        return object;
+      };
       return new fabric.Canvas(canvasRef.current, {
         backgroundColor: 'pink',
+        height: 1080,
+        width: 1080,
+        preserveObjectStacking: true,
       });
     };
 
     if (canvasRef.current && !canvas) {
       const c = initCanvas();
+
       // initVideo(c);
       setCanvas(c);
     }
@@ -109,13 +132,27 @@ function useCanvas() {
   return { canvasRef, canvas };
 }
 
+function getVideoDimensions(
+  canvasWidth,
+  canvasHeight,
+  videoWidth,
+  videoHeight
+) {
+  let scale = Math.min(canvasWidth / videoWidth, canvasHeight / videoHeight);
+
+  let top = (canvasHeight - videoHeight * scale) / 2;
+  let left = (canvasWidth - videoWidth * scale) / 2;
+  return { left, top, width: videoWidth * scale, height: videoHeight * scale };
+}
+
 function TestPage() {
-  const [canvasSize, setCanvasSize] = useState({ height: 1080, width: 1920 });
+  const [canvasSize, setCanvasSize] = useState({ height: 1080, width: 1080 });
+  const [ar, setAr] = useState('1:1');
   const [wrapperSize, setWrapperSize] = useState({ height: 0, width: 0 });
   const wrapperRef = useRef();
 
-  const { video: vid, toggleVideo } = useVideo();
-  const { canvasRef, canvas } = useCanvas();
+  const { video: vid, toggleVideo, loading: videoLoading } = useVideo();
+  const { canvasRef, canvas } = useCanvas(canvasSize);
 
   useEffect(() => {
     if (vid) {
@@ -125,30 +162,40 @@ function TestPage() {
     }
   }, [vid]);
 
+  useEffect(() => {
+    if (vid && !videoLoading) {
+      let { left, top, width, height } = getVideoDimensions(
+        canvasSize.width,
+        canvasSize.height,
+        vid.videoWidth,
+        vid.videoHeight
+      );
+
+      const videoElement = new fabric.Image(vid, {
+        left,
+        top,
+        name: 'video',
+      });
+      videoElement.scaleToHeight(height);
+      videoElement.scaleToWidth(width);
+      canvas.add(videoElement);
+      canvas.sendToBack(videoElement);
+    }
+  }, [videoLoading, vid]);
+
   function bootstrapElements() {
     console.log(vid.height);
-    const video1 = new fabric.Image(vid, {
-      left: 0,
-      top: 0,
-      height: vid.height,
-      width: vid.width,
-      hasRotatingPoint: false,
-      scaleX: 5,
-      scaleY: 1.5,
-    });
-    // video1.scaleToHeight(540);
-    // video1.scaleToWidth(vid.width);
-    canvas.add(video1);
+    console.log(vid.width);
 
-    const myText = new fabric.Text('fabric 2.0', {
+    const myText = new fabric.Text('This is a dummy text', {
       fill: 'white',
     });
     canvas.add(myText);
 
-    return { video1, myText };
+    return { myText };
   }
 
-  function loop({ myText, video1 }) {
+  function loop({ myText }) {
     fabric.util.requestAnimFrame(function render() {
       canvas.renderAll();
       if (vid.currentTime > 5) myText.set('text', 'after 1 second');
@@ -174,6 +221,72 @@ function TestPage() {
 
     // if (aspectRatio) handleDimensionsChange(aspectRatio);
   }, []);
+
+  function handleDimensionsChange(ar) {
+    let height, width;
+    setAr(ar);
+
+    switch (ar) {
+      case '1:1':
+        width = 1080;
+        height = 1080;
+        break;
+      case '16:9':
+        width = 1920;
+        height = 1080;
+        break;
+      case '9:16':
+        width = 1080;
+        height = 1920;
+        break;
+      case '4:5':
+        width = 1080;
+        height = 1350;
+        break;
+      default:
+        height = canvasSize.height;
+        width = canvasSize.width;
+    }
+
+    // vid;
+
+    setCanvasSize({ height, width });
+    let videoElement = canvas.getItemByName('video');
+    console.log(vid, vid.element);
+    let {
+      left,
+      top,
+      width: w,
+      height: h,
+    } = getVideoDimensions(width, height, vid.videoWidth, vid.videoHeight);
+
+    videoElement.set({
+      left,
+      top,
+    });
+    videoElement.scaleToHeight(h);
+    videoElement.scaleToWidth(w);
+    canvas.setDimensions({ height, width });
+    canvas.renderAll();
+  }
+
+  function handleFileUpload(e) {
+    let reader = new FileReader();
+    reader.onload = function (e) {
+      let image = new Image();
+      image.src = e.target.result;
+      image.onload = function () {
+        let img = new fabric.Image(image);
+        img.set({
+          left: 100,
+          top: 60,
+        });
+        img.scaleToWidth(200);
+        canvas.add(img).setActiveObject(img).renderAll();
+      };
+    };
+    reader.readAsDataURL(e.target.files[0]);
+  }
 
   let scale;
   if (canvasSize.width > canvasSize.height) {
@@ -201,7 +314,29 @@ function TestPage() {
       // overflowY="auto"
       ref={wrapperRef}
     >
-      <Box py="2">
+      <FormControl id="a_r" isRequired>
+        <FormLabel>Aspect Ratio</FormLabel>
+        <Select
+          size="sm"
+          background="white"
+          onChange={e => handleDimensionsChange(e.target.value)}
+          value={ar}
+        >
+          <option value="1:1">1:1 Square</option>
+          <option value="16:9">16:9 Horizontal</option>
+          <option value="9:16">9:16 Vertical</option>
+          <option value="4:5">4:5 Portrait</option>
+        </Select>
+      </FormControl>
+      <Stack direction="row">
+        <Button onClick={() => toggleVideo()}>Test</Button>
+        <Button onClick={() => console.log(canvas.getItemByName('video'))}>
+          Test
+        </Button>
+        {/* <Button onClick={() => toggleVideo()}>Upload Image</Button> */}
+        <Input type="file" onChange={handleFileUpload} accept="image/png" />
+      </Stack>
+      <Box py="2" display="flex" justifyContent="center">
         <Box
           style={{
             maxWidth: '100%',
@@ -223,8 +358,8 @@ function TestPage() {
               <Flex position="relative">
                 <canvas
                   id="my-canvas"
-                  height={canvasSize.height}
-                  width={canvasSize.width}
+                  // height={canvasSize.height}
+                  // width={canvasSize.width}
                   ref={canvasRef}
                 />
               </Flex>
