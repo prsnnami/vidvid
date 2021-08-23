@@ -326,7 +326,13 @@ function TestPage () {
         bg="gray.100"
         px="4"
       >
-        <Box py="2" display="flex" justifyContent="center">
+        <Box
+          py="2"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          flexGrow="1"
+        >
           <Box
             style={{
               maxWidth: '100%',
@@ -361,7 +367,9 @@ function TestPage () {
             </Box>
           </Box>
         </Box>
-        <PlayButton vid={vid} toggleVideo={toggleVideo} buffering={buffering} />
+        <Flex justifyContent="center" alignItems="center" flexGrow="1">
+          <PlayButton vid={vid} toggleVideo={toggleVideo} buffering={buffering} />
+        </Flex>
         <Seeker video={vid} />
       </Flex>
       <Sidebar
