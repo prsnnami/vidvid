@@ -33,13 +33,15 @@ import Transcript from './components/Editor/Transcript';
 import { getSubtitle, loadTranscript } from './utils';
 import FontPicker from 'font-picker-react';
 import { useDebouncedCallback } from './utils/useDebouncedCallback';
+import Seeker from './components/Seeker';
+import PlayButton from './components/PlayButton';
 
-const MAX_HEIGHT = 650;
+const MAX_HEIGHT = 600;
 const MAX_WIDTH = 800;
 
 /* global Reduct */
 
-function App() {
+function App () {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
@@ -61,18 +63,18 @@ const baseUrl = 'https://app.reduct.video/e/';
 const shareUrl =
   'https://app.reduct.video/e/borderer-testing-84e3ce2ba0-f81df100c4861287a746';
 
-function useVideo() {
+function useVideo () {
   const videoRef = useRef();
   const [loading, setLoading] = useState(true);
 
-  async function loadManifest(shareUrl) {
+  async function loadManifest (shareUrl) {
     const manifestRet = await fetch(`/proxy/${shareUrl}/manifest-path.json`);
     const manifest = await manifestRet.json();
     return manifest;
   }
 
   useEffect(() => {
-    async function init() {
+    async function init () {
       if (videoRef.current) return;
       const vid = document.createElement('video');
       vid.style.objectFit = 'fill';
@@ -99,7 +101,7 @@ function useVideo() {
     init();
   }, []);
 
-  function toggleVideo() {
+  function toggleVideo () {
     if (videoRef.current.paused) {
       videoRef.current.play();
       return;
@@ -111,7 +113,7 @@ function useVideo() {
   return { video: videoRef.current, toggleVideo, loading };
 }
 
-function useCanvas() {
+function useCanvas () {
   const [canvas, setCanvas] = useState('');
   const canvasRef = useRef();
 
@@ -146,7 +148,7 @@ function useCanvas() {
   return { canvasRef, canvas };
 }
 
-function getVideoDimensions(
+function getVideoDimensions (
   canvasWidth,
   canvasHeight,
   videoWidth,
@@ -159,15 +161,72 @@ function getVideoDimensions(
   return { left, top, width: videoWidth * scale, height: videoHeight * scale };
 }
 
-function TestPage() {
+function TestPage () {
   const [canvasSize, setCanvasSize] = useState({ height: 1080, width: 1080 });
   const [ar, setAr] = useState('1:1');
   const [wrapperSize, setWrapperSize] = useState({ height: 0, width: 0 });
   const wrapperRef = useRef();
   const [subtitle, setSubtitle] = useState();
+  const [isImage, setIsImage] = useState();
 
   const { video: vid, toggleVideo, loading: videoLoading } = useVideo();
   const { canvasRef, canvas } = useCanvas(canvasSize);
+
+  const [layers, setLayers] = useState({
+    canvas: {
+      aspect_ratio: '1:1',
+      bgColor: '',
+      title: false,
+      subtitle: true,
+    },
+    video: {
+      top: 0,
+      left: 0,
+      height: 0,
+      width: 0,
+      url: '',
+      manifest_url: '',
+      name: '',
+      quality: '1080p',
+    },
+    subtitle: {
+      fontFamily: 'Open Sans',
+      uppercase: false,
+      fontSize: 22,
+      italic: false,
+      fontWeight: 400,
+      color: 'black',
+      top: 0,
+      left: 0,
+      height: 0,
+      width: 0,
+      fontLink: '',
+      outlineColor: 'black',
+      outlineWidth: 2,
+    },
+    title: {
+      fontFamily: 'Open Sans',
+      uppercase: false,
+      fontSize: 22,
+      italic: false,
+      fontWeight: 400,
+      color: 'black',
+      top: 0,
+      left: 0,
+      height: 0,
+      width: 0,
+      fontLink: '',
+      outlineColor: 'black',
+      outlineWidth: 2,
+    },
+    image: {
+      top: 0,
+      left: 0,
+      height: 0,
+      width: 0,
+      image: null,
+    }
+  })
 
   useEffect(() => {
     if (vid && subtitle) {
@@ -196,7 +255,7 @@ function TestPage() {
     }
   }, [videoLoading, vid]);
 
-  function bootstrapElements() {
+  function bootstrapElements () {
     const myText = new fabric.Textbox('', {
       originX: 'center',
       originY: 'center',
@@ -215,7 +274,7 @@ function TestPage() {
     return { myText };
   }
 
-  function loop() {
+  function loop () {
     // fabric.util.requestAnimFrame(function render() {
     //   if (subtitle) {
     //     subtitle.forEach(s => {
@@ -238,7 +297,7 @@ function TestPage() {
     render();
   }
 
-  function draw() {
+  function draw () {
     if (canvas) {
       let myText = canvas.getItemByName('subtitle');
       if (subtitle) {
@@ -283,7 +342,7 @@ function TestPage() {
     400
   );
 
-  function handleDimensionsChange(ar) {
+  function handleDimensionsChange (ar) {
     let height, width;
     setAr(ar);
 
@@ -331,19 +390,29 @@ function TestPage() {
     canvas.renderAll();
   }
 
-  function handleFileUpload(e) {
+  const removeImage = () => {
+    let image = canvas.getItemByName("image")
+    canvas.remove(image);
+    setIsImage(false);
+  }
+
+  function handleFileUpload (e) {
     let reader = new FileReader();
     reader.onload = function (e) {
       let image = new Image();
       image.src = e.target.result;
       image.onload = function () {
-        let img = new fabric.Image(image);
+        let img = new fabric.Image(image, {
+          name: 'image'
+        });
+
         img.set({
           left: 100,
           top: 60,
         });
         img.scaleToWidth(200);
         canvas.add(img).setActiveObject(img).renderAll();
+        setIsImage(true)
       };
     };
     reader.readAsDataURL(e.target.files[0]);
@@ -360,18 +429,16 @@ function TestPage() {
 
   const containerHeight = scale * canvasSize.height;
   const containerWidth = scale * canvasSize.width;
-
   // if (!canvas) return 'loading';
-
   return (
     <Flex direction="row" height="100%">
-      <Flex w="400px" borderRight="1px solid black" direction="column">
+      <Flex w="400px" borderRight="1px solid #edf2f7" direction="column">
         <Heading px={4} className="apply-font" my="6">
           <span
             contentEditable
             suppressContentEditableWarning
 
-            // onInput={e => updateMeta('title', e.target.innerText)}
+          // onInput={e => updateMeta('title', e.target.innerText)}
           >
             Transcript
           </span>
@@ -402,14 +469,6 @@ function TestPage() {
         bg="gray.100"
         px="4"
       >
-        <Stack direction="row" spacing="4">
-          <Button onClick={() => toggleVideo()}>
-            {vid?.paused ? 'Play' : 'Pause'}
-          </Button>
-          <Button onClick={() => console.log(canvas)}>Test</Button>
-          {/* <Button onClick={() => toggleVideo()}>Upload Image</Button> */}
-          <Input type="file" onChange={handleFileUpload} accept="image/png" />
-        </Stack>
         <Box py="2" display="flex" justifyContent="center">
           <Box
             style={{
@@ -445,246 +504,284 @@ function TestPage() {
             </Box>
           </Box>
         </Box>
+        <PlayButton vid={vid} toggleVideo={toggleVideo} />
+        <Seeker video={vid} />
       </Flex>
-      <Flex w="300px" borderLeft="1px solid black">
-        <Accordion w="100%" allowMultiple>
-          <AccordionItem>
-            <h2>
-              <AccordionButton>
-                <Box flex="1" textAlign="left">
-                  Canvas
-                </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4} bg="gray.200">
-              <Stack>
-                <FormControl id="a_r" isRequired>
-                  <FormLabel fontSize="xs">Aspect Ratio</FormLabel>
-                  <Select
-                    size="xs"
-                    background="white"
-                    onChange={e => handleDimensionsChange(e.target.value)}
-                    value={ar}
-                  >
-                    <option value="1:1">1:1 Square</option>
-                    <option value="16:9">16:9 Horizontal</option>
-                    <option value="9:16">9:16 Vertical</option>
-                    <option value="4:5">4:5 Portrait</option>
-                  </Select>
-                </FormControl>
-                <FormControl id="color" isRequired size="xs">
-                  <FormLabel fontSize="xs">Background Color</FormLabel>
-                  <Input
-                    size="xs"
-                    background="white"
-                    type="color"
-                    defaultValue="#FFC0CB"
-                    // value={color}
-                    px="1"
-                    // onChange={e => handleColorChange(e.target.value)}
-                    onChange={e => {
-                      canvas.set('backgroundColor', e.target.value);
-                    }}
-                  />
-                </FormControl>
+      <Flex d="flex" flexDirection="column" w="300px" borderLeft="1px solid #edf2f7">
+        <Box minHeight="calc(100vh - 40px)">
+          <Accordion w="100%" allowMultiple>
+            <AccordionItem>
+              <h2>
+                <AccordionButton>
+                  <Box flex="1" textAlign="left">
+                    Canvas
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+              </h2>
+              <AccordionPanel pb={4} bg="gray.200">
+                <Stack>
+                  <FormControl id="a_r" isRequired>
+                    <FormLabel fontSize="xs">Aspect Ratio</FormLabel>
+                    <Select
+                      size="xs"
+                      background="white"
+                      onChange={e => handleDimensionsChange(e.target.value)}
+                      value={ar}
+                    >
+                      <option value="1:1">1:1 Square</option>
+                      <option value="16:9">16:9 Horizontal</option>
+                      <option value="9:16">9:16 Vertical</option>
+                      <option value="4:5">4:5 Portrait</option>
+                    </Select>
+                  </FormControl>
+                  <FormControl id="color" isRequired size="xs">
+                    <FormLabel fontSize="xs">Background Color</FormLabel>
+                    <Input
+                      size="xs"
+                      background="white"
+                      type="color"
+                      defaultValue="#FFC0CB"
+                      // value={color}
+                      px="1"
+                      // onChange={e => handleColorChange(e.target.value)}
+                      onChange={e => {
+                        canvas.set('backgroundColor', e.target.value);
+                      }}
+                    />
+                  </FormControl>
 
-                <FormControl id="grid" isRequired>
-                  <FormLabel>Show Grid</FormLabel>
-                  <Checkbox
-                  // checked={showOutline}
-                  // onChange={e => setShowOutline(e.target.checked)}
-                  >
-                    Show Grid
-                  </Checkbox>
-                </FormControl>
-              </Stack>
-            </AccordionPanel>
-          </AccordionItem>
-          <AccordionItem>
-            <h2>
-              <AccordionButton>
-                <Box flex="1" textAlign="left">
-                  Subtitle
-                </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4} bg="gray.200">
-              <Stack>
-                <FormControl id="font_family" isRequired>
-                  <FormLabel fontSize="xs">Font Family</FormLabel>
-                  <FontPicker
-                    size="xs"
-                    apiKey={process.env.REACT_APP_GOOGLE_FONTS_API_KEY}
-                    // activeFontFamily={activeFontFamily.family}
-                    // variants={[
-                    //   '100',
-                    //   '100italic',
-                    //   '200',
-                    //   '200italic',
-                    //   '300',
-                    //   '300italic',
-                    //   'regular',
-                    //   'italic',
-                    //   '500',
-                    //   '500italic',
-                    //   '600',
-                    //   '600italic',
-                    //   '700',
-                    //   '700italic',
-                    //   '800',
-                    //   '800italic',
-                    //   '900',
-                    //   '900italic',
-                    // ]}
-                    onChange={nextFont => {
-                      console.log(nextFont);
-                      // updateMeta('activeFontFamily', nextFont);
-                    }}
-                    limit={400}
-                  />
-                </FormControl>
-                <FormControl id="uppercase" isRequired>
-                  <FormLabel fontSize="xs">Uppercase</FormLabel>
-                  <Checkbox
-                    size="sm"
-                    borderColor="black"
+                  <FormControl id="grid" isRequired>
+                    <FormLabel>Show Grid</FormLabel>
+                    <Checkbox
+                    // checked={showOutline}
+                    // onChange={e => setShowOutline(e.target.checked)}
+                    >
+                      Show Grid
+                    </Checkbox>
+                  </FormControl>
+                </Stack>
+              </AccordionPanel>
+            </AccordionItem>
+            <AccordionItem>
+              <h2>
+                <AccordionButton>
+                  <Box flex="1" textAlign="left">
+                    Subtitle
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+              </h2>
+              <AccordionPanel pb={4} bg="gray.200">
+                <Stack>
+                  <FormControl id="font_family" isRequired>
+                    <FormLabel fontSize="xs">Font Family</FormLabel>
+                    <FontPicker
+                      size="xs"
+                      apiKey={process.env.REACT_APP_GOOGLE_FONTS_API_KEY}
+                      // activeFontFamily={activeFontFamily.family}
+                      // variants={[
+                      //   '100',
+                      //   '100italic',
+                      //   '200',
+                      //   '200italic',
+                      //   '300',
+                      //   '300italic',
+                      //   'regular',
+                      //   'italic',
+                      //   '500',
+                      //   '500italic',
+                      //   '600',
+                      //   '600italic',
+                      //   '700',
+                      //   '700italic',
+                      //   '800',
+                      //   '800italic',
+                      //   '900',
+                      //   '900italic',
+                      // ]}
+                      onChange={nextFont => {
+                        console.log(nextFont);
+                        // updateMeta('activeFontFamily', nextFont);
+                      }}
+                      limit={400}
+                    />
+                  </FormControl>
+                  <FormControl id="uppercase" isRequired>
+                    <FormLabel fontSize="xs">Uppercase</FormLabel>
+                    <Checkbox
+                      size="sm"
+                      borderColor="black"
 
                     // checked={fontUppercase}
                     // onChange={e => updateMeta('fontUppercase', e.target.checked)}
-                  >
-                    Uppercase
-                  </Checkbox>
-                </FormControl>
-                <FormControl id="font_size" isRequired>
-                  <FormLabel fontSize="xs">Font Size</FormLabel>
-                  <NumberInput
-                    size="xs"
-                    // onChange={valueString =>
-                    //   updateMeta('fontSize', parse(valueString))
-                    // }
-                    // value={format(fontSize)}
-                    step={2}
-                    defaultValue={22}
-                    min={10}
-                    max={200}
-                    bg="white"
-                    borderRadius={8}
-                  >
-                    <NumberInputField />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper />
-                      <NumberDecrementStepper />
-                    </NumberInputStepper>
-                  </NumberInput>
-                </FormControl>
+                    >
+                      Uppercase
+                    </Checkbox>
+                  </FormControl>
+                  <FormControl id="font_size" isRequired>
+                    <FormLabel fontSize="xs">Font Size</FormLabel>
+                    <NumberInput
+                      size="xs"
+                      // onChange={valueString =>
+                      //   updateMeta('fontSize', parse(valueString))
+                      // }
+                      // value={format(fontSize)}
+                      step={2}
+                      defaultValue={22}
+                      min={10}
+                      max={200}
+                      bg="white"
+                      borderRadius={8}
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                  </FormControl>
 
-                <FormControl id="font_size" isRequired>
-                  <FormLabel fontSize="xs">Italic</FormLabel>
-                  <Checkbox
-                    size="sm"
-                    borderColor="black"
+                  <FormControl id="font_size" isRequired>
+                    <FormLabel fontSize="xs">Italic</FormLabel>
+                    <Checkbox
+                      size="sm"
+                      borderColor="black"
 
                     // checked={italic}
                     // onChange={e => updateMeta('italic', e.target.checked)}
-                  >
-                    Italic
-                  </Checkbox>
-                </FormControl>
-                <FormControl id="font_size" isRequired>
-                  <FormLabel fontSize="xs">Font Weight</FormLabel>
-                  <Select
-                    size="xs"
-                    background="white"
+                    >
+                      Italic
+                    </Checkbox>
+                  </FormControl>
+                  <FormControl id="font_size" isRequired>
+                    <FormLabel fontSize="xs">Font Weight</FormLabel>
+                    <Select
+                      size="xs"
+                      background="white"
                     // onChange={e => updateMeta('fontWeight', e.target.value)}
                     // value={fontWeight}
-                  >
-                    <option value="100">100</option>
-                    <option value="200">200</option>
-                    <option value="300">300</option>
-                    <option value="400">400</option>
-                    <option value="500">500</option>
-                    <option value="600">600</option>
-                    <option value="700">700</option>
-                    <option value="800">800</option>
-                    <option value="900">900</option>
-                  </Select>
-                </FormControl>
-                <FormControl id="color" isRequired>
-                  <FormLabel fontSize="xs">Font Color</FormLabel>
-                  <Input
-                    size="xs"
-                    background="white"
-                    type="color"
-                    px="1"
+                    >
+                      <option value="100">100</option>
+                      <option value="200">200</option>
+                      <option value="300">300</option>
+                      <option value="400">400</option>
+                      <option value="500">500</option>
+                      <option value="600">600</option>
+                      <option value="700">700</option>
+                      <option value="800">800</option>
+                      <option value="900">900</option>
+                    </Select>
+                  </FormControl>
+                  <FormControl id="color" isRequired>
+                    <FormLabel fontSize="xs">Font Color</FormLabel>
+                    <Input
+                      size="xs"
+                      background="white"
+                      type="color"
+                      px="1"
                     // value={textColor}
                     // onChange={e => handleTextColorChange(e.target.value)}
-                  />
-                </FormControl>
-              </Stack>
-            </AccordionPanel>
-          </AccordionItem>
-          <AccordionItem>
-            <h2>
-              <AccordionButton>
-                <Box flex="1" textAlign="left">
-                  Title
-                </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4} bg="gray.200">
-              <Stack>
-                <FormControl id="font_size" isRequired>
-                  <FormLabel fontSize="xs">Show title?</FormLabel>
-                  <Checkbox
-                    borderColor="black"
-                    size="sm"
+                    />
+                  </FormControl>
+                </Stack>
+              </AccordionPanel>
+            </AccordionItem>
+            <AccordionItem>
+              <h2>
+                <AccordionButton>
+                  <Box flex="1" textAlign="left">
+                    Title
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+              </h2>
+              <AccordionPanel pb={4} bg="gray.200">
+                <Stack>
+                  <FormControl id="font_size" isRequired>
+                    <FormLabel fontSize="xs">Show title?</FormLabel>
+                    <Checkbox
+                      borderColor="black"
+                      size="sm"
                     // checked={showTitle}
                     // onChange={e => updateMeta('showTitle', e.target.checked)}
-                  >
-                    Show Title
-                  </Checkbox>
-                </FormControl>
+                    >
+                      Show Title
+                    </Checkbox>
+                  </FormControl>
 
-                <FormControl id="font_size" isRequired>
-                  <FormLabel fontSize="xs">Title Font Size</FormLabel>
-                  <NumberInput
-                    size="xs"
-                    // onChange={valueString =>
-                    //   updateMeta('titleTextSize', parse(valueString))
-                    // }
-                    // value={format(titleTextSize)}
-                    step={2}
-                    defaultValue={22}
-                    min={10}
-                    max={200}
-                    bg="white"
-                    borderRadius={8}
-                  >
-                    <NumberInputField />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper />
-                      <NumberDecrementStepper />
-                    </NumberInputStepper>
-                  </NumberInput>
-                </FormControl>
-                <FormControl id="color" isRequired>
-                  <FormLabel fontSize="xs">Title Color</FormLabel>
-                  <Input
-                    size="xs"
-                    background="white"
-                    type="color"
-                    px="1"
+                  <FormControl id="font_size" isRequired>
+                    <FormLabel fontSize="xs">Title Font Size</FormLabel>
+                    <NumberInput
+                      size="xs"
+                      // onChange={valueString =>
+                      //   updateMeta('titleTextSize', parse(valueString))
+                      // }
+                      // value={format(titleTextSize)}
+                      step={2}
+                      defaultValue={22}
+                      min={10}
+                      max={200}
+                      bg="white"
+                      borderRadius={8}
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                  </FormControl>
+                  <FormControl id="color" isRequired>
+                    <FormLabel fontSize="xs">Title Color</FormLabel>
+                    <Input
+                      size="xs"
+                      background="white"
+                      type="color"
+                      px="1"
                     // value={textColor}
                     // onChange={e => handleTextColorChange(e.target.value)}
-                  />
-                </FormControl>
-              </Stack>
-            </AccordionPanel>
-          </AccordionItem>
-        </Accordion>
+                    />
+                  </FormControl>
+                </Stack>
+              </AccordionPanel>
+            </AccordionItem>
+            {
+              isImage && (
+                <AccordionItem>
+                  <h2>
+                    <AccordionButton>
+                      <Box flex="1" textAlign="left">
+                        Image
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4} bg="gray.200">
+                    <Stack>
+                      <Button size="xs" colorScheme="teal" onClick={() => removeImage()}>Remove Image</Button>
+
+                    </Stack>
+                  </AccordionPanel>
+                </AccordionItem>
+              )
+            }
+          </Accordion>
+        </Box>
+        <Box d="flex">
+          <Button style={styles.uploadImageButton} colorScheme="teal">
+            <label htmlFor="image_upload">
+              Upload Image
+            </label>
+            <Input
+              id="image_upload"
+              type="file"
+              onChange={handleFileUpload}
+              accept="image/png"
+              style={{ display: "none" }}
+            />
+          </Button>
+        </Box>
       </Flex>
     </Flex>
   );
@@ -711,3 +808,11 @@ const Canvas = React.forwardRef((props, canvasRef) => {
 
   return <canvas ref={canvasRef} {...rest} id="my-canvas" />;
 });
+
+const styles = {
+  uploadImageButton: {
+    color: "#ffffff",
+    borderRadius: 0,
+    width: '100%',
+  }
+}
