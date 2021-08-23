@@ -1,44 +1,49 @@
-import { Box, Button } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { FaPause, FaPlay } from "react-icons/fa";
+import { Box, Button } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { FaPause, FaPlay } from 'react-icons/fa';
 
 const PlayButton = ({ vid, toggleVideo }) => {
-  const [isPlaying, setIsPlaying] = useState()
+  const [isPlaying, setIsPlaying] = useState();
 
   useEffect(() => {
-    function onPlay () {
-      setIsPlaying(true)
+    function onPlay() {
+      setIsPlaying(true);
     }
 
-    function onPause () {
-      setIsPlaying(false)
+    function onPause() {
+      setIsPlaying(false);
     }
 
     if (vid) {
-      vid.addEventListener('pause', onPause)
-      vid.addEventListener('play', onPlay)
+      vid.addEventListener('pause', onPause);
+      vid.addEventListener('play', onPlay);
     }
 
     return () => {
       if (vid) {
-        vid.removeEventListener('pause', onPause)
-        vid.removeEventListener('play', onPlay)
+        vid.removeEventListener('pause', onPause);
+        vid.removeEventListener('play', onPlay);
       }
-    }
-  }, [vid])
+    };
+  }, [vid]);
 
   return (
     <Box d="flex" alignItems="center" justifyContent="center">
-      <Button colorScheme="teal" style={styles.playButton} onClick={() => toggleVideo()} isDisabled={!vid}>
-        {
-          !isPlaying ?
-            <FaPlay style={{ color: '#ffffff' }} /> :
-            <FaPause style={{ color: '#ffffff' }} />
-        }
+      <Button
+        colorScheme="teal"
+        style={styles.playButton}
+        onClick={() => toggleVideo()}
+        isDisabled={!vid}
+      >
+        {!isPlaying ? (
+          <FaPlay style={{ color: '#ffffff' }} />
+        ) : (
+          <FaPause style={{ color: '#ffffff' }} />
+        )}
       </Button>
     </Box>
-  )
-}
+  );
+};
 
 const styles = {
   playButton: {
@@ -52,8 +57,8 @@ const styles = {
     borderRadius: '50%',
     outline: 'none',
     marginTop: 30,
-    marginBottom: 10
-  }
-}
+    marginBottom: 10,
+  },
+};
 
 export default PlayButton;

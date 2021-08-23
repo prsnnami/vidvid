@@ -41,7 +41,7 @@ const MAX_WIDTH = 800;
 
 /* global Reduct */
 
-function App () {
+function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
@@ -63,18 +63,18 @@ const baseUrl = 'https://app.reduct.video/e/';
 const shareUrl =
   'https://app.reduct.video/e/borderer-testing-84e3ce2ba0-f81df100c4861287a746';
 
-function useVideo () {
+function useVideo() {
   const videoRef = useRef();
   const [loading, setLoading] = useState(true);
 
-  async function loadManifest (shareUrl) {
+  async function loadManifest(shareUrl) {
     const manifestRet = await fetch(`/proxy/${shareUrl}/manifest-path.json`);
     const manifest = await manifestRet.json();
     return manifest;
   }
 
   useEffect(() => {
-    async function init () {
+    async function init() {
       if (videoRef.current) return;
       const vid = document.createElement('video');
       vid.style.objectFit = 'fill';
@@ -101,7 +101,7 @@ function useVideo () {
     init();
   }, []);
 
-  function toggleVideo () {
+  function toggleVideo() {
     if (videoRef.current.paused) {
       videoRef.current.play();
       return;
@@ -113,7 +113,7 @@ function useVideo () {
   return { video: videoRef.current, toggleVideo, loading };
 }
 
-function useCanvas () {
+function useCanvas() {
   const [canvas, setCanvas] = useState('');
   const canvasRef = useRef();
 
@@ -148,7 +148,7 @@ function useCanvas () {
   return { canvasRef, canvas };
 }
 
-function getVideoDimensions (
+function getVideoDimensions(
   canvasWidth,
   canvasHeight,
   videoWidth,
@@ -161,7 +161,7 @@ function getVideoDimensions (
   return { left, top, width: videoWidth * scale, height: videoHeight * scale };
 }
 
-function TestPage () {
+function TestPage() {
   const [canvasSize, setCanvasSize] = useState({ height: 1080, width: 1080 });
   const [ar, setAr] = useState('1:1');
   const [wrapperSize, setWrapperSize] = useState({ height: 0, width: 0 });
@@ -225,8 +225,8 @@ function TestPage () {
       height: 0,
       width: 0,
       image: null,
-    }
-  })
+    },
+  });
 
   useEffect(() => {
     if (vid && subtitle) {
@@ -255,7 +255,7 @@ function TestPage () {
     }
   }, [videoLoading, vid]);
 
-  function bootstrapElements () {
+  function bootstrapElements() {
     const myText = new fabric.Textbox('', {
       originX: 'center',
       originY: 'center',
@@ -274,7 +274,7 @@ function TestPage () {
     return { myText };
   }
 
-  function loop () {
+  function loop() {
     // fabric.util.requestAnimFrame(function render() {
     //   if (subtitle) {
     //     subtitle.forEach(s => {
@@ -297,7 +297,7 @@ function TestPage () {
     render();
   }
 
-  function draw () {
+  function draw() {
     if (canvas) {
       let myText = canvas.getItemByName('subtitle');
       if (subtitle) {
@@ -342,7 +342,7 @@ function TestPage () {
     400
   );
 
-  function handleDimensionsChange (ar) {
+  function handleDimensionsChange(ar) {
     let height, width;
     setAr(ar);
 
@@ -391,19 +391,19 @@ function TestPage () {
   }
 
   const removeImage = () => {
-    let image = canvas.getItemByName("image")
+    let image = canvas.getItemByName('image');
     canvas.remove(image);
     setIsImage(false);
-  }
+  };
 
-  function handleFileUpload (e) {
+  function handleFileUpload(e) {
     let reader = new FileReader();
     reader.onload = function (e) {
       let image = new Image();
       image.src = e.target.result;
       image.onload = function () {
         let img = new fabric.Image(image, {
-          name: 'image'
+          name: 'image',
         });
 
         img.set({
@@ -412,7 +412,7 @@ function TestPage () {
         });
         img.scaleToWidth(200);
         canvas.add(img).setActiveObject(img).renderAll();
-        setIsImage(true)
+        setIsImage(true);
       };
     };
     reader.readAsDataURL(e.target.files[0]);
@@ -438,7 +438,7 @@ function TestPage () {
             contentEditable
             suppressContentEditableWarning
 
-          // onInput={e => updateMeta('title', e.target.innerText)}
+            // onInput={e => updateMeta('title', e.target.innerText)}
           >
             Transcript
           </span>
@@ -469,7 +469,13 @@ function TestPage () {
         bg="gray.100"
         px="4"
       >
-        <Box py="2" display="flex" justifyContent="center">
+        <Box
+          py="2"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          flexGrow="1"
+        >
           <Box
             style={{
               maxWidth: '100%',
@@ -504,10 +510,17 @@ function TestPage () {
             </Box>
           </Box>
         </Box>
-        <PlayButton vid={vid} toggleVideo={toggleVideo} />
+        <Flex justifyContent="center" alignItems="center" flexGrow="1">
+          <PlayButton vid={vid} toggleVideo={toggleVideo} />
+        </Flex>
         <Seeker video={vid} />
       </Flex>
-      <Flex d="flex" flexDirection="column" w="300px" borderLeft="1px solid #edf2f7">
+      <Flex
+        d="flex"
+        flexDirection="column"
+        w="300px"
+        borderLeft="1px solid #edf2f7"
+      >
         <Box minHeight="calc(100vh - 40px)">
           <Accordion w="100%" allowMultiple>
             <AccordionItem>
@@ -613,8 +626,8 @@ function TestPage () {
                       size="sm"
                       borderColor="black"
 
-                    // checked={fontUppercase}
-                    // onChange={e => updateMeta('fontUppercase', e.target.checked)}
+                      // checked={fontUppercase}
+                      // onChange={e => updateMeta('fontUppercase', e.target.checked)}
                     >
                       Uppercase
                     </Checkbox>
@@ -648,8 +661,8 @@ function TestPage () {
                       size="sm"
                       borderColor="black"
 
-                    // checked={italic}
-                    // onChange={e => updateMeta('italic', e.target.checked)}
+                      // checked={italic}
+                      // onChange={e => updateMeta('italic', e.target.checked)}
                     >
                       Italic
                     </Checkbox>
@@ -659,8 +672,8 @@ function TestPage () {
                     <Select
                       size="xs"
                       background="white"
-                    // onChange={e => updateMeta('fontWeight', e.target.value)}
-                    // value={fontWeight}
+                      // onChange={e => updateMeta('fontWeight', e.target.value)}
+                      // value={fontWeight}
                     >
                       <option value="100">100</option>
                       <option value="200">200</option>
@@ -680,8 +693,8 @@ function TestPage () {
                       background="white"
                       type="color"
                       px="1"
-                    // value={textColor}
-                    // onChange={e => handleTextColorChange(e.target.value)}
+                      // value={textColor}
+                      // onChange={e => handleTextColorChange(e.target.value)}
                     />
                   </FormControl>
                 </Stack>
@@ -703,8 +716,8 @@ function TestPage () {
                     <Checkbox
                       borderColor="black"
                       size="sm"
-                    // checked={showTitle}
-                    // onChange={e => updateMeta('showTitle', e.target.checked)}
+                      // checked={showTitle}
+                      // onChange={e => updateMeta('showTitle', e.target.checked)}
                     >
                       Show Title
                     </Checkbox>
@@ -739,46 +752,47 @@ function TestPage () {
                       background="white"
                       type="color"
                       px="1"
-                    // value={textColor}
-                    // onChange={e => handleTextColorChange(e.target.value)}
+                      // value={textColor}
+                      // onChange={e => handleTextColorChange(e.target.value)}
                     />
                   </FormControl>
                 </Stack>
               </AccordionPanel>
             </AccordionItem>
-            {
-              isImage && (
-                <AccordionItem>
-                  <h2>
-                    <AccordionButton>
-                      <Box flex="1" textAlign="left">
-                        Image
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pb={4} bg="gray.200">
-                    <Stack>
-                      <Button size="xs" colorScheme="teal" onClick={() => removeImage()}>Remove Image</Button>
-
-                    </Stack>
-                  </AccordionPanel>
-                </AccordionItem>
-              )
-            }
+            {isImage && (
+              <AccordionItem>
+                <h2>
+                  <AccordionButton>
+                    <Box flex="1" textAlign="left">
+                      Image
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
+                <AccordionPanel pb={4} bg="gray.200">
+                  <Stack>
+                    <Button
+                      size="xs"
+                      colorScheme="teal"
+                      onClick={() => removeImage()}
+                    >
+                      Remove Image
+                    </Button>
+                  </Stack>
+                </AccordionPanel>
+              </AccordionItem>
+            )}
           </Accordion>
         </Box>
         <Box d="flex">
           <Button style={styles.uploadImageButton} colorScheme="teal">
-            <label htmlFor="image_upload">
-              Upload Image
-            </label>
+            <label htmlFor="image_upload">Upload Image</label>
             <Input
               id="image_upload"
               type="file"
               onChange={handleFileUpload}
               accept="image/png"
-              style={{ display: "none" }}
+              style={{ display: 'none' }}
             />
           </Button>
         </Box>
@@ -811,8 +825,8 @@ const Canvas = React.forwardRef((props, canvasRef) => {
 
 const styles = {
   uploadImageButton: {
-    color: "#ffffff",
+    color: '#ffffff',
     borderRadius: 0,
     width: '100%',
-  }
-}
+  },
+};
