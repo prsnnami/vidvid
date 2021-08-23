@@ -1,7 +1,13 @@
 import { findByLabelText } from '@testing-library/dom';
-import { Editor, Node, Transforms } from 'slate';
+import { useEffect, useRef, useState } from 'react';
+import { Node, Transforms } from 'slate';
+import { fabric } from 'fabric';
+import ere from 'element-resize-event';
 
-export function drawScaledImage(ctx, image, cs, is) {
+const shareUrl =
+  'https://app.reduct.video/e/borderer-testing-84e3ce2ba0-f81df100c4861287a746';
+
+export function drawScaledImage (ctx, image, cs, is) {
   ctx.clearRect(0, 0, cs.width, cs.height);
   let scale = Math.min(cs.width / is.width, cs.height / is.height);
 
@@ -11,7 +17,7 @@ export function drawScaledImage(ctx, image, cs, is) {
   ctx.drawImage(image, left, top, is.width * scale, is.height * scale);
 }
 
-export function getWrapLines(ctx, text, maxWidth) {
+export function getWrapLines (ctx, text, maxWidth) {
   var words = text.trim().split(' ');
   var lines = [];
   var currentLine = words[0];
@@ -30,7 +36,7 @@ export function getWrapLines(ctx, text, maxWidth) {
   return lines;
 }
 
-export function debounce(func, wait) {
+export function debounce (func, wait) {
   let timeout;
   return function () {
     const context = this;
@@ -44,7 +50,7 @@ export function debounce(func, wait) {
   };
 }
 
-export function getSubtitle(transcript) {
+export function getSubtitle (transcript) {
   let lines = [];
   transcript.segments.forEach(segment => {
     let segmentChunks = segment.wdlist.reduce((prev, curr, i) => {
@@ -71,12 +77,12 @@ export function getSubtitle(transcript) {
   return lines;
 }
 
-export async function loadTranscript(shareUrl) {
+export async function loadTranscript (shareUrl) {
   const transRet = await fetch(`/proxy/${shareUrl}/transcript.json`);
   return await transRet.json();
 }
 
-export function getTimeStamp(start) {
+export function getTimeStamp (start) {
   const startValue = Math.floor(start);
   let minute = Math.floor(startValue / 60);
   let seconds = startValue % 60;
@@ -139,13 +145,13 @@ export const getSelectionNodes = (editor, selection) => {
   }
 };
 
-function splitTextAtOffset(text, offset) {
+function splitTextAtOffset (text, offset) {
   const textBefore = text.slice(0, offset);
   const textAfter = text.slice(offset);
   return [textBefore, textAfter];
 }
 
-export function handleSplitLine(editor) {
+export function handleSplitLine (editor) {
   const { anchor, focus } = editor.selection;
   const { offset: anchorOffset, path: anchorPath } = anchor;
   const { offset: focusOffset } = focus;
@@ -230,7 +236,7 @@ export function handleSplitLine(editor) {
   return false;
 }
 
-export function handleMergeLine(editor, event) {
+export function handleMergeLine (editor, event) {
   const { anchor, focus } = editor.selection;
   const { offset: anchorOffset, path: anchorPath } = anchor;
   const { offset: focusOffset } = focus;
@@ -302,7 +308,7 @@ export function handleMergeLine(editor, event) {
   }
 }
 
-export function handleUpDownTraversal(editor, key) {
+export function handleUpDownTraversal (editor, key) {
   const { anchor, focus } = editor.selection;
   const { offset: anchorOffset, path: anchorPath } = anchor;
   const { offset: focusOffset } = focus;
@@ -325,7 +331,7 @@ export function handleUpDownTraversal(editor, key) {
   });
 }
 
-function getPointFromOffset(editor, lineIdx, totalOffset) {
+function getPointFromOffset (editor, lineIdx, totalOffset) {
   let items = editor.children[lineIdx].children;
 
   const fulltext = Node.string(editor.children[lineIdx]);
@@ -353,7 +359,7 @@ function getPointFromOffset(editor, lineIdx, totalOffset) {
   };
 }
 
-function getOffset(editor, lineIdx, wordIdx, anchorOffset) {
+function getOffset (editor, lineIdx, wordIdx, anchorOffset) {
   const text = editor.children[lineIdx].children.reduce((acc, curr, idx) => {
     if (idx < wordIdx) acc = acc + curr.children[0].text;
     if (idx === wordIdx) {
@@ -364,4 +370,124 @@ function getOffset(editor, lineIdx, wordIdx, anchorOffset) {
     return acc;
   }, '');
   return text.length;
+}
+
+export function useVideo () {
+  const videoRef = useRef();
+  const [loading, setLoading] = useState(true);
+  const [buffering, setBuffering] = useState(false);
+
+  async function loadManifest (shareUrl) {
+    const manifestRet = await fetch(`/proxy/${shareUrl}/manifest-path.json`);
+    const manifest = await manifestRet.json();
+    return manifest;
+  }
+  /* global Reduct */
+
+  useEffect(() => {
+    async function init () {
+      if (videoRef.current) return;
+      const vid = document.createElement('video');
+      vid.style.objectFit = 'fill';
+      vid.loop = true;
+
+      videoRef.current = vid;
+
+      const manifest = await loadManifest(shareUrl);
+
+      const play = new Reduct.Player(vid);
+      play.init(`/proxy/${shareUrl}/${manifest}`, {
+        streaming: { bufferingGoal: 5, rebufferingGoal: 3 },
+      });
+      vid.onVideoRender?.();
+      vid.addEventListener('waiting', () => {
+        setBuffering(true)
+      })
+      vid.addEventListener('seeking', () => {
+        setBuffering(true)
+      })
+      vid.addEventListener('canPlay', () => {
+        setBuffering(false)
+      })
+      vid.onloadeddata = function (e) {
+        console.log(this.videoHeight, this.videoWidth);
+        console.log('loadedData');
+        vid.height = this.videoHeight;
+        vid.width = this.videoWidth;
+        setLoading(false);
+      };
+
+      return () => {
+        vid.removeEventListener('waiting', () => {
+          setBuffering(true)
+        })
+        vid.removeEventListener('seeking', () => {
+          setBuffering(true)
+        })
+        vid.removeEventListener('canPlay', () => {
+          setBuffering(false)
+        })
+      }
+    }
+    init();
+  }, []);
+
+  function toggleVideo () {
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      return;
+    }
+    videoRef.current.pause();
+    return;
+  }
+
+  return { video: videoRef.current, toggleVideo, loading };
+}
+
+export function useCanvas () {
+  const [canvas, setCanvas] = useState('');
+  const canvasRef = useRef();
+
+  useEffect(() => {
+    const initCanvas = () => {
+      fabric.Object.prototype.transparentCorners = false;
+      fabric.Object.prototype.cornerColor = 'blue';
+      fabric.Object.prototype.cornerStyle = 'circle';
+      fabric.Object.prototype.borderColor = 'blue';
+      fabric.Object.prototype.setControlsVisibility({ mtr: false });
+      fabric.Canvas.prototype.getItemByName = function (name) {
+        let objects = this.getObjects();
+        let object = objects.find(i => i.name === name);
+        return object;
+      };
+      return new fabric.Canvas(canvasRef.current, {
+        backgroundColor: 'pink',
+        height: 1080,
+        width: 1080,
+        preserveObjectStacking: true,
+      });
+    };
+
+    if (canvasRef.current && !canvas) {
+      const c = initCanvas();
+
+      // initVideo(c);
+      setCanvas(c);
+    }
+  }, [canvasRef.current, canvas]);
+
+  return { canvasRef, canvas };
+}
+
+export function getVideoDimensions (
+  canvasWidth,
+  canvasHeight,
+  videoWidth,
+  videoHeight
+) {
+  let scale = Math.min(canvasWidth / videoWidth, canvasHeight / videoHeight);
+
+  let top = (canvasHeight - videoHeight * scale) / 2;
+  let left = (canvasWidth - videoWidth * scale) / 2;
+  return { left, top, width: videoWidth * scale, height: videoHeight * scale };
 }

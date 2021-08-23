@@ -2,7 +2,7 @@ import { Box, Button } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { FaPause, FaPlay } from "react-icons/fa";
 
-const PlayButton = ({ vid, toggleVideo }) => {
+const PlayButton = ({ vid, toggleVideo, buffering }) => {
   const [isPlaying, setIsPlaying] = useState()
 
   useEffect(() => {
