@@ -400,15 +400,7 @@ export function useVideo () {
         streaming: { bufferingGoal: 5, rebufferingGoal: 3 },
       });
       vid.onVideoRender?.();
-      vid.addEventListener('waiting', () => {
-        setBuffering(true)
-      })
-      vid.addEventListener('seeking', () => {
-        setBuffering(true)
-      })
-      vid.addEventListener('canPlay', () => {
-        setBuffering(false)
-      })
+
       vid.onloadeddata = function (e) {
         console.log(this.videoHeight, this.videoWidth);
         console.log('loadedData');
@@ -417,6 +409,16 @@ export function useVideo () {
         setLoading(false);
       };
 
+      vid.addEventListener('waiting', () => {
+        setBuffering(true)
+      })
+      vid.addEventListener('seeking', () => {
+        setBuffering(true)
+      })
+      vid.addEventListener('canplay', () => {
+        setBuffering(false)
+      })
+
       return () => {
         vid.removeEventListener('waiting', () => {
           setBuffering(true)
@@ -424,7 +426,7 @@ export function useVideo () {
         vid.removeEventListener('seeking', () => {
           setBuffering(true)
         })
-        vid.removeEventListener('canPlay', () => {
+        vid.removeEventListener('canplay', () => {
           setBuffering(false)
         })
       }
@@ -441,7 +443,7 @@ export function useVideo () {
     return;
   }
 
-  return { video: videoRef.current, toggleVideo, loading };
+  return { video: videoRef.current, toggleVideo, loading, buffering };
 }
 
 export function useCanvas () {

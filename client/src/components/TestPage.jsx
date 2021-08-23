@@ -1,4 +1,4 @@
-import { Box, Flex, FormControl, FormLabel, Heading, Input, Select, Stack } from "@chakra-ui/react";
+import { Box, Flex, Heading, Spinner } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { getSubtitle, getVideoDimensions, loadTranscript, useCanvas, useVideo } from "../utils";
 import { useDebouncedCallback } from "../utils/useDebouncedCallback";
@@ -356,6 +356,19 @@ function TestPage () {
                 position="relative"
               >
                 <Flex position="relative">
+                  <Flex
+                    justifyContent="center"
+                    alignItems="center"
+                    position="absolute"
+                    h="100%"
+                    w="100%"
+                    bg="rgba(0,0,0,0.2)"
+                    hidden={!(buffering || videoLoading)}
+                    id="spinner"
+                    zIndex="1"
+                  >
+                    <Spinner color="teal" size="xl" thickness="8px" />
+                  </Flex>
                   <Canvas
                     // height={canvasSize.height}
                     // width={canvasSize.width}
