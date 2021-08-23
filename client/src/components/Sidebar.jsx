@@ -12,7 +12,7 @@ const Sidebar = ({
 
   const renderUploadImage = () => {
     return (
-      <Box d="flex">
+      <Box d="flex" marginTop="-50px">
         <Button style={styles.uploadImageButton} colorScheme="teal">
           <label htmlFor="image_upload">
             Upload Image
@@ -303,8 +303,8 @@ const Sidebar = ({
 
   return (
     <Flex d="flex" flexDirection="column" w="300px" borderLeft="1px solid #edf2f7">
-      <Box minHeight="calc(100vh - 40px)">
-        <Accordion w="100%" allowMultiple>
+      <Box minHeight="100%" overflow="scroll">
+        <Accordion w="100%" paddingBottom="50px" allowMultiple>
           {renderCanvasAccordion()}
           {renderSubtitleAccordion()}
           {renderTitleAccordion()}
