@@ -1,5 +1,26 @@
-import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Button, Checkbox, Flex, FormControl, FormLabel, Heading, Input, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Select, Stack } from "@chakra-ui/react";
-import FontPicker from "font-picker-react";
+import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Box,
+  Button,
+  Checkbox,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  Select,
+  Stack,
+} from '@chakra-ui/react';
+import FontPicker from 'font-picker-react';
 
 const Sidebar = ({
   handleDimensionsChange,
@@ -7,27 +28,26 @@ const Sidebar = ({
   handleFileUpload,
   isImage,
   ar,
-  handleCanvasChange
+  handleCanvasChange,
+  canvas,
+  handleTitleToggle,
 }) => {
-
   const renderUploadImage = () => {
     return (
       <Box d="flex" marginTop="-50px">
         <Button style={styles.uploadImageButton} colorScheme="teal">
-          <label htmlFor="image_upload">
-            Upload Image
-          </label>
+          <label htmlFor="image_upload">Upload Image</label>
           <Input
             id="image_upload"
             type="file"
-            onChange={(e) => handleFileUpload(e)}
+            onChange={e => handleFileUpload(e)}
             accept="image/png"
-            style={{ display: "none" }}
+            style={{ display: 'none' }}
           />
         </Button>
       </Box>
-    )
-  }
+    );
+  };
 
   const renderCanvasAccordion = () => {
     return (
@@ -82,8 +102,8 @@ const Sidebar = ({
           </Stack>
         </AccordionPanel>
       </AccordionItem>
-    )
-  }
+    );
+  };
 
   const renderSubtitleAccordion = () => {
     return (
@@ -136,9 +156,10 @@ const Sidebar = ({
               <Checkbox
                 size="sm"
                 borderColor="black"
+                // checked={fontUppercase}
+                // onChange={e => {
 
-              // checked={fontUppercase}
-              // onChange={e => updateMeta('fontUppercase', e.target.checked)}
+                // }}
               >
                 Uppercase
               </Checkbox>
@@ -147,12 +168,15 @@ const Sidebar = ({
               <FormLabel fontSize="xs">Font Size</FormLabel>
               <NumberInput
                 size="xs"
-                // onChange={valueString =>
-                //   updateMeta('fontSize', parse(valueString))
-                // }
+                onChange={valueString => {
+                  let subtitles = canvas.getItemByName('subtitle');
+
+                  subtitles.set('fontSize', parseInt(valueString));
+                  canvas.renderAll();
+                }}
                 // value={format(fontSize)}
                 step={2}
-                defaultValue={22}
+                defaultValue={40}
                 min={10}
                 max={200}
                 bg="white"
@@ -171,9 +195,17 @@ const Sidebar = ({
               <Checkbox
                 size="sm"
                 borderColor="black"
+                // checked={italic}
+                onChange={e => {
+                  let subtitles = canvas.getItemByName('subtitle');
+                  if (e.target.checked) {
+                    subtitles.set('fontStyle', 'italic');
+                  } else {
+                    subtitles.set('fontStyle', 'normal');
+                  }
 
-              // checked={italic}
-              // onChange={e => updateMeta('italic', e.target.checked)}
+                  canvas.renderAll();
+                }}
               >
                 Italic
               </Checkbox>
@@ -183,8 +215,13 @@ const Sidebar = ({
               <Select
                 size="xs"
                 background="white"
-              // onChange={e => updateMeta('fontWeight', e.target.value)}
-              // value={fontWeight}
+                onChange={e => {
+                  let subtitles = canvas.getItemByName('subtitle');
+
+                  subtitles.set('fontWeight', e.target.value);
+                  canvas.renderAll();
+                }}
+                // value={fontWeight}
               >
                 <option value="100">100</option>
                 <option value="200">200</option>
@@ -204,15 +241,20 @@ const Sidebar = ({
                 background="white"
                 type="color"
                 px="1"
-              // value={textColor}
-              // onChange={e => handleTextColorChange(e.target.value)}
+                // value={textColor}
+                onChange={e => {
+                  let subtitles = canvas.getItemByName('subtitle');
+
+                  subtitles.set('fill', e.target.value);
+                  canvas.renderAll();
+                }}
               />
             </FormControl>
           </Stack>
         </AccordionPanel>
       </AccordionItem>
-    )
-  }
+    );
+  };
 
   const renderTitleAccordion = () => {
     return (
@@ -232,8 +274,8 @@ const Sidebar = ({
               <Checkbox
                 borderColor="black"
                 size="sm"
-              // checked={showTitle}
-              // onChange={e => updateMeta('showTitle', e.target.checked)}
+                // checked={showTitle}
+                onChange={e => handleTitleToggle(e.target.checked)}
               >
                 Show Title
               </Checkbox>
@@ -268,18 +310,18 @@ const Sidebar = ({
                 background="white"
                 type="color"
                 px="1"
-              // value={textColor}
-              // onChange={e => handleTextColorChange(e.target.value)}
+                // value={textColor}
+                // onChange={e => handleTextColorChange(e.target.value)}
               />
             </FormControl>
           </Stack>
         </AccordionPanel>
       </AccordionItem>
-    )
-  }
+    );
+  };
 
   const renderImageAccordion = () => {
-    if (!isImage) return
+    if (!isImage) return;
 
     return (
       <AccordionItem>
@@ -293,16 +335,22 @@ const Sidebar = ({
         </h2>
         <AccordionPanel pb={4} bg="gray.200">
           <Stack>
-            <Button size="xs" colorScheme="teal" onClick={() => removeImage()}>Remove Image</Button>
-
+            <Button size="xs" colorScheme="teal" onClick={() => removeImage()}>
+              Remove Image
+            </Button>
           </Stack>
         </AccordionPanel>
       </AccordionItem>
-    )
-  }
+    );
+  };
 
   return (
-    <Flex d="flex" flexDirection="column" w="300px" borderLeft="1px solid #edf2f7">
+    <Flex
+      d="flex"
+      flexDirection="column"
+      w="300px"
+      borderLeft="1px solid #edf2f7"
+    >
       <Box minHeight="100%" overflow="scroll">
         <Accordion w="100%" paddingBottom="50px" allowMultiple>
           {renderCanvasAccordion()}
@@ -313,15 +361,15 @@ const Sidebar = ({
       </Box>
       {renderUploadImage()}
     </Flex>
-  )
-}
+  );
+};
 
 const styles = {
   uploadImageButton: {
-    color: "#ffffff",
+    color: '#ffffff',
     borderRadius: 0,
     width: '100%',
-  }
-}
+  },
+};
 
 export default Sidebar;

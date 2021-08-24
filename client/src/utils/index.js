@@ -7,7 +7,7 @@ import ere from 'element-resize-event';
 const shareUrl =
   'https://app.reduct.video/e/borderer-testing-84e3ce2ba0-f81df100c4861287a746';
 
-export function drawScaledImage (ctx, image, cs, is) {
+export function drawScaledImage(ctx, image, cs, is) {
   ctx.clearRect(0, 0, cs.width, cs.height);
   let scale = Math.min(cs.width / is.width, cs.height / is.height);
 
@@ -17,7 +17,7 @@ export function drawScaledImage (ctx, image, cs, is) {
   ctx.drawImage(image, left, top, is.width * scale, is.height * scale);
 }
 
-export function getWrapLines (ctx, text, maxWidth) {
+export function getWrapLines(ctx, text, maxWidth) {
   var words = text.trim().split(' ');
   var lines = [];
   var currentLine = words[0];
@@ -36,7 +36,7 @@ export function getWrapLines (ctx, text, maxWidth) {
   return lines;
 }
 
-export function debounce (func, wait) {
+export function debounce(func, wait) {
   let timeout;
   return function () {
     const context = this;
@@ -50,7 +50,7 @@ export function debounce (func, wait) {
   };
 }
 
-export function getSubtitle (transcript) {
+export function getSubtitle(transcript) {
   let lines = [];
   transcript.segments.forEach(segment => {
     let segmentChunks = segment.wdlist.reduce((prev, curr, i) => {
@@ -77,12 +77,12 @@ export function getSubtitle (transcript) {
   return lines;
 }
 
-export async function loadTranscript (shareUrl) {
+export async function loadTranscript(shareUrl) {
   const transRet = await fetch(`/proxy/${shareUrl}/transcript.json`);
   return await transRet.json();
 }
 
-export function getTimeStamp (start) {
+export function getTimeStamp(start) {
   const startValue = Math.floor(start);
   let minute = Math.floor(startValue / 60);
   let seconds = startValue % 60;
@@ -145,13 +145,13 @@ export const getSelectionNodes = (editor, selection) => {
   }
 };
 
-function splitTextAtOffset (text, offset) {
+function splitTextAtOffset(text, offset) {
   const textBefore = text.slice(0, offset);
   const textAfter = text.slice(offset);
   return [textBefore, textAfter];
 }
 
-export function handleSplitLine (editor) {
+export function handleSplitLine(editor) {
   const { anchor, focus } = editor.selection;
   const { offset: anchorOffset, path: anchorPath } = anchor;
   const { offset: focusOffset } = focus;
@@ -236,7 +236,7 @@ export function handleSplitLine (editor) {
   return false;
 }
 
-export function handleMergeLine (editor, event) {
+export function handleMergeLine(editor, event) {
   const { anchor, focus } = editor.selection;
   const { offset: anchorOffset, path: anchorPath } = anchor;
   const { offset: focusOffset } = focus;
@@ -308,7 +308,7 @@ export function handleMergeLine (editor, event) {
   }
 }
 
-export function handleUpDownTraversal (editor, key) {
+export function handleUpDownTraversal(editor, key) {
   const { anchor, focus } = editor.selection;
   const { offset: anchorOffset, path: anchorPath } = anchor;
   const { offset: focusOffset } = focus;
@@ -331,7 +331,7 @@ export function handleUpDownTraversal (editor, key) {
   });
 }
 
-function getPointFromOffset (editor, lineIdx, totalOffset) {
+function getPointFromOffset(editor, lineIdx, totalOffset) {
   let items = editor.children[lineIdx].children;
 
   const fulltext = Node.string(editor.children[lineIdx]);
@@ -359,7 +359,7 @@ function getPointFromOffset (editor, lineIdx, totalOffset) {
   };
 }
 
-function getOffset (editor, lineIdx, wordIdx, anchorOffset) {
+function getOffset(editor, lineIdx, wordIdx, anchorOffset) {
   const text = editor.children[lineIdx].children.reduce((acc, curr, idx) => {
     if (idx < wordIdx) acc = acc + curr.children[0].text;
     if (idx === wordIdx) {
@@ -372,12 +372,12 @@ function getOffset (editor, lineIdx, wordIdx, anchorOffset) {
   return text.length;
 }
 
-export function useVideo () {
+export function useVideo() {
   const videoRef = useRef();
   const [loading, setLoading] = useState(true);
   const [buffering, setBuffering] = useState(false);
 
-  async function loadManifest (shareUrl) {
+  async function loadManifest(shareUrl) {
     const manifestRet = await fetch(`/proxy/${shareUrl}/manifest-path.json`);
     const manifest = await manifestRet.json();
     return manifest;
@@ -385,7 +385,7 @@ export function useVideo () {
   /* global Reduct */
 
   useEffect(() => {
-    async function init () {
+    async function init() {
       if (videoRef.current) return;
       const vid = document.createElement('video');
       vid.style.objectFit = 'fill';
@@ -410,31 +410,31 @@ export function useVideo () {
       };
 
       vid.addEventListener('waiting', () => {
-        setBuffering(true)
-      })
+        setBuffering(true);
+      });
       vid.addEventListener('seeking', () => {
-        setBuffering(true)
-      })
+        setBuffering(true);
+      });
       vid.addEventListener('canplay', () => {
-        setBuffering(false)
-      })
+        setBuffering(false);
+      });
 
       return () => {
         vid.removeEventListener('waiting', () => {
-          setBuffering(true)
-        })
+          setBuffering(true);
+        });
         vid.removeEventListener('seeking', () => {
-          setBuffering(true)
-        })
+          setBuffering(true);
+        });
         vid.removeEventListener('canplay', () => {
-          setBuffering(false)
-        })
-      }
+          setBuffering(false);
+        });
+      };
     }
     init();
   }, []);
 
-  function toggleVideo () {
+  function toggleVideo() {
     if (videoRef.current.paused) {
       videoRef.current.play();
       return;
@@ -446,7 +446,7 @@ export function useVideo () {
   return { video: videoRef.current, toggleVideo, loading, buffering };
 }
 
-export function useCanvas () {
+export function useCanvas() {
   const [canvas, setCanvas] = useState('');
   const canvasRef = useRef();
 
@@ -462,16 +462,21 @@ export function useCanvas () {
         let object = objects.find(i => i.name === name);
         return object;
       };
+
       return new fabric.Canvas(canvasRef.current, {
         backgroundColor: 'pink',
         height: 1080,
         width: 1080,
         preserveObjectStacking: true,
+        statefull: true,
       });
     };
 
     if (canvasRef.current && !canvas) {
       const c = initCanvas();
+      c.on('object:modified', function (e) {
+        alert('object modified');
+      });
 
       // initVideo(c);
       setCanvas(c);
@@ -481,7 +486,7 @@ export function useCanvas () {
   return { canvasRef, canvas };
 }
 
-export function getVideoDimensions (
+export function getVideoDimensions(
   canvasWidth,
   canvasHeight,
   videoWidth,

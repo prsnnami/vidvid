@@ -7,8 +7,7 @@ import Reels from './pages/Reels';
 import Projects from './pages/Projects';
 import TestPage from './components/TestPage';
 
-
-function App () {
+function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
@@ -16,7 +15,7 @@ function App () {
       <Route path="/editor/:sharePath" element={<QuickEditor />} />
       <Route path="/project/:id" element={<Project />} />
       <Route path="/projects" element={<Projects />} />
-      <Route path="/test" element={<TestPage />} />
+      <Route path="/demo" element={<TestPage />} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

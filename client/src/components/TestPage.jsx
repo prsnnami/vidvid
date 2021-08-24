@@ -1,13 +1,19 @@
-import { Box, Flex, Heading, Spinner } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
-import { getSubtitle, getVideoDimensions, loadTranscript, useCanvas, useVideo } from "../utils";
-import { useDebouncedCallback } from "../utils/useDebouncedCallback";
-import Transcript from "./Editor/Transcript";
-import PlayButton from "./PlayButton";
-import Seeker from "./Seeker";
+import { Box, Flex, Heading, Spinner } from '@chakra-ui/react';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  getSubtitle,
+  getVideoDimensions,
+  loadTranscript,
+  useCanvas,
+  useVideo,
+} from '../utils';
+import { useDebouncedCallback } from '../utils/useDebouncedCallback';
+import Transcript from './Editor/Transcript';
+import PlayButton from './PlayButton';
+import Seeker from './Seeker';
 import { fabric } from 'fabric';
 import ere from 'element-resize-event';
-import Sidebar from "./Sidebar";
+import Sidebar from './Sidebar';
 
 const shareUrl =
   'https://app.reduct.video/e/borderer-testing-84e3ce2ba0-f81df100c4861287a746';
@@ -15,7 +21,7 @@ const shareUrl =
 const MAX_HEIGHT = 600;
 const MAX_WIDTH = 800;
 
-function TestPage () {
+function TestPage() {
   const [canvasSize, setCanvasSize] = useState({ height: 1080, width: 1080 });
   const [ar, setAr] = useState('1:1');
   const [wrapperSize, setWrapperSize] = useState({ height: 0, width: 0 });
@@ -23,7 +29,12 @@ function TestPage () {
   const [subtitle, setSubtitle] = useState();
   const [isImage, setIsImage] = useState();
 
-  const { video: vid, toggleVideo, loading: videoLoading, buffering } = useVideo();
+  const {
+    video: vid,
+    toggleVideo,
+    loading: videoLoading,
+    buffering,
+  } = useVideo();
   const { canvasRef, canvas } = useCanvas(canvasSize);
 
   const [layers, setLayers] = useState({
@@ -46,7 +57,7 @@ function TestPage () {
     subtitle: {
       fontFamily: 'Open Sans',
       uppercase: false,
-      fontSize: 22,
+      fontSize: 40,
       italic: false,
       fontWeight: 400,
       color: 'black',
@@ -61,10 +72,10 @@ function TestPage () {
     title: {
       fontFamily: 'Open Sans',
       uppercase: false,
-      fontSize: 22,
+      fontSize: 80,
       italic: false,
       fontWeight: 400,
-      color: 'black',
+      color: 'white',
       top: 0,
       left: 0,
       height: 0,
@@ -79,8 +90,8 @@ function TestPage () {
       height: 0,
       width: 0,
       image: null,
-    }
-  })
+    },
+  });
 
   useEffect(() => {
     if (vid && subtitle) {
@@ -109,10 +120,10 @@ function TestPage () {
     }
   }, [videoLoading, vid]);
 
-  const handleCanvasChange = (e) => {
+  const handleCanvasChange = e => {
     canvas.set('backgroundColor', e.target.value);
-  }
-  function bootstrapElements () {
+  };
+  function bootstrapElements() {
     const myText = new fabric.Textbox('', {
       originX: 'center',
       originY: 'center',
@@ -122,7 +133,7 @@ function TestPage () {
       textAlign: 'center',
       editable: false,
       name: 'subtitle',
-      fontSize: (1080 / 450) * 16,
+      fontSize: layers.subtitle.fontSize,
       // fontSize: 75,
     });
 
@@ -131,7 +142,28 @@ function TestPage () {
     return { myText };
   }
 
-  function loop () {
+  function handleTitleToggle(showTitle) {
+    if (showTitle) {
+      const title = new fabric.Textbox('Transcript', {
+        originX: 'center',
+        originY: 'center',
+        left: 0.5 * canvasSize.width,
+        top: 0.1 * canvasSize.height,
+        width: 400,
+        textAlign: 'center',
+        editable: false,
+        name: 'title',
+        fontSize: layers.title.fontSize,
+        fill: layers.title.color,
+      });
+      canvas.add(title);
+    } else {
+      const title = canvas.getItemByName('title');
+      canvas.remove(title);
+    }
+  }
+
+  function loop() {
     // fabric.util.requestAnimFrame(function render() {
     //   if (subtitle) {
     //     subtitle.forEach(s => {
@@ -154,7 +186,7 @@ function TestPage () {
     render();
   }
 
-  function draw () {
+  function draw() {
     if (canvas) {
       let myText = canvas.getItemByName('subtitle');
       if (subtitle) {
@@ -199,7 +231,7 @@ function TestPage () {
     400
   );
 
-  function handleDimensionsChange (ar) {
+  function handleDimensionsChange(ar) {
     let height, width;
     setAr(ar);
 
@@ -248,19 +280,19 @@ function TestPage () {
   }
 
   const removeImage = () => {
-    let image = canvas.getItemByName("image")
+    let image = canvas.getItemByName('image');
     canvas.remove(image);
     setIsImage(false);
-  }
+  };
 
-  function handleFileUpload (e) {
+  function handleFileUpload(e) {
     let reader = new FileReader();
     reader.onload = function (e) {
       let image = new Image();
       image.src = e.target.result;
       image.onload = function () {
         let img = new fabric.Image(image, {
-          name: 'image'
+          name: 'image',
         });
 
         img.set({
@@ -269,7 +301,7 @@ function TestPage () {
         });
         img.scaleToWidth(200);
         canvas.add(img).setActiveObject(img).renderAll();
-        setIsImage(true)
+        setIsImage(true);
       };
     };
     reader.readAsDataURL(e.target.files[0]);
@@ -295,7 +327,7 @@ function TestPage () {
           <span
             contentEditable
             suppressContentEditableWarning
-          // onInput={e => updateMeta('title', e.target.innerText)}
+            // onInput={e => updateMeta('title', e.target.innerText)}
           >
             Transcript
           </span>
@@ -381,7 +413,11 @@ function TestPage () {
           </Box>
         </Box>
         <Flex justifyContent="center" alignItems="center" flexGrow="1">
-          <PlayButton vid={vid} toggleVideo={toggleVideo} buffering={buffering} />
+          <PlayButton
+            vid={vid}
+            toggleVideo={toggleVideo}
+            buffering={buffering}
+          />
         </Flex>
         <Seeker video={vid} />
       </Flex>
@@ -392,6 +428,8 @@ function TestPage () {
         isImage={isImage}
         ar={ar}
         handleCanvasChange={handleCanvasChange}
+        canvas={canvas}
+        handleTitleToggle={handleTitleToggle}
       />
     </Flex>
   );
