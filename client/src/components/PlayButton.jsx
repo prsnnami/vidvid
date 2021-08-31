@@ -33,7 +33,8 @@ const PlayButton = ({ vid, toggleVideo, buffering }) => {
         colorScheme="teal"
         style={styles.playButton}
         onClick={() => toggleVideo()}
-        isDisabled={!vid}
+        isDisabled={buffering || !vid}
+        isLoading={buffering || !vid}
       >
         {!isPlaying ? (
           <FaPlay style={{ color: '#ffffff' }} />
