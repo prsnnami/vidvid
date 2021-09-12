@@ -72,7 +72,7 @@ function TestPage() {
     title: {
       fontFamily: 'Open Sans',
       uppercase: false,
-      fontSize: 80,
+      fontSize: 100,
       italic: false,
       fontWeight: 400,
       color: 'white',
@@ -261,7 +261,7 @@ function TestPage() {
 
     setCanvasSize({ height, width });
     let videoElement = canvas.getItemByName('video');
-    console.log(vid, vid.element);
+    let subtitleElement = canvas.getItemByName('subtitle');
     let {
       left,
       top,
@@ -273,6 +273,12 @@ function TestPage() {
       left,
       top,
     });
+
+    subtitleElement.set({
+      left: 0.5 * width,
+      top: 0.9 * height,
+    });
+
     videoElement.scaleToHeight(h);
     videoElement.scaleToWidth(w);
     canvas.setDimensions({ height, width });

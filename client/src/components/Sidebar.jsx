@@ -90,7 +90,7 @@ const Sidebar = ({
               />
             </FormControl>
 
-            <FormControl id="grid" isRequired>
+            {/* <FormControl id="grid" isRequired>
               <FormLabel>Show Grid</FormLabel>
               <Checkbox
               // checked={showOutline}
@@ -98,7 +98,7 @@ const Sidebar = ({
               >
                 Show Grid
               </Checkbox>
-            </FormControl>
+            </FormControl> */}
           </Stack>
         </AccordionPanel>
       </AccordionItem>
@@ -285,14 +285,17 @@ const Sidebar = ({
               <FormLabel fontSize="xs">Title Font Size</FormLabel>
               <NumberInput
                 size="xs"
-                // onChange={valueString =>
-                //   updateMeta('titleTextSize', parse(valueString))
-                // }
+                onChange={valueString => {
+                  let subtitles = canvas.getItemByName('title');
+
+                  subtitles.set('fontSize', valueString);
+                  canvas.renderAll();
+                }}
                 // value={format(titleTextSize)}
                 step={2}
-                defaultValue={22}
+                defaultValue={100}
                 min={10}
-                max={200}
+                max={300}
                 bg="white"
                 borderRadius={8}
               >
@@ -310,8 +313,14 @@ const Sidebar = ({
                 background="white"
                 type="color"
                 px="1"
+                defaultValue="white"
                 // value={textColor}
-                // onChange={e => handleTextColorChange(e.target.value)}
+                onChange={e => {
+                  let subtitles = canvas.getItemByName('title');
+
+                  subtitles.set('fill', e.target.value);
+                  canvas.renderAll();
+                }}
               />
             </FormControl>
           </Stack>

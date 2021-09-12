@@ -474,9 +474,6 @@ export function useCanvas() {
 
     if (canvasRef.current && !canvas) {
       const c = initCanvas();
-      c.on('object:modified', function (e) {
-        alert('object modified');
-      });
 
       // initVideo(c);
       setCanvas(c);
