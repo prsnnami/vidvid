@@ -120,9 +120,6 @@ function TestPage() {
     }
   }, [videoLoading, vid]);
 
-  const handleCanvasChange = e => {
-    canvas.set('backgroundColor', e.target.value);
-  };
   function bootstrapElements() {
     const myText = new fabric.Textbox('', {
       originX: 'center',
@@ -163,28 +160,28 @@ function TestPage() {
     }
   }
 
-  function loop() {
-    // fabric.util.requestAnimFrame(function render() {
-    //   if (subtitle) {
-    //     subtitle.forEach(s => {
-    //       if (s.start < vid.currentTime && s.end > vid.currentTime) {
-    //         myText.set('text', s.text);
-    //       }
-    //     });
-    //   }
-    //   canvas.renderAll();
+  // function loop() {
+  //   // fabric.util.requestAnimFrame(function render() {
+  //   //   if (subtitle) {
+  //   //     subtitle.forEach(s => {
+  //   //       if (s.start < vid.currentTime && s.end > vid.currentTime) {
+  //   //         myText.set('text', s.text);
+  //   //       }
+  //   //     });
+  //   //   }
+  //   //   canvas.renderAll();
 
-    //   fabric.util.requestAnimFrame(render);
-    // });
-    let animationFrameId;
+  //   //   fabric.util.requestAnimFrame(render);
+  //   // });
+  //   let animationFrameId;
 
-    const render = () => {
-      draw();
+  //   const render = () => {
+  //     draw();
 
-      animationFrameId = window.requestAnimationFrame(render);
-    };
-    render();
-  }
+  //     animationFrameId = window.requestAnimationFrame(render);
+  //   };
+  //   render();
+  // }
 
   function draw() {
     if (canvas) {
@@ -433,9 +430,10 @@ function TestPage() {
         handleFileUpload={handleFileUpload}
         isImage={isImage}
         ar={ar}
-        handleCanvasChange={handleCanvasChange}
         canvas={canvas}
         handleTitleToggle={handleTitleToggle}
+        layers={layers}
+        setLayers={setLayers}
       />
     </Flex>
   );

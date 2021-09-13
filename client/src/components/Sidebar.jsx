@@ -28,10 +28,31 @@ const Sidebar = ({
   handleFileUpload,
   isImage,
   ar,
-  handleCanvasChange,
   canvas,
   handleTitleToggle,
+  layers,
+  setLayers,
 }) => {
+  // const { canvas, subtitle, title, video, image} = layers
+
+  const handleCanvasBgColorChange = e => {
+    setLayers({
+      ...layers,
+      subtitle: { ...layers.subtitle, bgColor: e.target.value },
+    });
+    canvas.set('backgroundColor', e.target.value);
+  };
+
+  const handleFontChange = nextFont => {
+    const subtitleLayer = canvas.getItemByName('subtitle');
+    setLayers({
+      ...layers,
+      canvas: { ...layers.canvas, fontFamily: nextFont.family },
+    });
+    subtitleLayer.set('fontFamily', nextFont.family);
+    canvas.renderAll();
+  };
+
   const renderUploadImage = () => {
     return (
       <Box d="flex" marginTop="-50px">
@@ -83,22 +104,10 @@ const Sidebar = ({
                 background="white"
                 type="color"
                 defaultValue="#FFC0CB"
-                // value={color}
                 px="1"
-                // onChange={e => handleColorChange(e.target.value)}
-                onChange={handleCanvasChange}
+                onChange={handleCanvasBgColorChange}
               />
             </FormControl>
-
-            {/* <FormControl id="grid" isRequired>
-              <FormLabel>Show Grid</FormLabel>
-              <Checkbox
-              // checked={showOutline}
-              // onChange={e => setShowOutline(e.target.checked)}
-              >
-                Show Grid
-              </Checkbox>
-            </FormControl> */}
           </Stack>
         </AccordionPanel>
       </AccordionItem>
@@ -123,7 +132,7 @@ const Sidebar = ({
               <FontPicker
                 size="xs"
                 apiKey={process.env.REACT_APP_GOOGLE_FONTS_API_KEY}
-                // activeFontFamily={activeFontFamily.family}
+                activeFontFamily={layers.subtitle.fontFamily}
                 // variants={[
                 //   '100',
                 //   '100italic',
@@ -144,10 +153,7 @@ const Sidebar = ({
                 //   '900',
                 //   '900italic',
                 // ]}
-                onChange={nextFont => {
-                  console.log(nextFont);
-                  // updateMeta('activeFontFamily', nextFont);
-                }}
+                onChange={handleFontChange}
                 limit={400}
               />
             </FormControl>
