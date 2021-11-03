@@ -30,7 +30,8 @@ import {
 import FontPicker from 'font-picker-react';
 
 async function loadManifest(shareUrl) {
-  const manifestRet = await fetch(`/proxy/${shareUrl}/manifest-path.json`);
+  // const manifestRet = await fetch(`/proxy/${shareUrl}/manifest-path.json`);
+  const manifestRet = await fetch(`/proxy/${shareUrl}/burn?type=json`);
   const manifest = await manifestRet.json();
   return manifest;
 }
@@ -102,11 +103,13 @@ const Video = React.forwardRef(
       /* global Reduct */
 
       // console.log(`${shareUrl}/${manifest}`);
-      const play = new Reduct.Player(vid);
-      play.init(`/proxy/${shareUrl}/${manifest}`, {
-        streaming: { bufferingGoal: 5, rebufferingGoal: 3 },
-      });
-      vid.onVideoRender?.();
+      // const play = new Reduct.Player(vid);
+      // play.init(`/proxy/${shareUrl}/${manifest}`, {
+      //   streaming: { bufferingGoal: 5, rebufferingGoal: 3 },
+      // });
+      // vid.onVideoRender?.();
+
+      Reduct.getSharePlayerFromManifest(vid, manifest, `/proxy/${shareUrl}/`);
 
       vid.onloadeddata = function (e) {
         console.log('loadedData');
