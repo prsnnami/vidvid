@@ -25,3 +25,20 @@ _Note: Setup environment variables for Database connection as seen in `video-ove
 
 1. `cd video-overlay`
 2. `pipenv install`
+
+## Quick Start
+
+### Client
+
+1. `cd client`
+2. `yarn start`
+
+### Proxy
+
+1. `cd proxy`
+2. `yarn start`
+
+### Backend
+
+1. `cd video-overlay`
+2. `pipenv run python manage.py runserver`
