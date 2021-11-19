@@ -3,7 +3,7 @@
 ## Requirements
 
 - Node 12.0.0 or higher
-- Python 3
+- Python 3.8 or higher
 - Postgres
 - Pipenv _(for installation, click [here](https://pipenv.pypa.io/en/latest/) )_
 
