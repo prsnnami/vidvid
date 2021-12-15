@@ -27,7 +27,6 @@ function TestPage() {
   const [wrapperSize, setWrapperSize] = useState({ height: 0, width: 0 });
   const wrapperRef = useRef();
   const [subtitle, setSubtitle] = useState();
-  const [isImage, setIsImage] = useState();
 
   const {
     video: vid,
@@ -84,14 +83,16 @@ function TestPage() {
       outlineColor: 'black',
       outlineWidth: 2,
     },
-    image: {
-      top: 0,
-      left: 0,
-      height: 0,
-      width: 0,
-      image: null,
-    },
+    images: [],
   });
+
+  let image = {
+    top: 0,
+    left: 0,
+    height: 0,
+    width: 0,
+    image: null,
+  };
 
   useEffect(() => {
     if (vid && subtitle) {
@@ -282,20 +283,25 @@ function TestPage() {
     canvas.renderAll();
   }
 
-  const removeImage = () => {
-    let image = canvas.getItemByName('image');
+  const removeImage = name => {
+    let image = canvas.getItemByName(name);
     canvas.remove(image);
-    setIsImage(false);
+    setLayers({
+      ...layers,
+      images: layers.images.filter(i => i.name !== name),
+    });
   };
 
   function handleFileUpload(e) {
+    let file = e.target.files[0];
     let reader = new FileReader();
-    reader.onload = function (e) {
+    reader.onload = function (readerEvent) {
       let image = new Image();
-      image.src = e.target.result;
+      image.src = readerEvent.target.result;
       image.onload = function () {
         let img = new fabric.Image(image, {
-          name: 'image',
+          name: file.name + Date.now(),
+          displayName: file.name,
         });
 
         img.set({
@@ -304,10 +310,10 @@ function TestPage() {
         });
         img.scaleToWidth(200);
         canvas.add(img).setActiveObject(img).renderAll();
-        setIsImage(true);
+        setLayers({ ...layers, images: [...layers.images, img] });
       };
     };
-    reader.readAsDataURL(e.target.files[0]);
+    reader.readAsDataURL(file);
   }
 
   let scale;
@@ -428,7 +434,8 @@ function TestPage() {
         handleDimensionsChange={handleDimensionsChange}
         removeImage={removeImage}
         handleFileUpload={handleFileUpload}
-        isImage={isImage}
+        // isImage={isImage}
+        isImage={layers.images.length}
         ar={ar}
         canvas={canvas}
         handleTitleToggle={handleTitleToggle}

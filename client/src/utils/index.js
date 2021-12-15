@@ -378,7 +378,7 @@ export function useVideo() {
   const [buffering, setBuffering] = useState(false);
 
   async function loadManifest(shareUrl) {
-    const manifestRet = await fetch(`/proxy/${shareUrl}/manifest-path.json`);
+    const manifestRet = await fetch(`/proxy/${shareUrl}/burn?type=json`);
     const manifest = await manifestRet.json();
     return manifest;
   }
@@ -395,11 +395,13 @@ export function useVideo() {
 
       const manifest = await loadManifest(shareUrl);
 
-      const play = new Reduct.Player(vid);
-      play.init(`/proxy/${shareUrl}/${manifest}`, {
-        streaming: { bufferingGoal: 5, rebufferingGoal: 3 },
-      });
-      vid.onVideoRender?.();
+      // const play = new Reduct.Player(vid);
+      // play.init(`/proxy/${shareUrl}/${manifest}`, {
+      //   streaming: { bufferingGoal: 5, rebufferingGoal: 3 },
+      // });
+      // vid.onVideoRender?.();
+
+      Reduct.getSharePlayerFromManifest(vid, manifest, `/proxy/${shareUrl}/`);
 
       vid.onloadeddata = function (e) {
         console.log(this.videoHeight, this.videoWidth);

@@ -1,22 +1,22 @@
 import json
 import os
-import time
-import traceback
-import uuid
-from django.http.response import HttpResponse, HttpResponseBadRequest
-import requests
+import glob
+import shutil
 import subprocess
-import ffmpeg
+import traceback
+import urllib.request
+import uuid
 from math import floor
 from string import Template
-import shutil
 
+import ffmpeg
+import requests
+from fontTools import ttLib
 from moviepy.editor import ColorClip, CompositeVideoClip, VideoFileClip
 from pytube import YouTube
 from requests.utils import requote_uri
+
 from .mail import send_mail
-import urllib.request
-from fontTools import ttLib
 
 FONT_SPECIFIER_NAME_ID = 4
 FONT_SPECIFIER_FAMILY_ID = 1
@@ -138,7 +138,13 @@ def add_overlay(file_path, output_path, rgb, opacity):
 def send_video(url, color, opacity, email):
     rgb = [int(color.lstrip("#")[i : i + 2], 16) for i in (0, 2, 4)]
     video_name = download_video(url)
-    output_name = video_name.split(".")[0] + " " + str(uuid.uuid4()) + "." + video_name.split(".")[1]
+    output_name = (
+        video_name.split(".")[0]
+        + " "
+        + str(uuid.uuid4())
+        + "."
+        + video_name.split(".")[1]
+    )
     add_overlay(f"tmp/{video_name}", f"tmp/{output_name}", rgb, opacity)
     send_url = requote_uri(f"{os.getenv('BASE_URL')}/download?file={output_name}")
     send_mail(
@@ -149,18 +155,80 @@ def send_video(url, color, opacity, email):
     )
 
 
+def download_stream(project_id, url, manifest_object) -> None:
+    manifest_id = manifest_object["manifest_id"]
+    chunks = manifest_object["chunks"]
+    video_paths = []
+    current_user_dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
+    current_outpoint = 0
+    for index, chunk in enumerate(chunks):
+        resource_url = f"{url}/burn?manifest={manifest_id}&idx={index}"
+        print("Sending req : ", resource_url)
+        multimedia = requests.get(resource_url)
+
+        os.makedirs(f"tmp/{project_id}/", exist_ok=True)
+
+        with open(f"tmp/{project_id}/{manifest_id}_{index}.mp4", "wb") as file:
+            file.write(multimedia.content)
+            current_outpoint += chunk["duration"]
+            video_paths.append(
+                f"file {current_user_dir_path}/tmp/{project_id}/{manifest_id}_{index}.mp4 \noutpoint {current_outpoint}"
+            )
+            # \noutpoint {current_outpoint:.2f}
+
+        print("DONE!!!")
+
+    with open(f"tmp/{project_id}/videos.txt", "a") as file:
+        file.write("\n".join(video_paths))
+
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            f"tmp/{project_id}/videos.txt",
+            "-c",
+            "copy",
+            f"tmp/{project_id}/output.mp4",
+        ]
+    )
+
+    # for filename in glob.glob(f"tmp/{project_id}/{manifest_id}*"):
+    #     os.remove(f"{filename}")
+
+
 def download_reduct_stream(id, url, manifest_path, quality):
+    # Deprecated ...
     try:
         print("here")
         manifest = requests.get(url + "/" + manifest_path).json()
 
-        video_hashes = [*map(lambda period: period["reps"][quality]["hash"], manifest["periods"])]
-        audio_hashes = [*map(lambda period: period["reps"]["audio"]["hash"], manifest["periods"])]
+        video_hashes = [
+            *map(lambda period: period["reps"][quality]["hash"], manifest["periods"])
+        ]
+        audio_hashes = [
+            *map(lambda period: period["reps"]["audio"]["hash"], manifest["periods"])
+        ]
 
         csv = ",".join([*video_hashes, *audio_hashes])
 
         print("getting chunks")
-        subprocess.run(["python3", "video/scripts/fetch_chunks.py", "--url", url, "--hashes", csv, "--id", id])
+        subprocess.run(
+            [
+                "python3",
+                "video/scripts/fetch_chunks.py",
+                "--url",
+                url,
+                "--hashes",
+                csv,
+                "--id",
+                id,
+            ]
+        )
 
         print("stitching video")
         dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -172,7 +240,18 @@ def download_reduct_stream(id, url, manifest_path, quality):
         output.close()
 
         subprocess.run(
-            ["ffmpeg", "-f", "concat", "-safe", "0", "-i", f"tmp/{id}/videos.txt", "-c", "copy", f"tmp/{id}/video.mp4"]
+            [
+                "ffmpeg",
+                "-f",
+                "concat",
+                "-safe",
+                "0",
+                "-i",
+                f"tmp/{id}/videos.txt",
+                "-c",
+                "copy",
+                f"tmp/{id}/video.mp4",
+            ]
         )
         print("done stiching video")
 
@@ -185,12 +264,32 @@ def download_reduct_stream(id, url, manifest_path, quality):
         output.close()
 
         subprocess.run(
-            ["ffmpeg", "-f", "concat", "-safe", "0", "-i", f"tmp/{id}/audios.txt", "-c", "copy", f"tmp/{id}/audio.mp4"]
+            [
+                "ffmpeg",
+                "-f",
+                "concat",
+                "-safe",
+                "0",
+                "-i",
+                f"tmp/{id}/audios.txt",
+                "-c",
+                "copy",
+                f"tmp/{id}/audio.mp4",
+            ]
         )
         print("done stiching audio")
         print("merging audio and video")
 
-        subprocess.run(["ffmpeg", "-i", f"tmp/{id}/video.mp4", "-i", f"tmp/{id}/audio.mp4", f"tmp/{id}/output.mp4"])
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-i",
+                f"tmp/{id}/video.mp4",
+                "-i",
+                f"tmp/{id}/audio.mp4",
+                f"tmp/{id}/output.mp4",
+            ]
+        )
         print("done stitching video")
 
     except Exception as e:
@@ -254,7 +353,9 @@ def burn_subtitles(
     fonts_dir = f"{dir_path}/media/fonts"
 
     probe = ffmpeg.probe(input_path)
-    video_stream = next((stream for stream in probe["streams"] if stream["codec_type"] == "video"), None)
+    video_stream = next(
+        (stream for stream in probe["streams"] if stream["codec_type"] == "video"), None
+    )
     height = int(video_stream["height"])
     width = int(video_stream["width"])
 
@@ -304,7 +405,14 @@ def burn_subtitles(
         c_title_margin_y = height - height * title_position / 100
 
         subprocess.run(
-            ["ffmpeg", "-i", input_path, "-vf", f"ass={subtitle_path}:fontsdir={fonts_dir}", subtitled_video_path]
+            [
+                "ffmpeg",
+                "-i",
+                input_path,
+                "-vf",
+                f"ass={subtitle_path}:fontsdir={fonts_dir}",
+                subtitled_video_path,
+            ]
         )
         subprocess.run(
             [
@@ -317,50 +425,86 @@ def burn_subtitles(
             ]
         )
     else:
-        subprocess.run(["ffmpeg", "-i", input_path, "-vf", f"ass={subtitle_path}:fontsdir={fonts_dir}", output_path])
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-i",
+                input_path,
+                "-vf",
+                f"ass={subtitle_path}:fontsdir={fonts_dir}",
+                output_path,
+            ]
+        )
 
 
 def resize_video(id, a_r, color):
-    dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + f"/tmp/{id}"
+    dir_path = (
+        os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + f"/tmp/{id}"
+    )
     input_path = dir_path + "/output.mp4"
     output_path = dir_path + "/output_resized.mp4"
     if a_r == "1:1":
         stream = ffmpeg.input(input_path)
         audio = stream.audio
 
-        stream = ffmpeg.filter(stream, "scale", "iw", "iw", force_original_aspect_ratio="decrease")
-        stream = ffmpeg.filter(stream, "pad", "iw", "iw", "(ow-iw)/2", "(oh-ih)/2", color)
+        stream = ffmpeg.filter(
+            stream, "scale", "iw", "iw", force_original_aspect_ratio="decrease"
+        )
+        stream = ffmpeg.filter(
+            stream, "pad", "iw", "iw", "(ow-iw)/2", "(oh-ih)/2", color
+        )
         stream = ffmpeg.output(audio, stream, output_path)
         ffmpeg.run(stream)
     if a_r == "16:9":
         stream = ffmpeg.input(input_path)
         audio = stream.audio
-        stream = ffmpeg.filter(stream, "scale", "ceil(ih*16/9)", "ih", force_original_aspect_ratio="decrease")
-        stream = ffmpeg.filter(stream, "pad", "ceil(ih*16/9)", "ih", "(ow-iw)/2", "(oh-ih)/2", color)
+        stream = ffmpeg.filter(
+            stream,
+            "scale",
+            "ceil(ih*16/9)",
+            "ih",
+            force_original_aspect_ratio="decrease",
+        )
+        stream = ffmpeg.filter(
+            stream, "pad", "ceil(ih*16/9)", "ih", "(ow-iw)/2", "(oh-ih)/2", color
+        )
         stream = ffmpeg.output(audio, stream, output_path)
         ffmpeg.run(stream)
     if a_r == "9:16":
         stream = ffmpeg.input(input_path)
         audio = stream.audio
 
-        stream = ffmpeg.filter(stream, "scale", "iw", "iw*16/9", force_original_aspect_ratio="decrease")
-        stream = ffmpeg.filter(stream, "pad", "iw", "iw*16/9", "(ow-iw)/2", "(oh-ih)/2", color)
+        stream = ffmpeg.filter(
+            stream, "scale", "iw", "iw*16/9", force_original_aspect_ratio="decrease"
+        )
+        stream = ffmpeg.filter(
+            stream, "pad", "iw", "iw*16/9", "(ow-iw)/2", "(oh-ih)/2", color
+        )
         stream = ffmpeg.output(audio, stream, output_path)
         ffmpeg.run(stream)
     if a_r == "4:5":
         stream = ffmpeg.input(input_path)
         audio = stream.audio
 
-        stream = ffmpeg.filter(stream, "scale", "iw", "iw*5/4", force_original_aspect_ratio="decrease")
-        stream = ffmpeg.filter(stream, "pad", "iw", "iw*5/4", "(ow-iw)/2", "(oh-ih)/2", color)
+        stream = ffmpeg.filter(
+            stream, "scale", "iw", "iw*5/4", force_original_aspect_ratio="decrease"
+        )
+        stream = ffmpeg.filter(
+            stream, "pad", "iw", "iw*5/4", "(ow-iw)/2", "(oh-ih)/2", color
+        )
         stream = ffmpeg.output(audio, stream, output_path)
         ffmpeg.run(stream)
 
 
 def generate_thumbnail(id, name):
-    dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + f"/tmp/{id}"
+    dir_path = (
+        os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + f"/tmp/{id}"
+    )
 
-    output_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + f"/media/thumbnails/{id}.png"
+    output_path = (
+        os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        + f"/media/thumbnails/{id}.png"
+    )
     input_path = dir_path + "/" + name + ".mp4"
     stream = ffmpeg.input(input_path, ss=4)
     stream = ffmpeg.output(stream, output_path, vframes=1)
@@ -394,51 +538,56 @@ def generate_reel(
     print(id)
     print("--------------------------------------------")
 
-    os.makedirs("tmp/" + id)
+    os.makedirs("tmp/" + id, exist_ok=True)
 
     meta = {}
     meta["name"] = name
+    # with open("tmp/" + id + "/meta.json", "w") as file:
+    #     json.dump(meta, file)
+
+    try:
+        # meta = open('tmp/'+id + '/meta.json')
+        # meta.write('Name: ')
+
+        # create_srt(id, subtitle)
+
+        download_stream(project_id=id, url=url, manifest_object=manifest_url)
+        resize_video(id, a_r, color)
+        burn_subtitles(
+            id,
+            name=name,
+            text_color=text_color,
+            font_link=font,
+            font_family=font_family,
+            font_size=font_size,
+            text_position=text_position,
+            a_r=a_r,
+            quality=quality,
+            subtitle=subtitle,
+            outline_width=outline_width,
+            outline_color=outline_color,
+            show_title=show_title,
+            title_position=title_position,
+            title=title,
+            title_text_size=title_text_size,
+            font_uppercase=font_uppercase,
+        )
+        meta["output"] = f"{id}/{name}.mp4"
+        generate_thumbnail(id, name)
+        meta["thumbnail"] = f"/media/thumbnails/{id}.png"
+    except Exception as e:
+        print(e)
+        meta["error"] = True
+
     with open("tmp/" + id + "/meta.json", "w") as file:
-        json.dump(meta, file)
-    # meta = open('tmp/'+id + '/meta.json')
-    # meta.write('Name: ')
+        json.dump(meta, file, indent=2)
 
-    # create_srt(id, subtitle)
-
-    download_reduct_stream(id, url, manifest_path=manifest_url, quality=quality)
-    resize_video(id, a_r, color)
-    burn_subtitles(
-        id,
-        name=name,
-        text_color=text_color,
-        font_link=font,
-        font_family=font_family,
-        font_size=font_size,
-        text_position=text_position,
-        a_r=a_r,
-        quality=quality,
-        subtitle=subtitle,
-        outline_width=outline_width,
-        outline_color=outline_color,
-        show_title=show_title,
-        title_position=title_position,
-        title=title,
-        title_text_size=title_text_size,
-        font_uppercase=font_uppercase,
-    )
-    meta["output"] = f"{id}/{name}.mp4"
-    with open("tmp/" + id + "/meta.json", "w") as file:
-        json.dump(meta, file)
-
-    generate_thumbnail(id, name)
-
-    meta["thumbnail"] = f"/media/thumbnails/{id}.png"
-    with open("tmp/" + id + "/meta.json", "w") as file:
-        json.dump(meta, file)
 
 def delete_reel(id):
-    dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + f"/tmp/{id}"
+    dir_path = (
+        os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + f"/tmp/{id}"
+    )
     try:
         shutil.rmtree(dir_path)
     except OSError as e:
-        print ("Error: %s - %s." % (e.filename, e.strerror))
+        print("Error: %s - %s." % (e.filename, e.strerror))

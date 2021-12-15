@@ -9,7 +9,7 @@ function onProxyReq(proxyReq) {
 module.exports = function (app) {
   app.use(
     createProxyMiddleware('/proxy', {
-      target: 'http://localhost:8080/',
+      target: 'http://127.0.0.1:8080/',
       pathRewrite: { '/proxy': '' },
       changeOrigin: true,
       onProxyReq,
@@ -17,7 +17,7 @@ module.exports = function (app) {
   );
   app.use(
     createProxyMiddleware('/borderer', {
-      target: 'http://localhost:8000/',
+      target: 'http://127.0.0.1:8000/',
     })
   );
 };

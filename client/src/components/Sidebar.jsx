@@ -62,7 +62,7 @@ const Sidebar = ({
             id="image_upload"
             type="file"
             onChange={e => handleFileUpload(e)}
-            accept="image/png"
+            accept="image/*"
             style={{ display: 'none' }}
           />
         </Button>
@@ -338,25 +338,50 @@ const Sidebar = ({
   const renderImageAccordion = () => {
     if (!isImage) return;
 
-    return (
-      <AccordionItem>
-        <h2>
-          <AccordionButton>
-            <Box flex="1" textAlign="left">
-              Image
-            </Box>
-            <AccordionIcon />
-          </AccordionButton>
-        </h2>
-        <AccordionPanel pb={4} bg="gray.200">
-          <Stack>
-            <Button size="xs" colorScheme="teal" onClick={() => removeImage()}>
-              Remove Image
-            </Button>
-          </Stack>
-        </AccordionPanel>
-      </AccordionItem>
-    );
+    return layers.images.map(image => {
+      let imgLayer = canvas.getItemByName(image.name);
+      return (
+        <AccordionItem key={image.name}>
+          <h2>
+            <AccordionButton>
+              <Box textAlign="left" textOverflow="ellipsis" overflow="hidden">
+                {image.displayName}
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+          </h2>
+          <AccordionPanel pb={4} bg="gray.200">
+            <Stack>
+              <Button
+                size="xs"
+                colorScheme="teal"
+                onClick={() => removeImage(image.name)}
+              >
+                Remove Image
+              </Button>
+              <Button
+                size="xs"
+                colorScheme="teal"
+                // onClick={() => {
+                //   console.log(canvas.getObjects().indexOf(imgLayer));
+                //   console.log(imgLayer);
+                // }}
+                onClick={() => canvas.bringForward(imgLayer)}
+              >
+                Move to Front
+              </Button>
+              <Button
+                size="xs"
+                colorScheme="teal"
+                onClick={() => canvas.sendBackwards(imgLayer)}
+              >
+                Move to Back
+              </Button>
+            </Stack>
+          </AccordionPanel>
+        </AccordionItem>
+      );
+    });
   };
 
   return (

@@ -202,12 +202,14 @@ export default function Editor({
       fontUppercase: videoMeta.fontUppercase,
     };
 
+    console.log(body);
+
     fetch('/borderer/generate', {
       method: 'POST',
       body: JSON.stringify(body),
     }).then(res => {
       setExportLoading(false);
-      navigate('/reels');
+      // navigate('/reels');
     });
   }
 
