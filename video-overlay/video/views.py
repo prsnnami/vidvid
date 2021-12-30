@@ -2,18 +2,30 @@ import asyncio
 import json
 import os
 import subprocess
+import time
+import uuid
 from multiprocessing import Process
 from uuid import uuid4
 
+from django.core.files.base import ContentFile
+from django.core.files.storage import FileSystemStorage, default_storage
 from django.http import FileResponse, HttpResponse, HttpResponseBadRequest
-from django.http.response import HttpResponseBase, HttpResponseNotFound, HttpResponseServerError, JsonResponse
+from django.http.response import (
+    HttpResponseBase,
+    HttpResponseNotFound,
+    HttpResponseServerError,
+    JsonResponse,
+)
 from django.shortcuts import render
-from rest_framework import viewsets, permissions
-import time
+from rest_framework import permissions, viewsets
+from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .functions import (
     add_overlay,
     burn_subtitles,
+    delete_reel,
     download_reduct_stream,
     download_video,
     generate_reel,
@@ -21,10 +33,10 @@ from .functions import (
     get_timestamp,
     resize_video,
     send_video,
-    delete_reel,
 )
 from .models import Project
 from .serializers import ProjectSerializer
+from .utils import MultipartJsonParser
 
 # Create your views here.
 
@@ -36,7 +48,9 @@ def send_file(request):
     filename = path.split("/")[-1]
 
     try:
-        return FileResponse(open(f"tmp/{path}", "rb"), as_attachment=True, filename=filename)
+        return FileResponse(
+            open(f"tmp/{path}", "rb"), as_attachment=True, filename=filename
+        )
     except Exception as e:
         print(e)
         return HttpResponseBadRequest("<h1>Invalid Request</h1>")
@@ -184,3 +198,30 @@ class ProjectViewSet(viewsets.ModelViewSet):
 #     queryset = Group.objects.all()
 #     serializer_class = GroupSerializer
 #     permission_classes = [permissions.IsAuthenticated]
+
+
+class GenerateReel(APIView):
+    parser_classes = (
+        # MultipartJsonParser,
+        MultiPartParser,
+        FormParser,
+    )
+
+    def post(self, request):
+        id = str(uuid.uuid4())
+        files = request._request.FILES
+        if files:
+            try:
+                for filename in files:
+                    FileSystemStorage(location="tmp").save(
+                        f"{id}/{filename}", ContentFile(files[filename].read())
+                    )
+
+            except Exception as e:
+                print(e)
+
+        return Response(
+            {
+                "raw": "request.data",
+            }
+        )

@@ -55,9 +55,18 @@ const Sidebar = ({
 
   const renderUploadImage = () => {
     return (
-      <Box d="flex" marginTop="-50px">
-        <Button style={styles.uploadImageButton} colorScheme="teal">
-          <label htmlFor="image_upload">Upload Image</label>
+      <Box d="flex">
+        <label
+          htmlFor="image_upload"
+          style={{ cursor: 'pointer', display: 'block', flexGrow: 1 }}
+        >
+          <Button
+            style={styles.uploadImageButton}
+            colorScheme="teal"
+            pointerEvents={'none'}
+          >
+            Upload Image
+          </Button>
           <Input
             id="image_upload"
             type="file"
@@ -65,7 +74,7 @@ const Sidebar = ({
             accept="image/*"
             style={{ display: 'none' }}
           />
-        </Button>
+        </label>
       </Box>
     );
   };
@@ -391,8 +400,8 @@ const Sidebar = ({
       w="300px"
       borderLeft="1px solid #edf2f7"
     >
-      <Box minHeight="100%" overflow="scroll">
-        <Accordion w="100%" paddingBottom="50px" allowMultiple>
+      <Box flexGrow={1} overflowY={'auto'}>
+        <Accordion w="100%" allowMultiple>
           {renderCanvasAccordion()}
           {renderSubtitleAccordion()}
           {renderTitleAccordion()}

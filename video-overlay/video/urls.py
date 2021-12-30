@@ -14,5 +14,10 @@ urlpatterns = [
     path("generate", csrf_exempt(views.generate_reel_view), name="generate reel"),
     path("get_reels", views.get_reels, name="get reels"),
     path("delete_reel", csrf_exempt(views.delete_reel_view), name="delete reels"),
+    path(
+        "generate_reel",
+        csrf_exempt(views.GenerateReel.as_view()),
+        name="generate reel 2",
+    )
     # path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]

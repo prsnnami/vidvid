@@ -1,4 +1,22 @@
-import { Box, Flex, Heading, Spinner } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Heading,
+  Spinner,
+  Button,
+  Stack,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  FormControl,
+  FormLabel,
+  Input,
+} from '@chakra-ui/react';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   getSubtitle,
@@ -28,6 +46,10 @@ function TestPage() {
   const wrapperRef = useRef();
   const [subtitle, setSubtitle] = useState();
 
+  const exportModal = useDisclosure();
+  const nameRef = useRef();
+  const inputRef = useRef();
+
   const {
     video: vid,
     toggleVideo,
@@ -44,10 +66,6 @@ function TestPage() {
       subtitle: true,
     },
     video: {
-      top: 0,
-      left: 0,
-      height: 0,
-      width: 0,
       url: '',
       manifest_url: '',
       name: '',
@@ -60,10 +78,6 @@ function TestPage() {
       italic: false,
       fontWeight: 400,
       color: 'black',
-      top: 0,
-      left: 0,
-      height: 0,
-      width: 0,
       fontLink: '',
       outlineColor: 'black',
       outlineWidth: 2,
@@ -75,24 +89,12 @@ function TestPage() {
       italic: false,
       fontWeight: 400,
       color: 'white',
-      top: 0,
-      left: 0,
-      height: 0,
-      width: 0,
       fontLink: '',
       outlineColor: 'black',
       outlineWidth: 2,
     },
     images: [],
   });
-
-  let image = {
-    top: 0,
-    left: 0,
-    height: 0,
-    width: 0,
-    image: null,
-  };
 
   useEffect(() => {
     if (vid && subtitle) {
@@ -160,29 +162,6 @@ function TestPage() {
       canvas.remove(title);
     }
   }
-
-  // function loop() {
-  //   // fabric.util.requestAnimFrame(function render() {
-  //   //   if (subtitle) {
-  //   //     subtitle.forEach(s => {
-  //   //       if (s.start < vid.currentTime && s.end > vid.currentTime) {
-  //   //         myText.set('text', s.text);
-  //   //       }
-  //   //     });
-  //   //   }
-  //   //   canvas.renderAll();
-
-  //   //   fabric.util.requestAnimFrame(render);
-  //   // });
-  //   let animationFrameId;
-
-  //   const render = () => {
-  //     draw();
-
-  //     animationFrameId = window.requestAnimationFrame(render);
-  //   };
-  //   render();
-  // }
 
   function draw() {
     if (canvas) {
@@ -300,8 +279,9 @@ function TestPage() {
       image.src = readerEvent.target.result;
       image.onload = function () {
         let img = new fabric.Image(image, {
-          name: file.name + Date.now(),
+          name: file.name.split('.').join(Date.now + '.'),
           displayName: file.name,
+          file: file,
         });
 
         img.set({
@@ -316,6 +296,68 @@ function TestPage() {
     reader.readAsDataURL(file);
   }
 
+  function getCoords(name) {
+    let item = canvas.getItemByName(name);
+    console.log(canvas.getObjects().map(i => i.name));
+    if (!item) return null;
+    return {
+      top: item.top,
+      left: item.left,
+      height: item.height,
+      width: item.width,
+    };
+  }
+
+  function getIndex(name) {
+    const items = canvas.getObjects().map(i => i.name);
+    return items.indexOf(name);
+  }
+
+  function onSubmit() {
+    let body = {
+      name: nameRef.current.value,
+      src: inputRef.current.value,
+      canvas: layers.canvas,
+    };
+
+    if (body.canvas.title) {
+      body.title = {
+        index: getIndex('title'),
+        ...layers.title,
+        ...getCoords('title'),
+      };
+    }
+    body.subtitle = {
+      index: getIndex('subtitle'),
+      ...layers.subtitle,
+      ...getCoords('subtitle'),
+    };
+    body.video = {
+      index: getIndex('video'),
+      ...layers.video,
+      ...getCoords('video'),
+    };
+    body.images = layers.images.map(i => ({
+      index: getIndex(i.name),
+      name: i.name,
+      ...getCoords(i.name),
+    }));
+
+    let formData = new FormData();
+
+    formData.append('body', JSON.stringify(body));
+    formData.append('input.mp4', inputRef.current.files[0]);
+    layers.images.forEach(element => {
+      formData.append(element.name, element.file);
+    });
+
+    console.log(layers.images);
+    fetch('/borderer/generate_reel', {
+      method: 'post',
+      body: formData,
+    });
+  }
+
   let scale;
   if (canvasSize.width > canvasSize.height) {
     scale = wrapperSize.width / canvasSize.width;
@@ -327,122 +369,175 @@ function TestPage() {
 
   const containerHeight = scale * canvasSize.height;
   const containerWidth = scale * canvasSize.width;
-  // if (!canvas) return 'loading';
 
   return (
-    <Flex direction="row" height="100%">
-      <Flex w="400px" borderRight="1px solid #edf2f7" direction="column">
-        <Heading px={4} className="apply-font" my="6">
-          <span
-            contentEditable
-            suppressContentEditableWarning
-            // onInput={e => updateMeta('title', e.target.innerText)}
-          >
-            Transcript
-          </span>
-        </Heading>
-        {subtitle && (
-          <Transcript
-            video={vid}
-            subtitle={subtitle}
-            onEdit={edit => {
-              handleSubtitleEdit(edit);
-            }}
-          />
-        )}
-      </Flex>
-      <Flex
-        flex="2"
-        flexDirection="column"
-        // alignItems="center"
-        justifyContent="flex-start"
-        h="100%"
-        w="100%"
-        pt="4"
-        margin="0 auto"
-        id="red"
-        // overflow="hidden"
-        // overflowY="auto"
-        ref={wrapperRef}
-        bg="gray.100"
-        px="4"
-      >
-        <Box
-          py="2"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          flexGrow="1"
+    <>
+      <Flex direction={'column'} height="100%">
+        <Flex
+          px="6"
+          color="white"
+          bg="teal.500"
+          h="65px"
+          alignItems={'center'}
+          justifyContent="space-between"
         >
-          <Box
-            style={{
-              maxWidth: '100%',
-              overflow: 'hidden',
-              width: containerWidth + 'px',
-              height: containerHeight + 'px',
-              margin: '0 auto',
-            }}
+          Navbar
+          <Flex>
+            <Stack direction="row">
+              <Button colorScheme="teal">Save Video</Button>
+              <Button colorScheme="teal" onClick={exportModal.onOpen}>
+                Export Video
+              </Button>
+            </Stack>
+          </Flex>
+        </Flex>
+        <Flex direction="row" height="100%" flexGrow={1}>
+          <Flex w="400px" borderRight="1px solid #edf2f7" direction="column">
+            <Heading px={4} className="apply-font" my="6">
+              <span
+                contentEditable
+                suppressContentEditableWarning
+                // onInput={e => updateMeta('title', e.target.innerText)}
+              >
+                Transcript
+              </span>
+            </Heading>
+            {subtitle && (
+              <Transcript
+                video={vid}
+                subtitle={subtitle}
+                onEdit={edit => {
+                  handleSubtitleEdit(edit);
+                }}
+              />
+            )}
+          </Flex>
+          <Flex
+            flex="2"
+            flexDirection="column"
+            // alignItems="center"
+            justifyContent="flex-start"
+            h="100%"
+            w="100%"
+            pt="4"
+            margin="0 auto"
+            id="red"
+            // overflow="hidden"
+            // overflowY="auto"
+            ref={wrapperRef}
+            bg="gray.100"
+            px="4"
           >
             <Box
-              style={{
-                width: canvasSize.width,
-                height: canvasSize.height,
-                transform: 'scale(' + scale + ')',
-                transformOrigin: '0 0 0',
-              }}
+              py="2"
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexGrow="1"
             >
               <Box
-                w={canvasSize.width}
-                h={canvasSize.height}
-                position="relative"
+                style={{
+                  maxWidth: '100%',
+                  overflow: 'hidden',
+                  width: containerWidth + 'px',
+                  height: containerHeight + 'px',
+                  margin: '0 auto',
+                }}
               >
-                <Flex position="relative">
-                  <Flex
-                    justifyContent="center"
-                    alignItems="center"
-                    position="absolute"
-                    h="100%"
-                    w="100%"
-                    bg="rgba(0,0,0,0.2)"
-                    hidden={!(buffering || videoLoading)}
-                    id="spinner"
-                    zIndex="1"
+                <Box
+                  style={{
+                    width: canvasSize.width,
+                    height: canvasSize.height,
+                    transform: 'scale(' + scale + ')',
+                    transformOrigin: '0 0 0',
+                  }}
+                >
+                  <Box
+                    w={canvasSize.width}
+                    h={canvasSize.height}
+                    position="relative"
                   >
-                    <Spinner color="teal" size="xl" thickness="8px" />
-                  </Flex>
-                  <Canvas
-                    // height={canvasSize.height}
-                    // width={canvasSize.width}
-                    ref={canvasRef}
-                    draw={draw}
-                  />
-                </Flex>
+                    <Flex position="relative">
+                      <Flex
+                        justifyContent="center"
+                        alignItems="center"
+                        position="absolute"
+                        h="100%"
+                        w="100%"
+                        bg="rgba(0,0,0,0.2)"
+                        hidden={!(buffering || videoLoading)}
+                        id="spinner"
+                        zIndex="1"
+                      >
+                        <Spinner color="teal" size="xl" thickness="8px" />
+                      </Flex>
+                      <Canvas
+                        // height={canvasSize.height}
+                        // width={canvasSize.width}
+                        ref={canvasRef}
+                        draw={draw}
+                      />
+                    </Flex>
+                  </Box>
+                </Box>
               </Box>
             </Box>
-          </Box>
-        </Box>
-        <Flex justifyContent="center" alignItems="center" flexGrow="1">
-          <PlayButton
-            vid={vid}
-            toggleVideo={toggleVideo}
-            buffering={buffering}
+            <Flex justifyContent="center" alignItems="center" flexGrow="1">
+              <PlayButton
+                vid={vid}
+                toggleVideo={toggleVideo}
+                buffering={buffering}
+              />
+            </Flex>
+            <Seeker video={vid} />
+          </Flex>
+          <Sidebar
+            handleDimensionsChange={handleDimensionsChange}
+            removeImage={removeImage}
+            handleFileUpload={handleFileUpload}
+            // isImage={isImage}
+            isImage={layers.images.length}
+            ar={ar}
+            canvas={canvas}
+            handleTitleToggle={handleTitleToggle}
+            layers={layers}
+            setLayers={setLayers}
           />
         </Flex>
-        <Seeker video={vid} />
       </Flex>
-      <Sidebar
-        handleDimensionsChange={handleDimensionsChange}
-        removeImage={removeImage}
-        handleFileUpload={handleFileUpload}
-        // isImage={isImage}
-        isImage={layers.images.length}
-        ar={ar}
-        canvas={canvas}
-        handleTitleToggle={handleTitleToggle}
-        layers={layers}
-        setLayers={setLayers}
-      />
-    </Flex>
+      <Modal isOpen={exportModal.isOpen} onClose={exportModal.onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Export Video</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Stack>
+              <FormControl id="name" isRequired>
+                <FormLabel>Enter File Name</FormLabel>
+                <Input ref={nameRef} placeholder="Enter file name" />
+              </FormControl>
+              <FormControl id="video" isRequired>
+                <FormLabel>Upload Video</FormLabel>
+                <Input
+                  type="file"
+                  placeholder="Upload File"
+                  accept="video/mp4"
+                  ref={inputRef}
+                ></Input>
+              </FormControl>
+            </Stack>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme={'teal'} mr={3} onClick={onSubmit}>
+              Export
+            </Button>
+            <Button variant="ghost" onClick={exportModal.onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
 

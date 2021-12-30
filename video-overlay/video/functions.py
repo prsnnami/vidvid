@@ -166,17 +166,17 @@ def download_stream(project_id, url, manifest_object) -> None:
         resource_url = f"{url}/burn?manifest={manifest_id}&idx={index}"
         print("Sending req : ", resource_url)
         multimedia = requests.get(resource_url)
-
         os.makedirs(f"tmp/{project_id}/", exist_ok=True)
 
         with open(f"tmp/{project_id}/{manifest_id}_{index}.mp4", "wb") as file:
             file.write(multimedia.content)
             current_outpoint += chunk["duration"]
             video_paths.append(
-                f"file {current_user_dir_path}/tmp/{project_id}/{manifest_id}_{index}.mp4 \noutpoint {current_outpoint}"
+                f"file {current_user_dir_path}/tmp/{project_id}/{manifest_id}_{index}.mp4"
             )
-            # \noutpoint {current_outpoint:.2f}
-
+        # \noutpoint {current_outpoint:.2f}
+        # \nduration {chunk['duration']:.2f}
+        #  \noutpoint {chunk['duration']}
         print("DONE!!!")
 
     with open(f"tmp/{project_id}/videos.txt", "a") as file:
@@ -552,28 +552,29 @@ def generate_reel(
         # create_srt(id, subtitle)
 
         download_stream(project_id=id, url=url, manifest_object=manifest_url)
-        resize_video(id, a_r, color)
-        burn_subtitles(
-            id,
-            name=name,
-            text_color=text_color,
-            font_link=font,
-            font_family=font_family,
-            font_size=font_size,
-            text_position=text_position,
-            a_r=a_r,
-            quality=quality,
-            subtitle=subtitle,
-            outline_width=outline_width,
-            outline_color=outline_color,
-            show_title=show_title,
-            title_position=title_position,
-            title=title,
-            title_text_size=title_text_size,
-            font_uppercase=font_uppercase,
-        )
-        meta["output"] = f"{id}/{name}.mp4"
-        generate_thumbnail(id, name)
+
+        # resize_video(id, a_r, color)
+        # burn_subtitles(
+        #     id,
+        #     name=name,
+        #     text_color=text_color,
+        #     font_link=font,
+        #     font_family=font_family,
+        #     font_size=font_size,
+        #     text_position=text_position,
+        #     a_r=a_r,
+        #     quality=quality,
+        #     subtitle=subtitle,
+        #     outline_width=outline_width,
+        #     outline_color=outline_color,
+        #     show_title=show_title,
+        #     title_position=title_position,
+        #     title=title,
+        #     title_text_size=title_text_size,
+        #     font_uppercase=font_uppercase,
+        # )
+        # meta["output"] = f"{id}/{name}.mp4"
+        # generate_thumbnail(id, name)
         meta["thumbnail"] = f"/media/thumbnails/{id}.png"
     except Exception as e:
         print(e)
