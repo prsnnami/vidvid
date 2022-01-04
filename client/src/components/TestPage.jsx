@@ -33,8 +33,10 @@ import { fabric } from 'fabric';
 import ere from 'element-resize-event';
 import Sidebar from './Sidebar';
 
+// const shareUrl =
+//   'https://app.reduct.video/e/borderer-testing-84e3ce2ba0-f81df100c4861287a746';
 const shareUrl =
-  'https://app.reduct.video/e/borderer-testing-84e3ce2ba0-f81df100c4861287a746';
+  'https://app.reduct.video/e/instagram--the-power-of-archiving-69f6b2577d50-7124ecc64b17d4455b66';
 
 const MAX_HEIGHT = 600;
 const MAX_WIDTH = 800;
@@ -55,7 +57,7 @@ function TestPage() {
     toggleVideo,
     loading: videoLoading,
     buffering,
-  } = useVideo();
+  } = useVideo(shareUrl);
   const { canvasRef, canvas } = useCanvas(canvasSize);
 
   const [layers, setLayers] = useState({
@@ -279,7 +281,7 @@ function TestPage() {
       image.src = readerEvent.target.result;
       image.onload = function () {
         let img = new fabric.Image(image, {
-          name: file.name.split('.').join(Date.now + '.'),
+          name: file.name.split('.').join(Date.now() + '.'),
           displayName: file.name,
           file: file,
         });

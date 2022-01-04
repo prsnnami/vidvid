@@ -29,6 +29,7 @@ from .functions import (
     download_reduct_stream,
     download_video,
     generate_reel,
+    generate_reel_v2,
     generate_thumbnail,
     get_timestamp,
     resize_video,
@@ -202,7 +203,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 class GenerateReel(APIView):
     parser_classes = (
-        # MultipartJsonParser,
+        MultipartJsonParser,
         MultiPartParser,
         FormParser,
     )
@@ -216,6 +217,8 @@ class GenerateReel(APIView):
                     FileSystemStorage(location="tmp").save(
                         f"{id}/{filename}", ContentFile(files[filename].read())
                     )
+
+                generate_reel_v2(body=json.loads(request.data["body"]), id=id)
 
             except Exception as e:
                 print(e)

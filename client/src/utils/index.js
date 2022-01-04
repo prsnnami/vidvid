@@ -372,7 +372,7 @@ function getOffset(editor, lineIdx, wordIdx, anchorOffset) {
   return text.length;
 }
 
-export function useVideo() {
+export function useVideo(shareUrl) {
   const videoRef = useRef();
   const [loading, setLoading] = useState(true);
   const [buffering, setBuffering] = useState(false);

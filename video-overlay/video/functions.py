@@ -592,3 +592,7 @@ def delete_reel(id):
         shutil.rmtree(dir_path)
     except OSError as e:
         print("Error: %s - %s." % (e.filename, e.strerror))
+
+
+def generate_reel_v2(id, body):
+    print(body["name"])
