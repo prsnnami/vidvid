@@ -16,6 +16,9 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Icon,
+  InputGroup,
+  InputLeftAddon,
 } from '@chakra-ui/react';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -32,6 +35,10 @@ import Seeker from './Seeker';
 import { fabric } from 'fabric';
 import ere from 'element-resize-event';
 import Sidebar from './Sidebar';
+import SaveModal from "./SaveModal";
+import { useMutation } from 'react-query';
+import { useNavigate } from 'react-router-dom';
+import { FiFile } from 'react-icons/fi';
 
 // const shareUrl =
 //   'https://app.reduct.video/e/borderer-testing-84e3ce2ba0-f81df100c4861287a746';
@@ -41,7 +48,7 @@ const shareUrl =
 const MAX_HEIGHT = 600;
 const MAX_WIDTH = 800;
 
-function TestPage() {
+function TestPage () {
   const [canvasSize, setCanvasSize] = useState({ height: 1080, width: 1080 });
   const [ar, setAr] = useState('1:1');
   const [wrapperSize, setWrapperSize] = useState({ height: 0, width: 0 });
@@ -49,8 +56,11 @@ function TestPage() {
   const [subtitle, setSubtitle] = useState();
 
   const exportModal = useDisclosure();
+  const saveModal = useDisclosure();
   const nameRef = useRef();
   const inputRef = useRef();
+  const navigate = useNavigate();
+  const [selectedVideo, setSelectedVideo] = useState("")
 
   const {
     video: vid,
@@ -85,12 +95,13 @@ function TestPage() {
       outlineWidth: 2,
     },
     title: {
+      name: "Transcript",
       fontFamily: 'Open Sans',
       uppercase: false,
       fontSize: 100,
       italic: false,
       fontWeight: 400,
-      color: 'white',
+      color: 'black',
       fontLink: '',
       outlineColor: 'black',
       outlineWidth: 2,
@@ -125,7 +136,7 @@ function TestPage() {
     }
   }, [videoLoading, vid]);
 
-  function bootstrapElements() {
+  function bootstrapElements () {
     const myText = new fabric.Textbox('', {
       originX: 'center',
       originY: 'center',
@@ -144,9 +155,9 @@ function TestPage() {
     return { myText };
   }
 
-  function handleTitleToggle(showTitle) {
+  function handleTitleToggle (showTitle) {
     if (showTitle) {
-      const title = new fabric.Textbox('Transcript', {
+      const title = new fabric.Textbox(layers.title.name, {
         originX: 'center',
         originY: 'center',
         left: 0.5 * canvasSize.width,
@@ -165,7 +176,7 @@ function TestPage() {
     }
   }
 
-  function draw() {
+  function draw () {
     if (canvas) {
       let myText = canvas.getItemByName('subtitle');
       if (subtitle) {
@@ -210,7 +221,7 @@ function TestPage() {
     400
   );
 
-  function handleDimensionsChange(ar) {
+  function handleDimensionsChange (ar) {
     let height, width;
     setAr(ar);
 
@@ -273,7 +284,7 @@ function TestPage() {
     });
   };
 
-  function handleFileUpload(e) {
+  function handleFileUpload (e) {
     let file = e.target.files[0];
     let reader = new FileReader();
     reader.onload = function (readerEvent) {
@@ -298,7 +309,7 @@ function TestPage() {
     reader.readAsDataURL(file);
   }
 
-  function getCoords(name) {
+  function getCoords (name) {
     let item = canvas.getItemByName(name);
     console.log(canvas.getObjects().map(i => i.name));
     if (!item) return null;
@@ -310,12 +321,12 @@ function TestPage() {
     };
   }
 
-  function getIndex(name) {
+  function getIndex (name) {
     const items = canvas.getObjects().map(i => i.name);
     return items.indexOf(name);
   }
 
-  function onSubmit() {
+  function onSubmit () {
     let body = {
       name: nameRef.current.value,
       src: inputRef.current.value,
@@ -352,13 +363,39 @@ function TestPage() {
     layers.images.forEach(element => {
       formData.append(element.name, element.file);
     });
+    exportProjectMutation.mutate(formData)
+  }
 
-    console.log(layers.images);
-    fetch('/borderer/generate_reel', {
-      method: 'post',
+  const exportProjectMutation = useMutation(async function ({ formData }) {
+    await fetch('/borderer/generate_reel', {
+      method: 'POST',
       body: formData,
     });
+  })
+
+  const saveProjectMutation = useMutation(async function ({ projectName, body }) {
+
+    await fetch('/borderer/projects/', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ project_name: projectName, layers: body }),
+    })
+      .then(res => res.json())
+      .then(res => navigate('/project/' + res.id));
+  });
+
+  function saveProject (projectName) {
+    let body = {
+      subtitle: layers.subtitle,
+      title: layers.title,
+      canvas: layers.canvas
+    }
+    saveProjectMutation.mutate({ projectName, body });
   }
+
 
   let scale;
   if (canvasSize.width > canvasSize.height) {
@@ -369,51 +406,195 @@ function TestPage() {
     scale = Math.min(scale, MAX_HEIGHT / canvasSize.height);
   }
 
+
   const containerHeight = scale * canvasSize.height;
   const containerWidth = scale * canvasSize.width;
+
+  const closeExportModal = () => {
+    exportModal.onClose();
+    setSelectedVideo("");
+  }
+
+  const exportVideoModal = () => {
+    return (
+      <Modal isOpen={exportModal.isOpen} onClose={closeExportModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <form onSubmit={onSubmit}>
+            <ModalHeader>Export Video</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Stack>
+                <FormControl id="name" isRequired>
+                  <FormLabel>Enter File Name</FormLabel>
+                  <Input ref={nameRef} placeholder="Enter file name" />
+                </FormControl>
+                <FormControl id="video" isRequired>
+                  <FormLabel>Upload Video</FormLabel>
+                  <InputGroup>
+                    <InputLeftAddon
+                      children={<Icon as={FiFile} />}
+                      color="teal"
+                      onClick={() => inputRef.current.click()}
+                    />
+                    <input
+                      type='file'
+                      accept="video/mp4"
+                      placeholder='Upload File'
+                      ref={inputRef}
+                      onChange={(e) => setSelectedVideo(e.target.files[0].name)}
+                      style={{ display: 'none' }}>
+                    </input>
+                    <Input
+                      placeholder='Upload Video'
+                      value={selectedVideo}
+                      onClick={() => inputRef.current.click()}
+                    />
+                  </InputGroup>
+                </FormControl>
+              </Stack>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                type="submit"
+                colorScheme={'teal'}
+                mr={3}
+                isLoading={exportProjectMutation.isLoading}
+              >
+                Export
+              </Button>
+              <Button variant="ghost" onClick={closeExportModal}>
+                Close
+              </Button>
+            </ModalFooter>
+          </form>
+        </ModalContent>
+      </Modal >
+    )
+  }
+
+  const saveVideoModal = () => {
+    return (
+      <SaveModal
+        isOpen={saveModal.isOpen}
+        onClose={saveModal.onClose}
+        onSubmit={saveProject}
+        loading={saveProjectMutation.isLoading}
+      />
+    )
+  }
+
+  function padStart (num) {
+    return String(Math.floor(num)).padStart(2, '0');
+  }
+
+  function getSRTTimestamp (time) {
+    let hour = time / 3600;
+    time %= 3600;
+    let minutes = time / 60;
+    time %= 60;
+    let seconds = Math.floor(time);
+    let milliseconds = (time % 1) * 100;
+    return `${padStart(hour)}:${padStart(minutes)}:${padStart(
+      seconds
+    )},${padStart(milliseconds)}`;
+  }
+
+  function getSRT () {
+    let srtText = subtitle.reduce((acc, curr, index) => {
+      acc += `${index + 1}\n${getSRTTimestamp(
+        curr.start
+      )} --> ${getSRTTimestamp(curr.end)}\n${curr.text}\n\n`;
+      return acc;
+    }, '');
+
+    let element = document.createElement('a');
+    element.setAttribute(
+      'href',
+      'data:text/plain;charset=utf-8,' + encodeURIComponent(srtText)
+    );
+    element.setAttribute('download', layers.title.name + '.srt');
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+  }
+
+
+  const Navbar = () => {
+    return (
+      <Flex
+        px="6"
+        color="white"
+        bg="teal.500"
+        h="65px"
+        alignItems={'center'}
+        justifyContent="space-between"
+      >
+        Navbar
+        <Flex>
+          <Stack direction="row">
+            <Button colorScheme="teal" onClick={saveModal.onOpen}>
+              Save Video
+            </Button>
+            <Button colorScheme="teal" onClick={getSRT}>
+              Download SRT
+            </Button>
+            <Button colorScheme="teal" onClick={exportModal.onOpen}>
+              Export Video
+            </Button>
+          </Stack>
+        </Flex>
+      </Flex>
+    )
+  }
+
+  const LeftSidebar = () => {
+    return (
+      <Flex w="400px" borderRight="1px solid #edf2f7" direction="column" overflowY={"scroll"}>
+        <Heading px={4} className="apply-font" my="6">
+          <div
+            contentEditable
+            suppressContentEditableWarning
+            onInput={e => {
+              setLayers({
+                ...layers, title: { ...layers.title, name: e.target.innerText }
+              })
+              const title = canvas.getItemByName('title')
+              if (title) {
+                title.text = e.target.innerText
+                canvas.renderAll();
+              }
+            }}
+          >
+            {layers.title.name}
+          </div>
+
+        </Heading>
+        {
+          subtitle && (
+            <Transcript
+              video={vid}
+              subtitle={subtitle}
+              onEdit={edit => {
+                handleSubtitleEdit(edit);
+              }}
+            />
+          )
+        }
+      </Flex >
+    )
+  }
 
   return (
     <>
       <Flex direction={'column'} height="100%">
-        <Flex
-          px="6"
-          color="white"
-          bg="teal.500"
-          h="65px"
-          alignItems={'center'}
-          justifyContent="space-between"
-        >
-          Navbar
-          <Flex>
-            <Stack direction="row">
-              <Button colorScheme="teal">Save Video</Button>
-              <Button colorScheme="teal" onClick={exportModal.onOpen}>
-                Export Video
-              </Button>
-            </Stack>
-          </Flex>
-        </Flex>
+        <Navbar />
         <Flex direction="row" height="100%" flexGrow={1}>
-          <Flex w="400px" borderRight="1px solid #edf2f7" direction="column">
-            <Heading px={4} className="apply-font" my="6">
-              <span
-                contentEditable
-                suppressContentEditableWarning
-                // onInput={e => updateMeta('title', e.target.innerText)}
-              >
-                Transcript
-              </span>
-            </Heading>
-            {subtitle && (
-              <Transcript
-                video={vid}
-                subtitle={subtitle}
-                onEdit={edit => {
-                  handleSubtitleEdit(edit);
-                }}
-              />
-            )}
-          </Flex>
+          <LeftSidebar />
           <Flex
             flex="2"
             flexDirection="column"
@@ -507,38 +688,8 @@ function TestPage() {
           />
         </Flex>
       </Flex>
-      <Modal isOpen={exportModal.isOpen} onClose={exportModal.onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Export Video</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Stack>
-              <FormControl id="name" isRequired>
-                <FormLabel>Enter File Name</FormLabel>
-                <Input ref={nameRef} placeholder="Enter file name" />
-              </FormControl>
-              <FormControl id="video" isRequired>
-                <FormLabel>Upload Video</FormLabel>
-                <Input
-                  type="file"
-                  placeholder="Upload File"
-                  accept="video/mp4"
-                  ref={inputRef}
-                ></Input>
-              </FormControl>
-            </Stack>
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme={'teal'} mr={3} onClick={onSubmit}>
-              Export
-            </Button>
-            <Button variant="ghost" onClick={exportModal.onClose}>
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      {exportVideoModal()}
+      {saveVideoModal()}
     </>
   );
 }
