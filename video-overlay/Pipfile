@@ -32,7 +32,7 @@ lockfile = "==0.12.2"
 mccabe = "==0.6.1"
 moviepy = "==1.0.3"
 msgpack = "==0.6.2"
-numpy = "==1.20.2"
+numpy = "==1.22.0"
 pep517 = "==0.8.2"
 proglog = "==0.1.9"
 progress = "==1.5"
@@ -66,5 +66,3 @@ psycopg2 = "*"
 
 [dev-packages]
 
-[requires]
-python_version = "3.8"

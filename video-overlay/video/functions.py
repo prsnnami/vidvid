@@ -1,6 +1,6 @@
+import glob
 import json
 import os
-import glob
 import shutil
 import subprocess
 import traceback
@@ -11,6 +11,9 @@ from string import Template
 
 import ffmpeg
 import requests
+from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import FileSystemStorage, default_storage
 from fontTools import ttLib
 from moviepy.editor import ColorClip, CompositeVideoClip, VideoFileClip
 from pytube import YouTube
@@ -594,5 +597,47 @@ def delete_reel(id):
         print("Error: %s - %s." % (e.filename, e.strerror))
 
 
-def generate_reel_v2(id, body):
-    print(body["name"])
+def generate_reel_v2(id, body, files):
+    id = str(uuid.uuid4())
+    print("id")
+    path = f"{settings.BASE_DIR}/tmp/{id}"
+    os.makedirs(path, exist_ok=True)
+
+    if files:
+        get_files(files, path=path)
+
+    create_background_image(
+        color=body["canvas"]["bgColor"], height=1920, width=1920, path=path
+    )
+
+    print("hi")
+
+
+def get_files(files, path):
+    try:
+        for filename in files:
+            FileSystemStorage(location="tmp").save(
+                f"{path}/{filename}", ContentFile(files[filename].read())
+            )
+    except Exception as e:
+        print(e)
+
+
+def create_background_image(height, width, path, color):
+    try:
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-f",
+                "lavfi",
+                "-i",
+                f"color=c={color or '000000'}:s={height}x{width}:d=1",
+                "-ss",
+                "00:00:00",
+                "-vframes",
+                "1",
+                f"{path}/background_image.jpg",
+            ]
+        )
+    except Exception as e:
+        print(e)

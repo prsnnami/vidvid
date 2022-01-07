@@ -7,8 +7,7 @@ import uuid
 from multiprocessing import Process
 from uuid import uuid4
 
-from django.core.files.base import ContentFile
-from django.core.files.storage import FileSystemStorage, default_storage
+
 from django.http import FileResponse, HttpResponse, HttpResponseBadRequest
 from django.http.response import (
     HttpResponseBase,
@@ -211,17 +210,17 @@ class GenerateReel(APIView):
     def post(self, request):
         id = str(uuid.uuid4())
         files = request._request.FILES
-        if files:
-            try:
-                for filename in files:
-                    FileSystemStorage(location="tmp").save(
-                        f"{id}/{filename}", ContentFile(files[filename].read())
-                    )
 
-                generate_reel_v2(body=json.loads(request.data["body"]), id=id)
+        try:
+            # for filename in files:
+            #     FileSystemStorage(location="tmp").save(
+            #         f"{id}/{filename}", ContentFile(files[filename].read())
+            #     )
+            print("here")
+            generate_reel_v2(body=json.loads(request.data["body"]), id=id, files=files)
 
-            except Exception as e:
-                print(e)
+        except Exception as e:
+            print(e)
 
         return Response(
             {
