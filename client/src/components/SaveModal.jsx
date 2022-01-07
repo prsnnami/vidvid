@@ -14,10 +14,10 @@ import {
   Stack,
 } from '@chakra-ui/react';
 
-export default function SaveModal({ isOpen, onClose, onSubmit, loading }) {
+export default function SaveModal ({ isOpen, onClose, onSubmit, loading }) {
   const nameRef = useRef();
 
-  function handleSubmit(e) {
+  function handleSubmit (e) {
     e.preventDefault();
     onSubmit(nameRef.current.value);
   }
@@ -39,7 +39,7 @@ export default function SaveModal({ isOpen, onClose, onSubmit, loading }) {
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} isLoading={loading} type="submit">
+            <Button colorScheme="teal" mr={3} isLoading={loading} type="submit">
               Save
             </Button>
             <Button variant="ghost" onClick={onClose}>

@@ -45,13 +45,86 @@ const Sidebar = ({
 
   const handleFontChange = nextFont => {
     const subtitleLayer = canvas.getItemByName('subtitle');
+    if (!subtitleLayer) return;
+
     setLayers({
       ...layers,
-      canvas: { ...layers.canvas, fontFamily: nextFont.family },
+      subtitle: { ...layers.subtitle, fontFamily: nextFont.family },
     });
     subtitleLayer.set('fontFamily', nextFont.family);
     canvas.renderAll();
   };
+
+
+  const handleTitleFontChange = nextFont => {
+    console.log({ nextFont })
+    const titleLayer = canvas.getItemByName("title");
+    if (!titleLayer) return;
+
+    setLayers({ ...layers, title: { ...layers.title, fontFamily: nextFont.family } })
+    titleLayer.set("fontFamily", nextFont.family);
+    canvas.renderAll();
+  }
+
+  const handleTextChange = e => {
+    const activeObject = canvas.getItemByName(e.target.name);
+    if (!activeObject) return;
+
+    setLayers({ ...layers, [e.target.name]: { ...layers[e.target.name], fontUppercase: e.target.checked } })
+    if (e.target.checked) {
+      activeObject.set("text", activeObject.text.toUpperCase());
+    } else {
+      activeObject.set("text", activeObject.text.toLowerCase());
+    }
+    canvas.renderAll();
+  }
+
+  const handleFontStyleChange = e => {
+    let activeObject = canvas.getItemByName(e.target.name);
+    if (!activeObject) return;
+
+    setLayers({
+      ...layers,
+      [e.target.name]: {
+        ...layers[e.target.name], italic: e.target.checked
+      }
+    })
+    if (e.target.checked) {
+      activeObject.set('fontStyle', 'italic');
+    } else {
+      activeObject.set('fontStyle', 'normal');
+    }
+
+    canvas.renderAll();
+  }
+
+  const handleFontColorChange = (e) => {
+    let activeObject = canvas.getItemByName(e.target.name);
+    if (!activeObject) return;
+
+    setLayers({
+      ...layers,
+      [e.target.name]: {
+        ...layers[e.target.name], color: e.target.value
+      }
+    })
+    activeObject.set('fill', e.target.value);
+    canvas.renderAll();
+  }
+
+  const handleFontWeightChange = (e) => {
+    let activeObject = canvas.getItemByName(e.target.name);
+    if (!activeObject) return;
+
+    setLayers({
+      ...layers,
+      [e.target.name]: {
+        ...layers[e.target.name], fontWeight: e.target.value
+      }
+    })
+    activeObject.set('fontWeight', e.target.value);
+    canvas.renderAll();
+  }
 
   const renderUploadImage = () => {
     return (
@@ -110,7 +183,6 @@ const Sidebar = ({
               <FormLabel fontSize="xs">Background Color</FormLabel>
               <Input
                 size="xs"
-                background="white"
                 type="color"
                 defaultValue="#FFC0CB"
                 px="1"
@@ -142,26 +214,6 @@ const Sidebar = ({
                 size="xs"
                 apiKey={process.env.REACT_APP_GOOGLE_FONTS_API_KEY}
                 activeFontFamily={layers.subtitle.fontFamily}
-                // variants={[
-                //   '100',
-                //   '100italic',
-                //   '200',
-                //   '200italic',
-                //   '300',
-                //   '300italic',
-                //   'regular',
-                //   'italic',
-                //   '500',
-                //   '500italic',
-                //   '600',
-                //   '600italic',
-                //   '700',
-                //   '700italic',
-                //   '800',
-                //   '800italic',
-                //   '900',
-                //   '900italic',
-                // ]}
                 onChange={handleFontChange}
                 limit={400}
               />
@@ -171,10 +223,9 @@ const Sidebar = ({
               <Checkbox
                 size="sm"
                 borderColor="black"
-                // checked={fontUppercase}
-                // onChange={e => {
-
-                // }}
+                name="subtitle"
+                checked={layers.subtitle.fontUppercase}
+                onChange={handleTextChange}
               >
                 Uppercase
               </Checkbox>
@@ -185,11 +236,11 @@ const Sidebar = ({
                 size="xs"
                 onChange={valueString => {
                   let subtitles = canvas.getItemByName('subtitle');
-
+                  setLayers({ ...layers, subtitle: { ...layers.subtitle, fontSize: parseInt(valueString) } })
                   subtitles.set('fontSize', parseInt(valueString));
                   canvas.renderAll();
                 }}
-                // value={format(fontSize)}
+                value={layers.subtitle.fontSize}
                 step={2}
                 defaultValue={40}
                 min={10}
@@ -210,17 +261,9 @@ const Sidebar = ({
               <Checkbox
                 size="sm"
                 borderColor="black"
-                // checked={italic}
-                onChange={e => {
-                  let subtitles = canvas.getItemByName('subtitle');
-                  if (e.target.checked) {
-                    subtitles.set('fontStyle', 'italic');
-                  } else {
-                    subtitles.set('fontStyle', 'normal');
-                  }
-
-                  canvas.renderAll();
-                }}
+                checked={layers.subtitle.italic}
+                name="subtitle"
+                onChange={handleFontStyleChange}
               >
                 Italic
               </Checkbox>
@@ -230,13 +273,9 @@ const Sidebar = ({
               <Select
                 size="xs"
                 background="white"
-                onChange={e => {
-                  let subtitles = canvas.getItemByName('subtitle');
-
-                  subtitles.set('fontWeight', e.target.value);
-                  canvas.renderAll();
-                }}
-                // value={fontWeight}
+                name="subtitle"
+                onChange={handleFontWeightChange}
+                value={layers.subtitle.fontWeight}
               >
                 <option value="100">100</option>
                 <option value="200">200</option>
@@ -253,16 +292,11 @@ const Sidebar = ({
               <FormLabel fontSize="xs">Font Color</FormLabel>
               <Input
                 size="xs"
-                background="white"
                 type="color"
                 px="1"
-                // value={textColor}
-                onChange={e => {
-                  let subtitles = canvas.getItemByName('subtitle');
-
-                  subtitles.set('fill', e.target.value);
-                  canvas.renderAll();
-                }}
+                name="subtitle"
+                value={layers.subtitle.color}
+                onChange={handleFontColorChange}
               />
             </FormControl>
           </Stack>
@@ -289,24 +323,46 @@ const Sidebar = ({
               <Checkbox
                 borderColor="black"
                 size="sm"
-                // checked={showTitle}
+                checked={layers.canvas.title}
                 onChange={e => handleTitleToggle(e.target.checked)}
               >
                 Show Title
               </Checkbox>
             </FormControl>
-
+            <FormControl id="font_family_1" isRequired>
+              <FormLabel fontSize="xs">Font Family</FormLabel>
+              <FontPicker
+                size="xs"
+                apiKey={process.env.REACT_APP_GOOGLE_FONTS_API_KEY}
+                onChange={handleTitleFontChange}
+                activeFontFamily={layers.title.fontFamily}
+                limit={400}
+              />
+            </FormControl>
+            <FormControl id="uppercase" isRequired>
+              <FormLabel fontSize="xs">Uppercase</FormLabel>
+              <Checkbox
+                size="sm"
+                borderColor="black"
+                name="title"
+                checked={layers.title.fontUppercase}
+                onChange={handleTextChange}
+              >
+                Uppercase
+              </Checkbox>
+            </FormControl>
             <FormControl id="font_size" isRequired>
-              <FormLabel fontSize="xs">Title Font Size</FormLabel>
+              <FormLabel fontSize="xs">Font Size</FormLabel>
               <NumberInput
                 size="xs"
                 onChange={valueString => {
-                  let subtitles = canvas.getItemByName('title');
+                  let title = canvas.getItemByName('title');
+                  setLayers({ ...layers, title: { ...layers.title, fontSize: parseInt(valueString) } })
 
-                  subtitles.set('fontSize', valueString);
+                  title.set('fontSize', parseInt(valueString));
                   canvas.renderAll();
                 }}
-                // value={format(titleTextSize)}
+                value={layers.title.fontSize}
                 step={2}
                 defaultValue={100}
                 min={10}
@@ -320,22 +376,48 @@ const Sidebar = ({
                   <NumberDecrementStepper />
                 </NumberInputStepper>
               </NumberInput>
+              <FormControl id="font_size" isRequired>
+                <FormLabel fontSize="xs">Italic</FormLabel>
+                <Checkbox
+                  size="sm"
+                  borderColor="black"
+                  name="title"
+                  checked={layers.title.italic}
+                  onChange={handleFontStyleChange}
+                >
+                  Italic
+                </Checkbox>
+              </FormControl>
+            </FormControl>
+            <FormControl id="font_size" isRequired>
+              <FormLabel fontSize="xs">Font Weight</FormLabel>
+              <Select
+                size="xs"
+                background="white"
+                name="title"
+                onChange={handleFontWeightChange}
+                value={layers.title.fontWeight}
+              >
+                <option value="100">100</option>
+                <option value="200">200</option>
+                <option value="300">300</option>
+                <option value="400">400</option>
+                <option value="500">500</option>
+                <option value="600">600</option>
+                <option value="700">700</option>
+                <option value="800">800</option>
+                <option value="900">900</option>
+              </Select>
             </FormControl>
             <FormControl id="color" isRequired>
               <FormLabel fontSize="xs">Title Color</FormLabel>
               <Input
                 size="xs"
-                background="white"
                 type="color"
                 px="1"
-                defaultValue="white"
-                // value={textColor}
-                onChange={e => {
-                  let subtitles = canvas.getItemByName('title');
-
-                  subtitles.set('fill', e.target.value);
-                  canvas.renderAll();
-                }}
+                name="title"
+                value={layers.title.color}
+                onChange={handleFontColorChange}
               />
             </FormControl>
           </Stack>
