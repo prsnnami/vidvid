@@ -38,7 +38,7 @@ const Sidebar = ({
   const handleCanvasBgColorChange = e => {
     setLayers({
       ...layers,
-      subtitle: { ...layers.subtitle, bgColor: e.target.value },
+      canvas: { ...layers.canvas, bgColor: e.target.value },
     });
     canvas.set('backgroundColor', e.target.value);
   };
@@ -55,29 +55,37 @@ const Sidebar = ({
     canvas.renderAll();
   };
 
-
   const handleTitleFontChange = nextFont => {
-    console.log({ nextFont })
-    const titleLayer = canvas.getItemByName("title");
+    console.log({ nextFont });
+    const titleLayer = canvas.getItemByName('title');
     if (!titleLayer) return;
 
-    setLayers({ ...layers, title: { ...layers.title, fontFamily: nextFont.family } })
-    titleLayer.set("fontFamily", nextFont.family);
+    setLayers({
+      ...layers,
+      title: { ...layers.title, fontFamily: nextFont.family },
+    });
+    titleLayer.set('fontFamily', nextFont.family);
     canvas.renderAll();
-  }
+  };
 
   const handleTextChange = e => {
     const activeObject = canvas.getItemByName(e.target.name);
     if (!activeObject) return;
 
-    setLayers({ ...layers, [e.target.name]: { ...layers[e.target.name], fontUppercase: e.target.checked } })
+    setLayers({
+      ...layers,
+      [e.target.name]: {
+        ...layers[e.target.name],
+        fontUppercase: e.target.checked,
+      },
+    });
     if (e.target.checked) {
-      activeObject.set("text", activeObject.text.toUpperCase());
+      activeObject.set('text', activeObject.text.toUpperCase());
     } else {
-      activeObject.set("text", activeObject.text.toLowerCase());
+      activeObject.set('text', activeObject.text.toLowerCase());
     }
     canvas.renderAll();
-  }
+  };
 
   const handleFontStyleChange = e => {
     let activeObject = canvas.getItemByName(e.target.name);
@@ -86,9 +94,10 @@ const Sidebar = ({
     setLayers({
       ...layers,
       [e.target.name]: {
-        ...layers[e.target.name], italic: e.target.checked
-      }
-    })
+        ...layers[e.target.name],
+        italic: e.target.checked,
+      },
+    });
     if (e.target.checked) {
       activeObject.set('fontStyle', 'italic');
     } else {
@@ -96,35 +105,37 @@ const Sidebar = ({
     }
 
     canvas.renderAll();
-  }
+  };
 
-  const handleFontColorChange = (e) => {
+  const handleFontColorChange = e => {
     let activeObject = canvas.getItemByName(e.target.name);
     if (!activeObject) return;
 
     setLayers({
       ...layers,
       [e.target.name]: {
-        ...layers[e.target.name], color: e.target.value
-      }
-    })
+        ...layers[e.target.name],
+        color: e.target.value,
+      },
+    });
     activeObject.set('fill', e.target.value);
     canvas.renderAll();
-  }
+  };
 
-  const handleFontWeightChange = (e) => {
+  const handleFontWeightChange = e => {
     let activeObject = canvas.getItemByName(e.target.name);
     if (!activeObject) return;
 
     setLayers({
       ...layers,
       [e.target.name]: {
-        ...layers[e.target.name], fontWeight: e.target.value
-      }
-    })
+        ...layers[e.target.name],
+        fontWeight: e.target.value,
+      },
+    });
     activeObject.set('fontWeight', e.target.value);
     canvas.renderAll();
-  }
+  };
 
   const renderUploadImage = () => {
     return (
@@ -236,7 +247,13 @@ const Sidebar = ({
                 size="xs"
                 onChange={valueString => {
                   let subtitles = canvas.getItemByName('subtitle');
-                  setLayers({ ...layers, subtitle: { ...layers.subtitle, fontSize: parseInt(valueString) } })
+                  setLayers({
+                    ...layers,
+                    subtitle: {
+                      ...layers.subtitle,
+                      fontSize: parseInt(valueString),
+                    },
+                  });
                   subtitles.set('fontSize', parseInt(valueString));
                   canvas.renderAll();
                 }}
@@ -357,7 +374,10 @@ const Sidebar = ({
                 size="xs"
                 onChange={valueString => {
                   let title = canvas.getItemByName('title');
-                  setLayers({ ...layers, title: { ...layers.title, fontSize: parseInt(valueString) } })
+                  setLayers({
+                    ...layers,
+                    title: { ...layers.title, fontSize: parseInt(valueString) },
+                  });
 
                   title.set('fontSize', parseInt(valueString));
                   canvas.renderAll();

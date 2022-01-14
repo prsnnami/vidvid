@@ -20,7 +20,7 @@ Video Position: 40
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,$font_family,$font_size,&H00$primary_color,&H000000FF,&H00$outline_color,&H00000000,0,0,0,0,100,100,0,0,1,$outline_width,2,2,$margin_x,$margin_x,$margin_bottom,1
+Style: Default,$font_family,$font_size,&H00$primary_color,&H000000FF,&H00$outline_color,&H00000000,0,0,0,0,100,100,0,0,1,$outline_width,2,2,$margin_l,$margin_r,$margin_bottom,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text

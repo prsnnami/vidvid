@@ -8,6 +8,7 @@ import urllib.request
 import uuid
 from math import floor
 from string import Template
+from django.core.files import storage
 
 import ffmpeg
 import requests
@@ -20,6 +21,7 @@ from pytube import YouTube
 from requests.utils import requote_uri
 
 from .mail import send_mail
+from PIL import Image
 
 FONT_SPECIFIER_NAME_ID = 4
 FONT_SPECIFIER_FAMILY_ID = 1
@@ -139,7 +141,7 @@ def add_overlay(file_path, output_path, rgb, opacity):
 
 
 def send_video(url, color, opacity, email):
-    rgb = [int(color.lstrip("#")[i : i + 2], 16) for i in (0, 2, 4)]
+    rgb = [int(color.lstrip("#")[i: i + 2], 16) for i in (0, 2, 4)]
     video_name = download_video(url)
     output_name = (
         video_name.split(".")[0]
@@ -149,7 +151,8 @@ def send_video(url, color, opacity, email):
         + video_name.split(".")[1]
     )
     add_overlay(f"tmp/{video_name}", f"tmp/{output_name}", rgb, opacity)
-    send_url = requote_uri(f"{os.getenv('BASE_URL')}/download?file={output_name}")
+    send_url = requote_uri(
+        f"{os.getenv('BASE_URL')}/download?file={output_name}")
     send_mail(
         from_email="punit@reduct.video",
         to_email=email,
@@ -162,7 +165,8 @@ def download_stream(project_id, url, manifest_object) -> None:
     manifest_id = manifest_object["manifest_id"]
     chunks = manifest_object["chunks"]
     video_paths = []
-    current_user_dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    current_user_dir_path = os.path.dirname(
+        os.path.dirname(os.path.realpath(__file__)))
 
     current_outpoint = 0
     for index, chunk in enumerate(chunks):
@@ -238,7 +242,8 @@ def download_reduct_stream(id, url, manifest_path, quality):
 
         output = open(f"tmp/{id}/videos.txt", "w")
         for hash in video_hashes:
-            output.write(f"file {dir_path}/tmp/{id}/chunks/{hash}/{hash}.mp4\n")
+            output.write(
+                f"file {dir_path}/tmp/{id}/chunks/{hash}/{hash}.mp4\n")
 
         output.close()
 
@@ -262,7 +267,8 @@ def download_reduct_stream(id, url, manifest_path, quality):
 
         output = open(f"tmp/{id}/audios.txt", "w")
         for hash in audio_hashes:
-            output.write(f"file {dir_path}/tmp/{id}/chunks/{hash}/{hash}.mp4\n")
+            output.write(
+                f"file {dir_path}/tmp/{id}/chunks/{hash}/{hash}.mp4\n")
 
         output.close()
 
@@ -357,7 +363,8 @@ def burn_subtitles(
 
     probe = ffmpeg.probe(input_path)
     video_stream = next(
-        (stream for stream in probe["streams"] if stream["codec_type"] == "video"), None
+        (stream for stream in probe["streams"]
+         if stream["codec_type"] == "video"), None
     )
     height = int(video_stream["height"])
     width = int(video_stream["width"])
@@ -442,7 +449,8 @@ def burn_subtitles(
 
 def resize_video(id, a_r, color):
     dir_path = (
-        os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + f"/tmp/{id}"
+        os.path.dirname(os.path.dirname(
+            os.path.realpath(__file__))) + f"/tmp/{id}"
     )
     input_path = dir_path + "/output.mp4"
     output_path = dir_path + "/output_resized.mp4"
@@ -501,7 +509,8 @@ def resize_video(id, a_r, color):
 
 def generate_thumbnail(id, name):
     dir_path = (
-        os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + f"/tmp/{id}"
+        os.path.dirname(os.path.dirname(
+            os.path.realpath(__file__))) + f"/tmp/{id}"
     )
 
     output_path = (
@@ -589,7 +598,8 @@ def generate_reel(
 
 def delete_reel(id):
     dir_path = (
-        os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + f"/tmp/{id}"
+        os.path.dirname(os.path.dirname(
+            os.path.realpath(__file__))) + f"/tmp/{id}"
     )
     try:
         shutil.rmtree(dir_path)
@@ -607,10 +617,153 @@ def generate_reel_v2(id, body, files):
         get_files(files, path=path)
 
     create_background_image(
-        color=body["canvas"]["bgColor"], height=1920, width=1920, path=path
+        color=body["canvas"]["bgColor"], height=1080, width=1080, path=path
     )
 
+    sorted_layers = sorted(body['layers'].values(),
+                           key=lambda x: x['index'])
+
+    print(sorted_layers)
+
+    for idx, layer in enumerate(sorted_layers):
+        input = f"{path}/background_image.jpg" if idx == 0 else f"{path}/{idx}.mp4"
+        output = f"{path}/out.mp4" if idx + 1 == len(
+            sorted_layers) else f"{path}/{idx + 1}.mp4"
+        layer_type = layer.get('type')
+        if layer_type == 'image' or layer_type == 'video':
+            iw = layer.get("height")
+            ih = layer.get("width")
+            top = layer.get("top")
+            left = layer.get("left")
+            input2 = layer.get(
+                "name") if layer_type == 'image' else 'input.mp4'
+            commands = ['ffmpeg', '-i', input, '-i', f'{path}/{input2}', '-filter_complex',
+                        f'[1:v]scale={ih}:{iw} [o],[0:v][o]overlay={left}:{top}', '-c:a', 'copy', output]
+            subprocess.run(commands)
+        elif layer_type == 'title':
+            add_title(layer, input, output)
+        elif layer_type == 'subtitle':
+            add_subtitles(layer, input, output, path)
+
     print("hi")
+
+
+def add_title(layer, input, output):
+    fonts_dir = f"{storage.default_storage}/media/fonts"
+
+    font_link = layer.get('fontLink')
+    font_family = layer.get('fontFamily')
+
+    if not os.path.isdir(fonts_dir):
+        os.makedirs(fonts_dir)
+
+    if not os.path.exists(f"{fonts_dir}/{font_link}.ttf"):
+        urllib.request.urlretrieve(font_link, f"{fonts_dir}/{font_family}.ttf")
+
+    font = ttLib.TTFont(f"{fonts_dir}/{font_family}.ttf")
+
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-i",
+            input,
+            "-vf",
+            f"drawtext=fontfile='{fonts_dir}/{font_family}.ttf':text='{layer.get('name')}':fontcolor={layer.get('color')}:fontsize={layer.get('fontSize')}:x={layer.get('left')}:y={layer.get('top')}",
+            output,
+        ]
+    )
+
+
+def make_subtitle(
+    subtitle_path,
+    layer,
+):
+
+    with open(f"{settings.BASE_DIR}/templates/subtitle.ass", "r") as f:
+        src = Template(f.read())
+
+    result = src.substitute(
+        {
+            "video_height": 1080,
+            "video_width": 1080,
+            "font_family": layer.get('fontFamily'),
+            "font_size": layer.get('fontSize'),
+            "margin_l": layer.get('left'),
+            "margin_r": 1080 - layer.get('left') - layer.get('width'),
+            "margin_bottom": 1080 - layer.get('top') - layer.get('height'),
+            "primary_color": layer.get('color'),
+            "outline_width": layer.get('outlineWidth'),
+            "outline_color": rgb_to_bgr(layer.get('outlineColor')),
+        }
+    )
+
+    with open(subtitle_path, 'w') as srt:
+        srt.write(result)
+        for line in layer.get('subtitles'):
+            srt.write(
+                f"Dialogue: 0,{get_timestamp(line['start'])},{get_timestamp(line['end'])},Default,,0,0,0,,{line['text'] if not layer.get('uppercase') else line['text'].upper()}"
+            )
+            srt.write("\n")
+
+
+def add_subtitles(
+    layer,
+    input,
+    output,
+    path
+):
+
+    subtitle_path = f"{path}/subtitle.ass"
+    fonts_dir = f"{storage.default_storage}/media/fonts"
+
+    font_link = layer.get('fontLink')
+    font_family = layer.get('fontFamily')
+
+    if not os.path.isdir(fonts_dir):
+        os.makedirs(fonts_dir)
+
+    if not os.path.exists(f"{fonts_dir}/{font_link}.ttf"):
+        urllib.request.urlretrieve(font_link, f"{fonts_dir}/{font_family}.ttf")
+
+    font = ttLib.TTFont(f"{fonts_dir}/{font_family}.ttf")
+
+    make_subtitle(subtitle_path=subtitle_path, layer=layer)
+
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-i",
+            input,
+            "-vf",
+            f"ass={subtitle_path}:fontsdir={fonts_dir}",
+            output,
+        ]
+    )
+
+
+def add_video_script(path, video_layer):
+
+    iw = video_layer.get("height")
+    ih = video_layer.get("width")
+    top = video_layer.get("top")
+    left = video_layer.get("left")
+
+    snippet = f"-i {path}/input.mp4  -filter_complex '[1:v]scale={ih}:{iw} [o],[0:v][o]overlay={left}:{top}'"
+
+    return snippet
+
+
+def add_image_script(path, image_layer):
+    image_name = image_layer.get("name")
+
+    iw = image_layer.get("height")
+    ih = image_layer.get("width")
+    top = image_layer.get("top")
+    left = image_layer.get("left")
+
+    snippet = f"-i {path}/{image_name}  -filter_complex '[1:v]scale={ih}:{iw} [o],[0:v][o]overlay={left}:{top}'"
+
+    return snippet
 
 
 def get_files(files, path):

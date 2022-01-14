@@ -35,7 +35,7 @@ import Seeker from './Seeker';
 import { fabric } from 'fabric';
 import ere from 'element-resize-event';
 import Sidebar from './Sidebar';
-import SaveModal from "./SaveModal";
+import SaveModal from './SaveModal';
 import { useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { FiFile } from 'react-icons/fi';
@@ -48,7 +48,7 @@ const shareUrl =
 const MAX_HEIGHT = 600;
 const MAX_WIDTH = 800;
 
-function TestPage () {
+function TestPage() {
   const [canvasSize, setCanvasSize] = useState({ height: 1080, width: 1080 });
   const [ar, setAr] = useState('1:1');
   const [wrapperSize, setWrapperSize] = useState({ height: 0, width: 0 });
@@ -60,7 +60,7 @@ function TestPage () {
   const nameRef = useRef();
   const inputRef = useRef();
   const navigate = useNavigate();
-  const [selectedVideo, setSelectedVideo] = useState("")
+  const [selectedVideo, setSelectedVideo] = useState('');
 
   const {
     video: vid,
@@ -73,7 +73,7 @@ function TestPage () {
   const [layers, setLayers] = useState({
     canvas: {
       aspect_ratio: '1:1',
-      bgColor: '',
+      bgColor: '#000000',
       title: false,
       subtitle: true,
     },
@@ -91,11 +91,11 @@ function TestPage () {
       fontWeight: 400,
       color: 'black',
       fontLink: '',
-      outlineColor: 'black',
+      outlineColor: '#000000',
       outlineWidth: 2,
     },
     title: {
-      name: "Transcript",
+      name: 'Transcript',
       fontFamily: 'Open Sans',
       uppercase: false,
       fontSize: 100,
@@ -103,7 +103,7 @@ function TestPage () {
       fontWeight: 400,
       color: 'black',
       fontLink: '',
-      outlineColor: 'black',
+      outlineColor: '#000000',
       outlineWidth: 2,
     },
     images: [],
@@ -136,7 +136,7 @@ function TestPage () {
     }
   }, [videoLoading, vid]);
 
-  function bootstrapElements () {
+  function bootstrapElements() {
     const myText = new fabric.Textbox('', {
       originX: 'center',
       originY: 'center',
@@ -155,7 +155,7 @@ function TestPage () {
     return { myText };
   }
 
-  function handleTitleToggle (showTitle) {
+  function handleTitleToggle(showTitle) {
     if (showTitle) {
       const title = new fabric.Textbox(layers.title.name, {
         originX: 'center',
@@ -174,9 +174,13 @@ function TestPage () {
       const title = canvas.getItemByName('title');
       canvas.remove(title);
     }
+    setLayers(layers => ({
+      canvas: { ...layers.canvas, showTitle: !showTitle },
+      ...layers,
+    }));
   }
 
-  function draw () {
+  function draw() {
     if (canvas) {
       let myText = canvas.getItemByName('subtitle');
       if (subtitle) {
@@ -221,7 +225,7 @@ function TestPage () {
     400
   );
 
-  function handleDimensionsChange (ar) {
+  function handleDimensionsChange(ar) {
     let height, width;
     setAr(ar);
 
@@ -284,7 +288,7 @@ function TestPage () {
     });
   };
 
-  function handleFileUpload (e) {
+  function handleFileUpload(e) {
     let file = e.target.files[0];
     let reader = new FileReader();
     reader.onload = function (readerEvent) {
@@ -309,72 +313,90 @@ function TestPage () {
     reader.readAsDataURL(file);
   }
 
-  function getCoords (name) {
+  function getCoords(name) {
     let item = canvas.getItemByName(name);
-    console.log(canvas.getObjects().map(i => i.name));
+    console.log(item);
     if (!item) return null;
     return {
       top: item.top,
       left: item.left,
-      height: item.height,
-      width: item.width,
+      height: item.height * item.scaleY,
+      width: item.width * item.scaleX,
     };
   }
 
-  function getIndex (name) {
+  function getIndex(name) {
     const items = canvas.getObjects().map(i => i.name);
     return items.indexOf(name);
   }
 
-  function onSubmit () {
+  function onSubmit(e) {
+    e.preventDefault();
     let body = {
       name: nameRef.current.value,
       src: inputRef.current.value,
       canvas: layers.canvas,
+      layers: {},
     };
 
     if (body.canvas.title) {
-      body.title = {
+      body.layers.title = {
         index: getIndex('title'),
+        type: 'title',
         ...layers.title,
         ...getCoords('title'),
       };
     }
-    body.subtitle = {
+    body.layers.subtitle = {
       index: getIndex('subtitle'),
+      type: 'subtitle',
+      subtitles: subtitle,
       ...layers.subtitle,
       ...getCoords('subtitle'),
     };
-    body.video = {
+    body.layers.video = {
       index: getIndex('video'),
+      type: 'video',
       ...layers.video,
       ...getCoords('video'),
     };
-    body.images = layers.images.map(i => ({
-      index: getIndex(i.name),
-      name: i.name,
-      ...getCoords(i.name),
-    }));
+    // body.layers.images = layers.images.map(i => ({
+    //   index: getIndex(i.name),
+    //   name: i.name,
+    //   ...getCoords(i.name),
+    // }));
+
+    layers.images.forEach(image => {
+      body.layers[image.name] = {
+        index: getIndex(image.name),
+        name: image.name,
+        type: 'image',
+        ...getCoords(image.name),
+      };
+    });
+    // console.log(body);
+    // return;
 
     let formData = new FormData();
-
     formData.append('body', JSON.stringify(body));
     formData.append('input.mp4', inputRef.current.files[0]);
     layers.images.forEach(element => {
       formData.append(element.name, element.file);
     });
-    exportProjectMutation.mutate(formData)
+    exportProjectMutation.mutate(formData);
   }
 
-  const exportProjectMutation = useMutation(async function ({ formData }) {
+  const exportProjectMutation = useMutation(async function (formData) {
     await fetch('/borderer/generate_reel', {
       method: 'POST',
       body: formData,
     });
-  })
+  });
 
-  const saveProjectMutation = useMutation(async function ({ projectName, body }) {
-
+  const saveProjectMutation = useMutation(async function ({
+    projectName,
+    body,
+  }) {
     await fetch('/borderer/projects/', {
       method: 'POST',
       headers: {
@@ -387,15 +409,14 @@ function TestPage () {
       .then(res => navigate('/project/' + res.id));
   });
 
-  function saveProject (projectName) {
+  function saveProject(projectName) {
     let body = {
       subtitle: layers.subtitle,
       title: layers.title,
-      canvas: layers.canvas
-    }
+      canvas: layers.canvas,
+    };
     saveProjectMutation.mutate({ projectName, body });
   }
-
 
   let scale;
   if (canvasSize.width > canvasSize.height) {
@@ -406,14 +427,13 @@ function TestPage () {
     scale = Math.min(scale, MAX_HEIGHT / canvasSize.height);
   }
 
-
   const containerHeight = scale * canvasSize.height;
   const containerWidth = scale * canvasSize.width;
 
   const closeExportModal = () => {
     exportModal.onClose();
-    setSelectedVideo("");
-  }
+    setSelectedVideo('');
+  };
 
   const exportVideoModal = () => {
     return (
@@ -438,15 +458,15 @@ function TestPage () {
                       onClick={() => inputRef.current.click()}
                     />
                     <input
-                      type='file'
+                      type="file"
                       accept="video/mp4"
-                      placeholder='Upload File'
+                      placeholder="Upload File"
                       ref={inputRef}
-                      onChange={(e) => setSelectedVideo(e.target.files[0].name)}
-                      style={{ display: 'none' }}>
-                    </input>
+                      onChange={e => setSelectedVideo(e.target.files[0].name)}
+                      style={{ display: 'none' }}
+                    ></input>
                     <Input
-                      placeholder='Upload Video'
+                      placeholder="Upload Video"
                       value={selectedVideo}
                       onClick={() => inputRef.current.click()}
                     />
@@ -469,9 +489,9 @@ function TestPage () {
             </ModalFooter>
           </form>
         </ModalContent>
-      </Modal >
-    )
-  }
+      </Modal>
+    );
+  };
 
   const saveVideoModal = () => {
     return (
@@ -481,14 +501,14 @@ function TestPage () {
         onSubmit={saveProject}
         loading={saveProjectMutation.isLoading}
       />
-    )
-  }
+    );
+  };
 
-  function padStart (num) {
+  function padStart(num) {
     return String(Math.floor(num)).padStart(2, '0');
   }
 
-  function getSRTTimestamp (time) {
+  function getSRTTimestamp(time) {
     let hour = time / 3600;
     time %= 3600;
     let minutes = time / 60;
@@ -500,7 +520,7 @@ function TestPage () {
     )},${padStart(milliseconds)}`;
   }
 
-  function getSRT () {
+  function getSRT() {
     let srtText = subtitle.reduce((acc, curr, index) => {
       acc += `${index + 1}\n${getSRTTimestamp(
         curr.start
@@ -522,7 +542,6 @@ function TestPage () {
 
     document.body.removeChild(element);
   }
-
 
   const Navbar = () => {
     return (
@@ -549,45 +568,48 @@ function TestPage () {
           </Stack>
         </Flex>
       </Flex>
-    )
-  }
+    );
+  };
 
   const LeftSidebar = () => {
     return (
-      <Flex w="400px" borderRight="1px solid #edf2f7" direction="column" overflowY={"scroll"}>
+      <Flex
+        w="400px"
+        borderRight="1px solid #edf2f7"
+        direction="column"
+        overflowY={'scroll'}
+      >
         <Heading px={4} className="apply-font" my="6">
           <div
             contentEditable
             suppressContentEditableWarning
             onInput={e => {
               setLayers({
-                ...layers, title: { ...layers.title, name: e.target.innerText }
-              })
-              const title = canvas.getItemByName('title')
+                ...layers,
+                title: { ...layers.title, name: e.target.innerText },
+              });
+              const title = canvas.getItemByName('title');
               if (title) {
-                title.text = e.target.innerText
+                title.text = e.target.innerText;
                 canvas.renderAll();
               }
             }}
           >
             {layers.title.name}
           </div>
-
         </Heading>
-        {
-          subtitle && (
-            <Transcript
-              video={vid}
-              subtitle={subtitle}
-              onEdit={edit => {
-                handleSubtitleEdit(edit);
-              }}
-            />
-          )
-        }
-      </Flex >
-    )
-  }
+        {subtitle && (
+          <Transcript
+            video={vid}
+            subtitle={subtitle}
+            onEdit={edit => {
+              handleSubtitleEdit(edit);
+            }}
+          />
+        )}
+      </Flex>
+    );
+  };
 
   return (
     <>

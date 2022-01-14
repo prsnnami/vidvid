@@ -20,6 +20,7 @@ from rest_framework import permissions, viewsets
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+import traceback
 
 from .functions import (
     add_overlay,
@@ -220,7 +221,8 @@ class GenerateReel(APIView):
             generate_reel_v2(body=json.loads(request.data["body"]), id=id, files=files)
 
         except Exception as e:
-            print(e)
+            # print(f"error in {e}", e)
+            traceback.print_exc()
 
         return Response(
             {

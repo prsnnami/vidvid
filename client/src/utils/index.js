@@ -466,7 +466,7 @@ export function useCanvas() {
       };
 
       return new fabric.Canvas(canvasRef.current, {
-        backgroundColor: 'pink',
+        backgroundColor: '#000000',
         height: 1080,
         width: 1080,
         preserveObjectStacking: true,
