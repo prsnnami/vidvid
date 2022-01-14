@@ -1,13 +1,27 @@
-import { Flex, IconButton, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Text } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { FaVolumeMute, FaVolumeUp } from "react-icons/fa";
-import { getTimeStamp } from "../utils";
-import { useDebouncedCallback } from "../utils/useDebouncedCallback";
+import { useEffect, useState } from 'react';
 
-function Seeker ({ video }) {
+import { FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
+import {
+  Flex,
+  Text,
+  Slider,
+  Popover,
+  IconButton,
+  SliderThumb,
+  SliderTrack,
+  PopoverContent,
+  PopoverTrigger,
+  SliderFilledTrack,
+} from '@chakra-ui/react';
+
+import { getTimeStamp } from '../utils';
+import { useDebouncedCallback } from '../utils/useDebouncedCallback';
+
+function Seeker({ video }) {
   const [progress, setProgress] = useState(0);
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
 
   useEffect(() => {
     // Update the document title using the browser API
@@ -15,7 +29,7 @@ function Seeker ({ video }) {
       // setDuration(mediaRef.current.duration);
       video.addEventListener('timeupdate', handleTimeUpdated);
     }
-    return function cleanup () {
+    return function cleanup() {
       if (video) {
         // removeEventListener
         video.removeEventListener('timeupdate', handleTimeUpdated);
@@ -23,7 +37,7 @@ function Seeker ({ video }) {
     };
   }, [video]);
 
-  function handleTimeUpdated (e) {
+  function handleTimeUpdated(e) {
     let currentTime = e.target.currentTime;
     let duration = e.target.duration;
     setTime(currentTime);
@@ -32,7 +46,7 @@ function Seeker ({ video }) {
     setProgress((currentTime / duration) * 100);
   }
 
-  function handleThumbSlide (progress) {
+  function handleThumbSlide(progress) {
     if (video) {
       // setProgress(progress);
       video.currentTime = (progress * video.duration) / 100;
@@ -66,13 +80,12 @@ function Seeker ({ video }) {
           {getTimeStamp(time)}
         </Text>
         <Slider
-          aria-label="slider-ex-1"
-          value={progress}
-          focusThumbOnChange={false}
-          onChange={progress => setProgress(progress)}
-          // onChangeStart={() => video.pause()}
-          onChangeEnd={debouncedHandleThumbSlide}
           ml="2"
+          value={progress}
+          aria-label="slider-ex-1"
+          focusThumbOnChange={false}
+          onChangeEnd={debouncedHandleThumbSlide}
+          onChange={progress => setProgress(progress)}
         >
           <SliderTrack bg="gray.400">
             <SliderFilledTrack bg="teal.500" />
@@ -91,16 +104,55 @@ function Seeker ({ video }) {
           {getTimeStamp(duration)}
         </Text>
       </Flex>
-      <IconButton
-        bg="white"
-        mx={2}
-        icon={video && !video.muted ? <FaVolumeUp /> : <FaVolumeMute />}
-        onClick={() => {
-          console.dir(video);
-          video.muted = !video.muted;
-        }}
-        boxShadow="none"
-      />
+
+      <Popover>
+        <PopoverTrigger>
+          <IconButton
+            mx={2}
+            bg="white"
+            boxShadow="none"
+            icon={video && !video.muted ? <FaVolumeUp /> : <FaVolumeMute />}
+          />
+        </PopoverTrigger>
+
+        <PopoverContent
+          width="auto"
+          borderRadius="8px"
+          paddingBottom="12px"
+          _focus={{
+            border: 'none',
+          }}
+        >
+          <Flex flexDirection="column" gridGap="8px">
+            <IconButton
+              bg="white"
+              boxShadow="none"
+              icon={video && !video.muted ? <FaVolumeUp /> : <FaVolumeMute />}
+              onClick={() => {
+                video.muted = !video.muted;
+              }}
+            />
+            <Slider
+              max={1}
+              min={0}
+              minH="32"
+              step={0.01}
+              value={volume}
+              orientation="vertical"
+              aria-label="slider-ex-3"
+              onChange={vol => {
+                setVolume(vol);
+                video.volume = vol;
+              }}
+            >
+              <SliderTrack>
+                <SliderFilledTrack bg="teal.500" />
+              </SliderTrack>
+              <SliderThumb bg="teal.500" />
+            </Slider>
+          </Flex>
+        </PopoverContent>
+      </Popover>
     </Flex>
   );
 }
