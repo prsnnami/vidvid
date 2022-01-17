@@ -37,7 +37,7 @@ import ere from 'element-resize-event';
 import Sidebar from './Sidebar';
 import SaveModal from './SaveModal';
 import { useMutation } from 'react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FiFile } from 'react-icons/fi';
 
 const OpenSans = {
@@ -60,6 +60,10 @@ const MAX_HEIGHT = 600;
 const MAX_WIDTH = 800;
 
 function TestPage() {
+  const { sharePath } = useParams();
+
+  const [shareURL, setShareURL] = useState('');
+
   const [canvasSize, setCanvasSize] = useState({ height: 1080, width: 1080 });
   const [ar, setAr] = useState('1:1');
   const [wrapperSize, setWrapperSize] = useState({ height: 0, width: 0 });
@@ -74,12 +78,19 @@ function TestPage() {
   const [selectedVideo, setSelectedVideo] = useState('');
   const [activeFont, setActiveFont] = useState(OpenSans);
 
+  useEffect(() => {
+    if (sharePath) {
+      setShareURL(`https://app.reduct.video/e/${sharePath}`);
+    }
+  }, [sharePath]);
+
   const {
+    buffering,
     video: vid,
     toggleVideo,
     loading: videoLoading,
-    buffering,
-  } = useVideo(shareUrl);
+  } = useVideo(shareURL);
+
   const { canvasRef, canvas } = useCanvas(canvasSize);
 
   const [layers, setLayers] = useState({
@@ -91,8 +102,6 @@ function TestPage() {
     },
     video: {
       url: '',
-      manifest_url: '',
-      name: '',
       quality: '1080p',
     },
     subtitle: {
@@ -245,12 +254,12 @@ function TestPage() {
   }, []);
 
   useEffect(() => {
-    loadTranscript(shareUrl).then(transcript => {
+    loadTranscript(shareURL).then(transcript => {
       let subtitle = getSubtitle(transcript);
       console.log(subtitle);
       setSubtitle(subtitle);
     });
-  }, []);
+  }, [shareURL]);
 
   const handleSubtitleEdit = useDebouncedCallback(
     subtitle => setSubtitle(subtitle),
@@ -438,12 +447,34 @@ function TestPage() {
   });
 
   function saveProject(projectName) {
-    let body = {
-      subtitle: layers.subtitle,
-      title: layers.title,
-      canvas: layers.canvas,
+    let images = [];
+    if (layers.images.length) {
+      images = layers.images.map(image => {
+        const {
+          file: { name, size, type },
+          canvas: { height, width },
+        } = image;
+        return {
+          name,
+          size,
+          type,
+          width,
+          height,
+        };
+      });
+    }
+    const body = {
+      ...layers,
+      images,
+      video: { ...layers.video, url: shareURL },
     };
-    saveProjectMutation.mutate({ projectName, body });
+
+    console.dir(layers.images, images);
+
+    saveProjectMutation.mutate({
+      projectName,
+      body,
+    });
   }
 
   let scale;
@@ -457,6 +488,8 @@ function TestPage() {
 
   const containerHeight = scale * canvasSize.height;
   const containerWidth = scale * canvasSize.width;
+
+  console.log({ vid });
 
   const closeExportModal = () => {
     exportModal.onClose();

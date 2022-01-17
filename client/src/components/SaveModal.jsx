@@ -14,10 +14,10 @@ import {
   Stack,
 } from '@chakra-ui/react';
 
-export default function SaveModal ({ isOpen, onClose, onSubmit, loading }) {
+export default function SaveModal({ isOpen, onClose, onSubmit, loading }) {
   const nameRef = useRef();
 
-  function handleSubmit (e) {
+  function handleSubmit(e) {
     e.preventDefault();
     onSubmit(nameRef.current.value);
   }

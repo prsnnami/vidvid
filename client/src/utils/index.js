@@ -433,8 +433,10 @@ export function useVideo(shareUrl) {
         });
       };
     }
-    init();
-  }, []);
+    if (shareUrl) {
+      init();
+    }
+  }, [shareUrl]);
 
   function toggleVideo() {
     if (videoRef.current.paused) {

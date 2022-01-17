@@ -12,7 +12,6 @@ export default function Home() {
 
   function submit(e) {
     e.preventDefault();
-    console.log(inputRef.current.value);
     const shareUrl = inputRef.current.value;
     let split = shareUrl.split('app.reduct.video/e/');
     if (split.length < 2) {

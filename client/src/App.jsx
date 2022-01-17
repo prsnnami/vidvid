@@ -15,7 +15,7 @@ function App() {
       <Route path="/editor/:sharePath" element={<QuickEditor />} />
       <Route path="/project/:id" element={<Project />} />
       <Route path="/projects" element={<Projects />} />
-      <Route path="/demo" element={<TestPage />} />
+      <Route path="/demo/:sharePath" element={<TestPage />} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

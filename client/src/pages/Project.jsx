@@ -85,25 +85,30 @@ export default function Project() {
     {
       retry: false,
       onSuccess: data => {
+        const {
+          canvas,
+          video,
+          subtitle,
+          title: titleDescription,
+        } = data.layers;
         console.log(data);
-        setVideoMeta({
-          ...videoMeta,
-          aspectRatio: data.layers.a_r,
-          color: data.layers.color,
-          fontSize: data.layers.fontSize,
-          manifestUrl: data.layers.manifest_url,
-          outlineColor: data.layers.outlineColor,
-          outlineWidth: data.layers.outlineWidth,
-          showTitle: data.layers.showTitle,
+        setVideoMeta(prevVidData => ({
+          ...prevVidData,
+          color: canvas.bgColor,
+          textColor: subtitle.color,
+          showTitle: canvas.subtitle,
+          fontSize: subtitle.fontSize,
+          title: titleDescription.title,
           subtitle: data.layers.subtitle,
-          textColor: data.layers.textColor,
+          aspectRatio: canvas.aspect_ratio,
+          outlineColor: subtitle.outlineColor,
+          outlineWidth: subtitle.outlineWidth,
           textPosition: data.layers.textPosition,
-          title: data.layers.title,
           titlePosition: data.layers.titlePosition,
-          titleTextSize: data.layers.titleTextSize,
-          fontUppercase: data.layers.fontUppercase,
-          activeFontFamily: data.layers.activeFontFamily,
-        });
+          titleTextSize: titleDescription.fontSize,
+          fontUppercase: titleDescription.uppercase,
+          activeFontFamily: titleDescription.fontFamily,
+        }));
       },
     }
   );
@@ -113,8 +118,7 @@ export default function Project() {
   if (!projectQuery.isSuccess) return 'Project not found';
 
   let projectName = projectQuery.data?.project_name;
-  console.log(projectQuery.data);
-  let sharePath = projectQuery.data?.layers.url.split(
+  let sharePath = projectQuery.data?.layers.video.url.split(
     'https://app.reduct.video/e/'
   )[1];
 
