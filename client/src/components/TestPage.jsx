@@ -40,6 +40,17 @@ import { useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { FiFile } from 'react-icons/fi';
 
+const OpenSans = {
+  variants: ['regular'],
+  files: {
+    regular:
+      'http://fonts.gstatic.com/s/opensans/v20/mem8YaGs126MiZpBA-U1UpcaXcl0Aw.ttf',
+  },
+  category: 'sans-serif',
+  kind: 'webfonts#webfont',
+  family: 'Open Sans',
+  id: 'open-sans',
+};
 // const shareUrl =
 //   'https://app.reduct.video/e/borderer-testing-84e3ce2ba0-f81df100c4861287a746';
 const shareUrl =
@@ -61,6 +72,7 @@ function TestPage() {
   const inputRef = useRef();
   const navigate = useNavigate();
   const [selectedVideo, setSelectedVideo] = useState('');
+  const [activeFont, setActiveFont] = useState(OpenSans);
 
   const {
     video: vid,
@@ -89,19 +101,18 @@ function TestPage() {
       fontSize: 40,
       italic: false,
       fontWeight: 400,
-      color: 'black',
+      color: '#000000',
       fontLink: '',
       outlineColor: '#000000',
-      outlineWidth: 2,
+      outlineWidth: 0,
     },
     title: {
       name: 'Transcript',
-      fontFamily: 'Open Sans',
       uppercase: false,
       fontSize: 100,
       italic: false,
       fontWeight: 400,
-      color: 'black',
+      color: '#000000',
       fontLink: '',
       outlineColor: '#000000',
       outlineWidth: 2,
@@ -155,6 +166,25 @@ function TestPage() {
     return { myText };
   }
 
+  function getFontLink() {
+    console.log(activeFont);
+    if (activeFont.id === 'open-sans') {
+      return OpenSans.files.regular;
+    } else {
+      if (
+        activeFont.files[
+          layers.subtitle.fontWeight + (layers.subtitle.italic ? 'italic' : '')
+        ]
+      ) {
+        return activeFont.files[
+          layers.subtitle.fontWeight + (layers.subtitle.italic ? 'italic' : '')
+        ];
+      } else {
+        return activeFont.files.regular;
+      }
+    }
+  }
+
   function handleTitleToggle(showTitle) {
     if (showTitle) {
       const title = new fabric.Textbox(layers.title.name, {
@@ -175,7 +205,7 @@ function TestPage() {
       canvas.remove(title);
     }
     setLayers(layers => ({
-      canvas: { ...layers.canvas, showTitle: !showTitle },
+      canvas: { ...layers.canvas, title: !layers.canvas.title },
       ...layers,
     }));
   }
@@ -187,6 +217,7 @@ function TestPage() {
         subtitle.forEach(s => {
           if (s.start < vid.currentTime && s.end > vid.currentTime) {
             myText.set('text', s.text);
+            myText.set('fontFamily', activeFont.family);
           }
         });
       }
@@ -339,12 +370,15 @@ function TestPage() {
       layers: {},
     };
 
+    console.log('font link', getFontLink());
+
     if (body.canvas.title) {
       body.layers.title = {
         index: getIndex('title'),
         type: 'title',
         ...layers.title,
         ...getCoords('title'),
+        fontLink: getFontLink(),
       };
     }
     body.layers.subtitle = {
@@ -353,6 +387,7 @@ function TestPage() {
       subtitles: subtitle,
       ...layers.subtitle,
       ...getCoords('subtitle'),
+      fontLink: getFontLink(),
     };
     body.layers.video = {
       index: getIndex('video'),
@@ -360,11 +395,6 @@ function TestPage() {
       ...layers.video,
       ...getCoords('video'),
     };
-    // body.layers.images = layers.images.map(i => ({
-    //   index: getIndex(i.name),
-    //   name: i.name,
-    //   ...getCoords(i.name),
-    // }));
 
     layers.images.forEach(image => {
       body.layers[image.name] = {
@@ -374,8 +404,8 @@ function TestPage() {
         ...getCoords(image.name),
       };
     });
-    // console.log(body);
-    // return;
+
+    console.log(body);
 
     let formData = new FormData();
     formData.append('body', JSON.stringify(body));
@@ -707,6 +737,7 @@ function TestPage() {
             handleTitleToggle={handleTitleToggle}
             layers={layers}
             setLayers={setLayers}
+            setActiveFont={setActiveFont}
           />
         </Flex>
       </Flex>

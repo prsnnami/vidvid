@@ -32,6 +32,7 @@ const Sidebar = ({
   handleTitleToggle,
   layers,
   setLayers,
+  setActiveFont,
 }) => {
   // const { canvas, subtitle, title, video, image} = layers
 
@@ -45,26 +46,17 @@ const Sidebar = ({
 
   const handleFontChange = nextFont => {
     const subtitleLayer = canvas.getItemByName('subtitle');
+    const titleLayer = canvas.getItemByName('title');
+
     if (!subtitleLayer) return;
 
     setLayers({
       ...layers,
       subtitle: { ...layers.subtitle, fontFamily: nextFont.family },
     });
+    setActiveFont(nextFont);
     subtitleLayer.set('fontFamily', nextFont.family);
-    canvas.renderAll();
-  };
-
-  const handleTitleFontChange = nextFont => {
-    console.log({ nextFont });
-    const titleLayer = canvas.getItemByName('title');
-    if (!titleLayer) return;
-
-    setLayers({
-      ...layers,
-      title: { ...layers.title, fontFamily: nextFont.family },
-    });
-    titleLayer.set('fontFamily', nextFont.family);
+    if (titleLayer) titleLayer.set('fontFamily', nextFont.family);
     canvas.renderAll();
   };
 
@@ -195,7 +187,7 @@ const Sidebar = ({
               <Input
                 size="xs"
                 type="color"
-                defaultValue="#FFC0CB"
+                defaultValue={layers.canvas.bgColor}
                 px="1"
                 onChange={handleCanvasBgColorChange}
               />
@@ -345,16 +337,6 @@ const Sidebar = ({
               >
                 Show Title
               </Checkbox>
-            </FormControl>
-            <FormControl id="font_family_1" isRequired>
-              <FormLabel fontSize="xs">Font Family</FormLabel>
-              <FontPicker
-                size="xs"
-                apiKey={process.env.REACT_APP_GOOGLE_FONTS_API_KEY}
-                onChange={handleTitleFontChange}
-                activeFontFamily={layers.title.fontFamily}
-                limit={400}
-              />
             </FormControl>
             <FormControl id="uppercase" isRequired>
               <FormLabel fontSize="xs">Uppercase</FormLabel>
