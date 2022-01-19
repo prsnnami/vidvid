@@ -115,7 +115,7 @@ function TestPage() {
       color: '#000000',
       fontLink: '',
       outlineColor: '#000000',
-      outlineWidth: 2,
+      outlineWidth: 0,
     },
     images: [],
   });
@@ -158,6 +158,7 @@ function TestPage() {
       editable: false,
       name: 'subtitle',
       fontSize: layers.subtitle.fontSize,
+      fontWeight: layers.subtitle.fontWeight,
       // fontSize: 75,
     });
 
@@ -167,7 +168,6 @@ function TestPage() {
   }
 
   function getFontLink() {
-    console.log(activeFont);
     if (activeFont.id === 'open-sans') {
       return OpenSans.files.regular;
     } else {
@@ -198,6 +198,7 @@ function TestPage() {
         name: 'title',
         fontSize: layers.title.fontSize,
         fill: layers.title.color,
+        fontFamily: activeFont.family,
       });
       canvas.add(title);
     } else {
@@ -205,8 +206,8 @@ function TestPage() {
       canvas.remove(title);
     }
     setLayers(layers => ({
-      canvas: { ...layers.canvas, title: !layers.canvas.title },
       ...layers,
+      canvas: { ...layers.canvas, title: !layers.canvas.title },
     }));
   }
 
@@ -346,14 +347,8 @@ function TestPage() {
 
   function getCoords(name) {
     let item = canvas.getItemByName(name);
-    console.log(item);
     if (!item) return null;
-    return {
-      top: item.top,
-      left: item.left,
-      height: item.height * item.scaleY,
-      width: item.width * item.scaleX,
-    };
+    return item.getBoundingRect();
   }
 
   function getIndex(name) {
@@ -370,8 +365,6 @@ function TestPage() {
       layers: {},
     };
 
-    console.log('font link', getFontLink());
-
     if (body.canvas.title) {
       body.layers.title = {
         index: getIndex('title'),
@@ -379,6 +372,7 @@ function TestPage() {
         ...layers.title,
         ...getCoords('title'),
         fontLink: getFontLink(),
+        fontFamily: activeFont.family,
       };
     }
     body.layers.subtitle = {

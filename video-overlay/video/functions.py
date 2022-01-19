@@ -649,7 +649,7 @@ def generate_reel_v2(id, body, files):
 
 
 def add_title(layer, input, output):
-    fonts_dir = f"{storage.default_storage}/media/fonts"
+    fonts_dir = f"{settings.MEDIA_ROOT}/fonts"
 
     font_link = layer.get('fontLink')
     font_family = layer.get('fontFamily')
@@ -687,7 +687,7 @@ def make_subtitle(
             "video_height": 1080,
             "video_width": 1080,
             "font_family": layer.get('fontFamily'),
-            "font_size": layer.get('fontSize'),
+            "font_size": layer.get('fontSize') / 0.7528125,
             "margin_l": layer.get('left'),
             "margin_r": 1080 - layer.get('left') - layer.get('width'),
             "margin_bottom": 1080 - layer.get('top') - layer.get('height'),
@@ -714,7 +714,7 @@ def add_subtitles(
 ):
 
     subtitle_path = f"{path}/subtitle.ass"
-    fonts_dir = f"{storage.default_storage}/media/fonts"
+    fonts_dir = f"{settings.MEDIA_ROOT}/fonts"
 
     font_link = layer.get('fontLink')
     font_family = layer.get('fontFamily')

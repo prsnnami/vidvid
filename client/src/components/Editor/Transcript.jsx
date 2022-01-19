@@ -22,7 +22,6 @@ export default function Transcript({ subtitle, onEdit, video }) {
   // const editor = useMemo(() => withReact(createEditor()), []);
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
   const refs = useRef({});
-  console.log(subtitle);
   const [value, setValue] = useState(
     subtitle.map(i => ({
       type: 'paragraph',
