@@ -362,6 +362,7 @@ function TestPage() {
 
   function getIndex(name) {
     const items = canvas.getObjects().map(i => i.name);
+
     return items.indexOf(name);
   }
 
@@ -450,26 +451,43 @@ function TestPage() {
     let images = [];
     if (layers.images.length) {
       images = layers.images.map(image => {
-        const {
-          file: { name, size, type },
-          canvas: { height, width },
-        } = image;
+        const { name } = image;
         return {
           name,
-          size,
-          type,
-          width,
-          height,
+          type: 'image',
+          index: getIndex(name),
+          ...getCoords(name),
         };
       });
     }
+
     const body = {
       ...layers,
+      title: {
+        index: getIndex('title'),
+        type: 'title',
+        ...layers.title,
+        ...getCoords('title'),
+        fontLink: getFontLink(),
+        fontFamily: activeFont.family,
+      },
+      subtitle: {
+        index: getIndex('subtitle'),
+        type: 'subtitle',
+        subtitles: subtitle,
+        ...layers.subtitle,
+        ...getCoords('subtitle'),
+        fontLink: getFontLink(),
+      },
       images,
-      video: { ...layers.video, url: shareURL },
+      video: {
+        index: getIndex('video'),
+        type: 'video',
+        ...layers.video,
+        ...getCoords('video'),
+        url: shareURL,
+      },
     };
-
-    console.dir(layers.images, images);
 
     saveProjectMutation.mutate({
       projectName,

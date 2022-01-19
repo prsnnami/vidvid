@@ -456,10 +456,10 @@ export function useCanvas() {
 
   useEffect(() => {
     const initCanvas = () => {
-      fabric.Object.prototype.transparentCorners = false;
       fabric.Object.prototype.cornerColor = 'blue';
-      fabric.Object.prototype.cornerStyle = 'circle';
       fabric.Object.prototype.borderColor = 'blue';
+      fabric.Object.prototype.cornerStyle = 'circle';
+      fabric.Object.prototype.transparentCorners = false;
       fabric.Object.prototype.setControlsVisibility({ mtr: false });
       fabric.Canvas.prototype.getItemByName = function (name) {
         let objects = this.getObjects();
