@@ -639,23 +639,20 @@ function TestPage() {
     <>
       <Flex direction={'column'} height="100%">
         <Navbar />
-        <Flex direction="row" height="100%" flexGrow={1}>
+        <Flex direction="row" height="100%" flexGrow={1} overflow={'hidden'}>
           <LeftSidebar />
           <Flex
+            pt="4"
+            px="4"
             flex="2"
-            flexDirection="column"
-            // alignItems="center"
-            justifyContent="flex-start"
             h="100%"
             w="100%"
-            pt="4"
-            margin="0 auto"
             id="red"
-            // overflow="hidden"
-            // overflowY="auto"
-            ref={wrapperRef}
             bg="gray.100"
-            px="4"
+            margin="0 auto"
+            ref={wrapperRef}
+            flexDirection="column"
+            justifyContent="flex-start"
           >
             <Box
               py="2"
