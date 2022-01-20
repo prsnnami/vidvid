@@ -435,6 +435,8 @@ function TestPage({ videoURL, initialValue, projectName }) {
       formData.append(element.name, element.file);
     });
     exportProjectMutation.mutate(formData);
+
+    navigate('/reels');
   }
 
   const exportProjectMutation = useMutation(async function (formData) {
