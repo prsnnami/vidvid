@@ -10,7 +10,6 @@ import {
   Flex,
   FormControl,
   FormLabel,
-  Heading,
   Input,
   NumberDecrementStepper,
   NumberIncrementStepper,
@@ -34,8 +33,6 @@ const Sidebar = ({
   setLayers,
   setActiveFont,
 }) => {
-  // const { canvas, subtitle, title, video, image} = layers
-
   const handleCanvasBgColorChange = e => {
     setLayers({
       ...layers,

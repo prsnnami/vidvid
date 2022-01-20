@@ -37,7 +37,7 @@ import ere from 'element-resize-event';
 import Sidebar from './Sidebar';
 import SaveModal from './SaveModal';
 import { useMutation } from 'react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FiFile } from 'react-icons/fi';
 
 const OpenSans = {
@@ -51,6 +51,42 @@ const OpenSans = {
   family: 'Open Sans',
   id: 'open-sans',
 };
+
+export const defaultVideoMetaData = {
+  canvas: {
+    aspect_ratio: '1:1',
+    bgColor: '#000000',
+    title: false,
+    subtitle: true,
+  },
+  video: {
+    url: '',
+    quality: '1080p',
+  },
+  subtitle: {
+    fontFamily: 'Open Sans',
+    uppercase: false,
+    fontSize: 40,
+    italic: false,
+    fontWeight: 400,
+    color: '#000000',
+    fontLink: '',
+    outlineColor: '#000000',
+    outlineWidth: 0,
+  },
+  title: {
+    name: 'Transcript',
+    uppercase: false,
+    fontSize: 100,
+    italic: false,
+    fontWeight: 400,
+    color: '#000000',
+    fontLink: '',
+    outlineColor: '#000000',
+    outlineWidth: 0,
+  },
+  images: [],
+};
 // const shareUrl =
 //   'https://app.reduct.video/e/borderer-testing-84e3ce2ba0-f81df100c4861287a746';
 const shareUrl =
@@ -59,7 +95,11 @@ const shareUrl =
 const MAX_HEIGHT = 600;
 const MAX_WIDTH = 800;
 
-function TestPage() {
+function TestPage({ videoURL, initialValue, projectName }) {
+  const { sharePath } = useParams();
+
+  const [shareURL, setShareURL] = useState('');
+
   const [canvasSize, setCanvasSize] = useState({ height: 1080, width: 1080 });
   const [ar, setAr] = useState('1:1');
   const [wrapperSize, setWrapperSize] = useState({ height: 0, width: 0 });
@@ -74,51 +114,34 @@ function TestPage() {
   const [selectedVideo, setSelectedVideo] = useState('');
   const [activeFont, setActiveFont] = useState(OpenSans);
 
+  useEffect(() => {
+    if (sharePath) {
+      setShareURL(`https://app.reduct.video/e/${sharePath}`);
+    }
+  }, [sharePath]);
+
+  useEffect(() => {
+    if (videoURL) {
+      setShareURL(`https://app.reduct.video/e/${videoURL}`);
+    }
+  }, [videoURL]);
+
+  useEffect(() => {
+    if (initialValue) {
+      setLayers(prevLayerVal => ({ ...prevLayerVal, ...initialValue }));
+    }
+  }, [initialValue]);
+
   const {
+    buffering,
     video: vid,
     toggleVideo,
     loading: videoLoading,
-    buffering,
-  } = useVideo(shareUrl);
+  } = useVideo(shareURL);
+
   const { canvasRef, canvas } = useCanvas(canvasSize);
 
-  const [layers, setLayers] = useState({
-    canvas: {
-      aspect_ratio: '1:1',
-      bgColor: '#000000',
-      title: false,
-      subtitle: true,
-    },
-    video: {
-      url: '',
-      manifest_url: '',
-      name: '',
-      quality: '1080p',
-    },
-    subtitle: {
-      fontFamily: 'Open Sans',
-      uppercase: false,
-      fontSize: 40,
-      italic: false,
-      fontWeight: 400,
-      color: '#000000',
-      fontLink: '',
-      outlineColor: '#000000',
-      outlineWidth: 0,
-    },
-    title: {
-      name: 'Transcript',
-      uppercase: false,
-      fontSize: 100,
-      italic: false,
-      fontWeight: 400,
-      color: '#000000',
-      fontLink: '',
-      outlineColor: '#000000',
-      outlineWidth: 0,
-    },
-    images: [],
-  });
+  const [layers, setLayers] = useState({ ...defaultVideoMetaData });
 
   useEffect(() => {
     if (vid && subtitle) {
@@ -159,7 +182,6 @@ function TestPage() {
       name: 'subtitle',
       fontSize: layers.subtitle.fontSize,
       fontWeight: layers.subtitle.fontWeight,
-      // fontSize: 75,
     });
 
     myText.setControlsVisibility({ mt: false, mb: false });
@@ -212,6 +234,9 @@ function TestPage() {
   }
 
   function draw() {
+    if (layers.canvas.bgColor && canvas) {
+      canvas.set('backgroundColor', layers.canvas.bgColor);
+    }
     if (canvas) {
       let myText = canvas.getItemByName('subtitle');
       if (subtitle) {
@@ -245,12 +270,11 @@ function TestPage() {
   }, []);
 
   useEffect(() => {
-    loadTranscript(shareUrl).then(transcript => {
+    loadTranscript(shareURL).then(transcript => {
       let subtitle = getSubtitle(transcript);
-      console.log(subtitle);
       setSubtitle(subtitle);
     });
-  }, []);
+  }, [shareURL]);
 
   const handleSubtitleEdit = useDebouncedCallback(
     subtitle => setSubtitle(subtitle),
@@ -353,6 +377,7 @@ function TestPage() {
 
   function getIndex(name) {
     const items = canvas.getObjects().map(i => i.name);
+
     return items.indexOf(name);
   }
 
@@ -403,8 +428,6 @@ function TestPage() {
       };
     });
 
-    console.log(body);
-
     let formData = new FormData();
     formData.append('body', JSON.stringify(body));
     formData.append('input.mp4', inputRef.current.files[0]);
@@ -438,12 +461,51 @@ function TestPage() {
   });
 
   function saveProject(projectName) {
-    let body = {
-      subtitle: layers.subtitle,
-      title: layers.title,
-      canvas: layers.canvas,
+    let images = [];
+    if (layers.images.length) {
+      images = layers.images.map(image => {
+        const { name } = image;
+        return {
+          name,
+          type: 'image',
+          index: getIndex(name),
+          ...getCoords(name),
+        };
+      });
+    }
+
+    const body = {
+      ...layers,
+      title: {
+        index: getIndex('title'),
+        type: 'title',
+        ...layers.title,
+        ...getCoords('title'),
+        fontLink: getFontLink(),
+        fontFamily: activeFont.family,
+      },
+      subtitle: {
+        index: getIndex('subtitle'),
+        type: 'subtitle',
+        subtitles: subtitle,
+        ...layers.subtitle,
+        ...getCoords('subtitle'),
+        fontLink: getFontLink(),
+      },
+      images,
+      video: {
+        index: getIndex('video'),
+        type: 'video',
+        ...layers.video,
+        ...getCoords('video'),
+        url: shareURL,
+      },
     };
-    saveProjectMutation.mutate({ projectName, body });
+
+    saveProjectMutation.mutate({
+      projectName,
+      body,
+    });
   }
 
   let scale;
@@ -457,6 +519,8 @@ function TestPage() {
 
   const containerHeight = scale * canvasSize.height;
   const containerWidth = scale * canvasSize.width;
+
+  console.log({ vid });
 
   const closeExportModal = () => {
     exportModal.onClose();
@@ -571,7 +635,7 @@ function TestPage() {
     document.body.removeChild(element);
   }
 
-  const Navbar = () => {
+  const Navbar = ({ projectName }) => {
     return (
       <Flex
         px="6"
@@ -585,7 +649,7 @@ function TestPage() {
         <Flex>
           <Stack direction="row">
             <Button colorScheme="teal" onClick={saveModal.onOpen}>
-              Save Video
+              {projectName ?? 'Save Project'}
             </Button>
             <Button colorScheme="teal" onClick={getSRT}>
               Download SRT
@@ -642,7 +706,7 @@ function TestPage() {
   return (
     <>
       <Flex direction={'column'} height="100%">
-        <Navbar />
+        <Navbar projectName={projectName} />
         <Flex direction="row" height="100%" flexGrow={1} overflow={'hidden'}>
           <LeftSidebar />
           <Flex
@@ -754,6 +818,7 @@ const Canvas = React.forwardRef((props, canvasRef) => {
       draw(frameCount);
       animationFrameId = window.requestAnimationFrame(render);
     };
+
     render();
 
     return () => {

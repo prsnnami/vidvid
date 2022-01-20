@@ -12,7 +12,6 @@ export default function Home() {
 
   function submit(e) {
     e.preventDefault();
-    console.log(inputRef.current.value);
     const shareUrl = inputRef.current.value;
     let split = shareUrl.split('app.reduct.video/e/');
     if (split.length < 2) {
@@ -40,7 +39,7 @@ export default function Home() {
               <Heading>Welcome to Borderer</Heading>
               <Input
                 ref={inputRef}
-                defaultValue="https://app.reduct.video/e/borderer-testing-84e3ce2ba0-f81df100c4861287a746"
+                defaultValue="https://app.reduct.video/e/instagram--the-power-of-archiving-69f6b2577d50-7124ecc64b17d4455b66"
                 placeholder="Enter video share link"
               />
               <Button type="submit">Go!</Button>

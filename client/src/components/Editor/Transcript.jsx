@@ -22,12 +22,12 @@ export default function Transcript({ subtitle, onEdit, video }) {
   // const editor = useMemo(() => withReact(createEditor()), []);
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
   const refs = useRef({});
+
   const [value, setValue] = useState(
     subtitle.map(i => ({
       type: 'paragraph',
       line: i,
       inline: true,
-      // children: [{ text: i.line, words: i.words }],
       children: i.words.map(word => ({
         type: 'span',
         word: word,
