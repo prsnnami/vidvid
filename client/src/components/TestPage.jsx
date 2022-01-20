@@ -361,7 +361,11 @@ function TestPage() {
     let body = {
       name: nameRef.current.value,
       src: inputRef.current.value,
-      canvas: layers.canvas,
+      canvas: {
+        ...layers.canvas,
+        height: canvasSize.height,
+        width: canvasSize.width,
+      },
       layers: {},
     };
 

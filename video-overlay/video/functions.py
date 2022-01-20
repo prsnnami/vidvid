@@ -45,7 +45,7 @@ def shortName(font):
 aspect_ratios = {
     "16:9": {"height": 1080, "width": 1920},
     "9:16": {"height": 1920, "width": 1080},
-    "1:1": {"height": 1920, "width": 1920},
+    "1:1": {"height": 1080, "width": 1080},
     "4:5": {"height": 1350, "width": 1080},
 }
 
@@ -616,8 +616,11 @@ def generate_reel_v2(id, body, files):
     if files:
         get_files(files, path=path)
 
+    video_height = body["canvas"]['height']
+    video_width = body["canvas"]['width']
+
     create_background_image(
-        color=body["canvas"]["bgColor"], height=1080, width=1080, path=path
+        color=body["canvas"]["bgColor"], height=video_height, width=video_width, path=path
     )
 
     sorted_layers = sorted(body['layers'].values(),
@@ -643,7 +646,8 @@ def generate_reel_v2(id, body, files):
         elif layer_type == 'title':
             add_title(layer, input, output)
         elif layer_type == 'subtitle':
-            add_subtitles(layer, input, output, path)
+            add_subtitles(layer, input, output, path,
+                          video_height, video_width)
 
     print("hi")
 
@@ -677,6 +681,8 @@ def add_title(layer, input, output):
 def make_subtitle(
     subtitle_path,
     layer,
+    video_height,
+    video_width
 ):
 
     with open(f"{settings.BASE_DIR}/templates/subtitle.ass", "r") as f:
@@ -684,14 +690,14 @@ def make_subtitle(
 
     result = src.substitute(
         {
-            "video_height": 1080,
-            "video_width": 1080,
+            "video_height": video_height,
+            "video_width": video_width,
             "font_family": layer.get('fontFamily'),
             "font_size": layer.get('fontSize') / 0.7528125,
             "margin_l": layer.get('left'),
-            "margin_r": 1080 - layer.get('left') - layer.get('width'),
-            "margin_bottom": 1080 - layer.get('top') - layer.get('height'),
-            "primary_color": layer.get('color'),
+            "margin_r": video_width - layer.get('left') - layer.get('width'),
+            "margin_bottom": video_height - layer.get('top') - layer.get('height'),
+            "primary_color": rgb_to_bgr(layer.get('color')),
             "outline_width": layer.get('outlineWidth'),
             "outline_color": rgb_to_bgr(layer.get('outlineColor')),
         }
@@ -710,7 +716,9 @@ def add_subtitles(
     layer,
     input,
     output,
-    path
+    path,
+    video_height,
+    video_width
 ):
 
     subtitle_path = f"{path}/subtitle.ass"
@@ -727,7 +735,8 @@ def add_subtitles(
 
     font = ttLib.TTFont(f"{fonts_dir}/{font_family}.ttf")
 
-    make_subtitle(subtitle_path=subtitle_path, layer=layer)
+    make_subtitle(subtitle_path=subtitle_path, layer=layer,
+                  video_height=video_height, video_width=video_width)
 
     subprocess.run(
         [
@@ -784,7 +793,7 @@ def create_background_image(height, width, path, color):
                 "-f",
                 "lavfi",
                 "-i",
-                f"color=c={color or '000000'}:s={height}x{width}:d=1",
+                f"color=c={color or '000000'}:s={width}x{height}:d=1",
                 "-ss",
                 "00:00:00",
                 "-vframes",
