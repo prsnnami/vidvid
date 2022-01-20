@@ -51,6 +51,42 @@ const OpenSans = {
   family: 'Open Sans',
   id: 'open-sans',
 };
+
+export const defaultVideoMetaData = {
+  canvas: {
+    aspect_ratio: '1:1',
+    bgColor: '#000000',
+    title: false,
+    subtitle: true,
+  },
+  video: {
+    url: '',
+    quality: '1080p',
+  },
+  subtitle: {
+    fontFamily: 'Open Sans',
+    uppercase: false,
+    fontSize: 40,
+    italic: false,
+    fontWeight: 400,
+    color: '#000000',
+    fontLink: '',
+    outlineColor: '#000000',
+    outlineWidth: 0,
+  },
+  title: {
+    name: 'Transcript',
+    uppercase: false,
+    fontSize: 100,
+    italic: false,
+    fontWeight: 400,
+    color: '#000000',
+    fontLink: '',
+    outlineColor: '#000000',
+    outlineWidth: 0,
+  },
+  images: [],
+};
 // const shareUrl =
 //   'https://app.reduct.video/e/borderer-testing-84e3ce2ba0-f81df100c4861287a746';
 const shareUrl =
@@ -59,7 +95,7 @@ const shareUrl =
 const MAX_HEIGHT = 600;
 const MAX_WIDTH = 800;
 
-function TestPage() {
+function TestPage({ videoURL, initialValue, projectName }) {
   const { sharePath } = useParams();
 
   const [shareURL, setShareURL] = useState('');
@@ -84,6 +120,18 @@ function TestPage() {
     }
   }, [sharePath]);
 
+  useEffect(() => {
+    if (videoURL) {
+      setShareURL(`https://app.reduct.video/e/${videoURL}`);
+    }
+  }, [videoURL]);
+
+  useEffect(() => {
+    if (initialValue) {
+      setLayers(prevLayerVal => ({ ...prevLayerVal, ...initialValue }));
+    }
+  }, [initialValue]);
+
   const {
     buffering,
     video: vid,
@@ -93,41 +141,7 @@ function TestPage() {
 
   const { canvasRef, canvas } = useCanvas(canvasSize);
 
-  const [layers, setLayers] = useState({
-    canvas: {
-      aspect_ratio: '1:1',
-      bgColor: '#000000',
-      title: false,
-      subtitle: true,
-    },
-    video: {
-      url: '',
-      quality: '1080p',
-    },
-    subtitle: {
-      fontFamily: 'Open Sans',
-      uppercase: false,
-      fontSize: 40,
-      italic: false,
-      fontWeight: 400,
-      color: '#000000',
-      fontLink: '',
-      outlineColor: '#000000',
-      outlineWidth: 0,
-    },
-    title: {
-      name: 'Transcript',
-      uppercase: false,
-      fontSize: 100,
-      italic: false,
-      fontWeight: 400,
-      color: '#000000',
-      fontLink: '',
-      outlineColor: '#000000',
-      outlineWidth: 0,
-    },
-    images: [],
-  });
+  const [layers, setLayers] = useState({ ...defaultVideoMetaData });
 
   useEffect(() => {
     if (vid && subtitle) {
@@ -168,7 +182,6 @@ function TestPage() {
       name: 'subtitle',
       fontSize: layers.subtitle.fontSize,
       fontWeight: layers.subtitle.fontWeight,
-      // fontSize: 75,
     });
 
     myText.setControlsVisibility({ mt: false, mb: false });
@@ -221,6 +234,9 @@ function TestPage() {
   }
 
   function draw() {
+    if (layers.canvas.bgColor && canvas) {
+      canvas.set('backgroundColor', layers.canvas.bgColor);
+    }
     if (canvas) {
       let myText = canvas.getItemByName('subtitle');
       if (subtitle) {
@@ -256,7 +272,6 @@ function TestPage() {
   useEffect(() => {
     loadTranscript(shareURL).then(transcript => {
       let subtitle = getSubtitle(transcript);
-      console.log(subtitle);
       setSubtitle(subtitle);
     });
   }, [shareURL]);
@@ -412,8 +427,6 @@ function TestPage() {
         ...getCoords(image.name),
       };
     });
-
-    console.log(body);
 
     let formData = new FormData();
     formData.append('body', JSON.stringify(body));
@@ -622,7 +635,7 @@ function TestPage() {
     document.body.removeChild(element);
   }
 
-  const Navbar = () => {
+  const Navbar = ({ projectName }) => {
     return (
       <Flex
         px="6"
@@ -636,7 +649,7 @@ function TestPage() {
         <Flex>
           <Stack direction="row">
             <Button colorScheme="teal" onClick={saveModal.onOpen}>
-              Save Video
+              {projectName ?? 'Save Project'}
             </Button>
             <Button colorScheme="teal" onClick={getSRT}>
               Download SRT
@@ -693,7 +706,7 @@ function TestPage() {
   return (
     <>
       <Flex direction={'column'} height="100%">
-        <Navbar />
+        <Navbar projectName={projectName} />
         <Flex direction="row" height="100%" flexGrow={1} overflow={'hidden'}>
           <LeftSidebar />
           <Flex
@@ -805,6 +818,7 @@ const Canvas = React.forwardRef((props, canvasRef) => {
       draw(frameCount);
       animationFrameId = window.requestAnimationFrame(render);
     };
+
     render();
 
     return () => {

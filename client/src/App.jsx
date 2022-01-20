@@ -12,7 +12,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/reels" element={<Reels />} />
-      <Route path="/editor/:sharePath" element={<QuickEditor />} />
+      <Route path="/editor/:sharePath" element={<TestPage />} />
       <Route path="/project/:id" element={<Project />} />
       <Route path="/projects" element={<Projects />} />
       <Route path="/demo/:sharePath" element={<TestPage />} />
