@@ -1,44 +1,46 @@
+import React, { useEffect, useRef, useState } from 'react';
+
+import { fabric } from 'fabric';
+import ere from 'element-resize-event';
+import { FiFile } from 'react-icons/fi';
+import { useMutation } from 'react-query';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Box,
   Flex,
+  Icon,
+  Stack,
+  Modal,
+  Input,
+  Button,
   Heading,
   Spinner,
-  Button,
-  Stack,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
   ModalBody,
+  FormLabel,
+  InputGroup,
+  ModalHeader,
   ModalFooter,
   FormControl,
-  FormLabel,
-  Input,
-  Icon,
-  InputGroup,
+  ModalOverlay,
+  ModalContent,
+  useDisclosure,
   InputLeftAddon,
+  ModalCloseButton,
 } from '@chakra-ui/react';
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  getSubtitle,
-  getVideoDimensions,
-  loadTranscript,
-  useCanvas,
-  useVideo,
-} from '../utils';
-import { useDebouncedCallback } from '../utils/useDebouncedCallback';
-import Transcript from './Editor/Transcript';
-import PlayButton from './PlayButton';
+
 import Seeker from './Seeker';
-import { fabric } from 'fabric';
-import ere from 'element-resize-event';
 import Sidebar from './Sidebar';
 import SaveModal from './SaveModal';
-import { useMutation } from 'react-query';
-import { useNavigate, useParams } from 'react-router-dom';
-import { FiFile } from 'react-icons/fi';
+import PlayButton from './PlayButton';
+import Transcript from './Editor/Transcript';
+import { useDebouncedCallback } from '../utils/useDebouncedCallback';
+import {
+  useVideo,
+  useCanvas,
+  getSubtitle,
+  loadTranscript,
+  getVideoDimensions,
+} from '../utils';
 
 const OpenSans = {
   variants: ['regular'],
@@ -665,52 +667,19 @@ function TestPage({ videoURL, initialValue, projectName }) {
     );
   };
 
-  const LeftSidebar = () => {
-    return (
-      <Flex
-        w="400px"
-        borderRight="1px solid #edf2f7"
-        direction="column"
-        overflowY={'scroll'}
-      >
-        <Heading px={4} className="apply-font" my="6">
-          <div
-            contentEditable
-            suppressContentEditableWarning
-            onInput={e => {
-              setLayers({
-                ...layers,
-                title: { ...layers.title, name: e.target.innerText },
-              });
-              const title = canvas.getItemByName('title');
-              if (title) {
-                title.text = e.target.innerText;
-                canvas.renderAll();
-              }
-            }}
-          >
-            {layers.title.name}
-          </div>
-        </Heading>
-        {subtitle && (
-          <Transcript
-            video={vid}
-            subtitle={subtitle}
-            onEdit={edit => {
-              handleSubtitleEdit(edit);
-            }}
-          />
-        )}
-      </Flex>
-    );
-  };
-
   return (
     <>
       <Flex direction={'column'} height="100%">
         <Navbar projectName={projectName} />
         <Flex direction="row" height="100%" flexGrow={1} overflow={'hidden'}>
-          <LeftSidebar />
+          <LeftSidebar
+            vid={vid}
+            canvas={canvas}
+            subtitle={subtitle}
+            setLayers={setLayers}
+            title={layers.title.name}
+            handleSubtitleEdit={handleSubtitleEdit}
+          />
           <Flex
             pt="4"
             px="4"
@@ -726,53 +695,48 @@ function TestPage({ videoURL, initialValue, projectName }) {
           >
             <Box
               py="2"
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
               flexGrow="1"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
             >
               <Box
                 style={{
                   maxWidth: '100%',
+                  margin: '0 auto',
                   overflow: 'hidden',
                   width: containerWidth + 'px',
                   height: containerHeight + 'px',
-                  margin: '0 auto',
                 }}
               >
                 <Box
                   style={{
                     width: canvasSize.width,
+                    transformOrigin: '0 0 0',
                     height: canvasSize.height,
                     transform: 'scale(' + scale + ')',
-                    transformOrigin: '0 0 0',
                   }}
                 >
                   <Box
+                    position="relative"
                     w={canvasSize.width}
                     h={canvasSize.height}
-                    position="relative"
                   >
                     <Flex position="relative">
                       <Flex
-                        justifyContent="center"
-                        alignItems="center"
-                        position="absolute"
                         h="100%"
                         w="100%"
-                        bg="rgba(0,0,0,0.2)"
-                        hidden={!(buffering || videoLoading)}
-                        id="spinner"
                         zIndex="1"
+                        id="spinner"
+                        alignItems="center"
+                        position="absolute"
+                        bg="rgba(0,0,0,0.2)"
+                        justifyContent="center"
+                        hidden={!(buffering || videoLoading)}
                       >
                         <Spinner color="teal" size="xl" thickness="8px" />
                       </Flex>
-                      <Canvas
-                        // height={canvasSize.height}
-                        // width={canvasSize.width}
-                        ref={canvasRef}
-                        draw={draw}
-                      />
+                      <Canvas draw={draw} ref={canvasRef} />
                     </Flex>
                   </Box>
                 </Box>
@@ -781,24 +745,23 @@ function TestPage({ videoURL, initialValue, projectName }) {
             <Flex justifyContent="center" alignItems="center" flexGrow="1">
               <PlayButton
                 vid={vid}
-                toggleVideo={toggleVideo}
                 buffering={buffering}
+                toggleVideo={toggleVideo}
               />
             </Flex>
             <Seeker video={vid} />
           </Flex>
           <Sidebar
-            handleDimensionsChange={handleDimensionsChange}
-            removeImage={removeImage}
-            handleFileUpload={handleFileUpload}
-            // isImage={isImage}
-            isImage={layers.images.length}
             ar={ar}
             canvas={canvas}
-            handleTitleToggle={handleTitleToggle}
             layers={layers}
             setLayers={setLayers}
+            removeImage={removeImage}
             setActiveFont={setActiveFont}
+            isImage={layers.images.length}
+            handleFileUpload={handleFileUpload}
+            handleTitleToggle={handleTitleToggle}
+            handleDimensionsChange={handleDimensionsChange}
           />
         </Flex>
       </Flex>
@@ -832,3 +795,52 @@ const Canvas = React.forwardRef((props, canvasRef) => {
 });
 
 export default TestPage;
+
+const LeftSidebar = ({
+  vid,
+  title,
+  canvas,
+  subtitle,
+  setLayers,
+  handleSubtitleEdit,
+}) => {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.innerText = title;
+    }
+  }, []);
+
+  const onTitleChange = event => {
+    setLayers(prevLayerVal => ({
+      ...prevLayerVal,
+      title: { ...prevLayerVal.title, name: event.target.innerText },
+    }));
+    const newTitle = canvas.getItemByName('title');
+    if (newTitle) {
+      newTitle.text = event.target.innerText;
+      canvas.renderAll();
+    }
+  };
+
+  return (
+    <Flex
+      w="400px"
+      direction="column"
+      overflowY="scroll"
+      borderRight="1px solid #edf2f7"
+    >
+      <Heading px={4} className="apply-font" my="6">
+        <div ref={inputRef} contentEditable onInput={onTitleChange} />
+      </Heading>
+      {subtitle && (
+        <Transcript
+          video={vid}
+          subtitle={subtitle}
+          onEdit={edit => handleSubtitleEdit(edit)}
+        />
+      )}
+    </Flex>
+  );
+};
