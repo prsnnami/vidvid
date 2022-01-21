@@ -524,8 +524,6 @@ function TestPage({ videoURL, initialValue, projectName }) {
   const containerHeight = scale * canvasSize.height;
   const containerWidth = scale * canvasSize.width;
 
-  console.log({ vid });
-
   const closeExportModal = () => {
     exportModal.onClose();
     setSelectedVideo('');
