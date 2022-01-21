@@ -805,9 +805,7 @@ const LeftSidebar = ({
   const inputRef = useRef(null);
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.innerText = title;
-    }
+    if (inputRef.current) inputRef.current.innerText = title;
   }, []);
 
   const onTitleChange = event => {
