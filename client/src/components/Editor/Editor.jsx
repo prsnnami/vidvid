@@ -155,19 +155,17 @@ export default function Editor({
   function getFontLink() {
     if (videoMeta.activeFontFamily.id === 'open-sans') {
       return OpenSans.files.regular;
-    } else {
-      if (
-        videoMeta.activeFontFamily.files[
-          videoMeta.fontWeight + (videoMeta.italic ? 'italic' : '')
-        ]
-      ) {
-        return videoMeta.activeFontFamily.files[
-          videoMeta.fontWeight + (videoMeta.italic ? 'italic' : '')
-        ];
-      } else {
-        return videoMeta.activeFontFamily.files.regular;
-      }
     }
+    if (
+      videoMeta.activeFontFamily.files[
+        videoMeta.fontWeight + (videoMeta.italic ? 'italic' : '')
+      ]
+    ) {
+      return videoMeta.activeFontFamily.files[
+        videoMeta.fontWeight + (videoMeta.italic ? 'italic' : '')
+      ];
+    }
+    return videoMeta.activeFontFamily.files.regular;
   }
 
   function getFontFamily() {
