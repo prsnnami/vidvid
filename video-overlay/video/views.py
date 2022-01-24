@@ -33,7 +33,6 @@ from .functions import (
     generate_thumbnail,
     get_timestamp,
     resize_video,
-    send_video,
 )
 from .models import Project
 from .serializers import ProjectSerializer
@@ -153,7 +152,8 @@ def get_reels(request):
         return HttpResponseBadRequest()
 
     try:
-        dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + "/tmp"
+        dir_path = os.path.dirname(os.path.dirname(
+            os.path.realpath(__file__))) + "/tmp"
         dirs = os.listdir(dir_path)
         response = {}
         for dir in dirs:
@@ -218,7 +218,8 @@ class GenerateReel(APIView):
             #         f"{id}/{filename}", ContentFile(files[filename].read())
             #     )
             print("here")
-            generate_reel_v2(body=json.loads(request.data["body"]), id=id, files=files)
+            generate_reel_v2(body=json.loads(
+                request.data["body"]), id=id, files=files)
 
         except Exception as e:
             # print(f"error in {e}", e)
