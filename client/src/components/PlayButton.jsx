@@ -1,16 +1,16 @@
-import { Box, Button } from '@chakra-ui/react';
+import { Box, Button, IconButton } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { FaPause, FaPlay } from 'react-icons/fa';
 
 const PlayButton = ({ vid, toggleVideo, buffering }) => {
-  const [isPlaying, setIsPlaying] = useState()
+  const [isPlaying, setIsPlaying] = useState();
 
   useEffect(() => {
-    function onPlay () {
+    function onPlay() {
       setIsPlaying(true);
     }
 
-    function onPause () {
+    function onPause() {
       setIsPlaying(false);
     }
 
@@ -29,19 +29,15 @@ const PlayButton = ({ vid, toggleVideo, buffering }) => {
 
   return (
     <Box d="flex" alignItems="center" justifyContent="center">
-      <Button
-        colorScheme="teal"
-        style={styles.playButton}
+      <IconButton
+        bg="white"
+        mx={2}
         onClick={() => toggleVideo()}
         isDisabled={buffering || !vid}
         isLoading={buffering || !vid}
       >
-        {!isPlaying ? (
-          <FaPlay style={{ color: '#ffffff' }} />
-        ) : (
-          <FaPause style={{ color: '#ffffff' }} />
-        )}
-      </Button>
+        {!isPlaying ? <FaPlay /> : <FaPause />}
+      </IconButton>
     </Box>
   );
 };
@@ -51,14 +47,11 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 70,
-    minHeight: 70,
+
     cursor: 'pointer',
     border: 'none',
     borderRadius: '50%',
     outline: 'none',
-    marginTop: 30,
-    marginBottom: 10,
   },
 };
 

@@ -461,6 +461,19 @@ export function useCanvas() {
       fabric.Object.prototype.cornerStyle = 'circle';
       fabric.Object.prototype.transparentCorners = false;
       fabric.Object.prototype.setControlsVisibility({ mtr: false });
+      // fabric.Object.prototype.setControlsVisibility({
+      //   mt: true,
+      //   mb: true,
+      //   tl: true,
+      //   tr: true,
+      //   bl: true,
+      //   br: true,
+      //   ml: true,
+      //   mr: true,
+      //   mtr: true,
+      //   // ml: false,
+      // });
+      fabric.Object.prototype.hasRotatingPoint = false;
       fabric.Canvas.prototype.getItemByName = function (name) {
         let objects = this.getObjects();
         let object = objects.find(i => i.name === name);

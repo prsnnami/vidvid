@@ -613,43 +613,82 @@ def generate_reel_v2(id, body, files):
     path = f"{settings.BASE_DIR}/tmp/{id}"
     os.makedirs(path, exist_ok=True)
 
-    if files:
-        get_files(files, path=path)
+    name = body['name']
 
-    video_height = body["canvas"]['height']
-    video_width = body["canvas"]['width']
+    meta = {}
+    meta["name"] = name
+    with open(f"{path}/meta.json", "w") as file:
+        json.dump(meta, file)
 
-    create_background_image(
-        color=body["canvas"]["bgColor"], height=video_height, width=video_width, path=path
-    )
+    try:
+        if files:
+            meta["status"] = "fetching files"
+            with open(f"{path}/meta.json", "w") as file:
+                json.dump(meta, file)
+            get_files(files, path=path)
 
-    sorted_layers = sorted(body['layers'].values(),
-                           key=lambda x: x['index'])
+        video_height = body["canvas"]['height']
+        video_width = body["canvas"]['width']
 
-    print(sorted_layers)
+        meta["status"] = "Generating video"
+        with open(f"{path}/meta.json", "w") as file:
+            json.dump(meta, file)
 
-    for idx, layer in enumerate(sorted_layers):
-        input = f"{path}/background_image.jpg" if idx == 0 else f"{path}/{idx}.mp4"
-        output = f"{path}/out.mp4" if idx + 1 == len(
-            sorted_layers) else f"{path}/{idx + 1}.mp4"
-        layer_type = layer.get('type')
-        if layer_type == 'image' or layer_type == 'video':
-            iw = layer.get("height")
-            ih = layer.get("width")
-            top = layer.get("top")
-            left = layer.get("left")
-            input2 = layer.get(
-                "name") if layer_type == 'image' else 'input.mp4'
-            commands = ['ffmpeg', '-i', input, '-i', f'{path}/{input2}', '-filter_complex',
-                        f'[1:v]scale={ih}:{iw} [o],[0:v][o]overlay={left}:{top}', '-c:a', 'copy', output]
-            subprocess.run(commands)
-        elif layer_type == 'title':
-            add_title(layer, input, output)
-        elif layer_type == 'subtitle':
-            add_subtitles(layer, input, output, path,
-                          video_height, video_width)
+        create_background_image(
+            color=body["canvas"]["bgColor"], height=video_height, width=video_width, path=path
+        )
 
-    print("hi")
+        sorted_layers = sorted(body['layers'].values(),
+                               key=lambda x: x['index'])
+
+        print(sorted_layers)
+
+        for idx, layer in enumerate(sorted_layers):
+            input = f"{path}/background_image.jpg" if idx == 0 else f"{path}/{idx}.mp4"
+            output = f"{path}/{name}.mp4" if idx + 1 == len(
+                sorted_layers) else f"{path}/{idx + 1}.mp4"
+            layer_type = layer.get('type')
+            if layer_type == 'image' or layer_type == 'video':
+                iw = layer.get("height")
+                ih = layer.get("width")
+                top = layer.get("top")
+                left = layer.get("left")
+                input2 = layer.get(
+                    "name") if layer_type == 'image' else 'input.mp4'
+                commands = ['ffmpeg', '-i', input, '-i', f'{path}/{input2}', '-filter_complex',
+                            f'[1:v]scale={ih}:{iw} [o],[0:v][o]overlay={left}:{top}', '-c:a', 'copy', output]
+                subprocess.run(commands)
+            elif layer_type == 'title':
+                add_title(layer, input, output)
+            elif layer_type == 'subtitle':
+                add_subtitles(layer, input, output, path,
+                              video_height, video_width)
+
+        meta["status"] = "Generating thumbnail"
+        with open(f"{path}/meta.json", "w") as file:
+            json.dump(meta, file)
+
+        thumbnail_path = f"{settings.BASE_DIR}/media/thumbnails/{id}.png"
+        capture_thumbnail(path, name, thumbnail_path)
+
+        meta["status"] = "Finished."
+        meta["thumbnail"] = "/media/thumbnails/{id}.png"
+        with open(f"{path}/meta.json", "w") as file:
+            json.dump(meta, file)
+
+    except Exception as e:
+        print(e)
+        meta["status"] = "Error"
+        meta["error"] = True
+        meta["error_message"] = e
+        with open(f"{path}/meta.json", "w") as file:
+            json.dump(meta, file)
+
+
+def capture_thumbnail(path, name, thumbnail_path):
+    stream = ffmpeg.input(f"{path}/{name}.mp4", ss=4)
+    stream = ffmpeg.output(stream, thumbnail_path, vframes=1)
+    ffmpeg.run(stream)
 
 
 def add_title(layer, input, output):

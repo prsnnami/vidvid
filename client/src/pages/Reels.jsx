@@ -3,6 +3,7 @@ import { Image } from '@chakra-ui/image';
 import { Box, Flex, Grid, Heading, Stack, Text } from '@chakra-ui/layout';
 import { Spinner } from '@chakra-ui/spinner';
 import React from 'react';
+import { FaExclamationTriangle } from 'react-icons/fa';
 import { useMutation, useQuery } from 'react-query';
 
 async function getReels() {
@@ -88,8 +89,26 @@ function Reel({ reel, id }) {
             w="100%"
             objectFit="cover"
           />
+        ) : !reel.error ? (
+          <Stack
+            alignItems={'center'}
+            justifyContent={'center'}
+            flexDirection={'column'}
+            color="white"
+          >
+            <Spinner />
+            <Text>{reel.status}</Text>
+          </Stack>
         ) : (
-          <Spinner />
+          <Stack
+            alignItems={'center'}
+            justifyContent={'center'}
+            flexDirection={'column'}
+            color="white"
+          >
+            <FaExclamationTriangle />
+            <Text>{reel.error_message}</Text>
+          </Stack>
         )}
       </Flex>
       <Stack>

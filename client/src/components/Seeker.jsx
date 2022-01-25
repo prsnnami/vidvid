@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
+import { FaPause, FaPlay, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import {
   Flex,
   Text,
@@ -17,7 +17,7 @@ import {
 import { getTimeStamp } from '../utils';
 import { useDebouncedCallback } from '../utils/useDebouncedCallback';
 
-function Seeker({ video }) {
+function Seeker({ video, togglePlayIcon: TogglePlayIcon }) {
   const [progress, setProgress] = useState(0);
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -60,6 +60,7 @@ function Seeker({ video }) {
 
   return (
     <Flex w="100%">
+      <TogglePlayIcon />
       <Flex
         p="1"
         pr="2"
@@ -79,6 +80,7 @@ function Seeker({ video }) {
         >
           {getTimeStamp(time)}
         </Text>
+
         <Slider
           ml="2"
           value={progress}

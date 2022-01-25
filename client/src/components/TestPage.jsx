@@ -641,22 +641,37 @@ function TestPage({ videoURL, initialValue, projectName }) {
     return (
       <Flex
         px="6"
+        py="1"
         color="white"
         bg="teal.500"
-        h="65px"
         alignItems={'center'}
         justifyContent="space-between"
       >
         Navbar
         <Flex>
-          <Stack direction="row">
-            <Button colorScheme="teal" onClick={saveModal.onOpen}>
+          <Stack direction="row" spacing={6}>
+            <Button
+              colorScheme="white"
+              variant="link"
+              size="sm"
+              onClick={saveModal.onOpen}
+            >
               {projectName ?? 'Save Project'}
             </Button>
-            <Button colorScheme="teal" onClick={getSRT}>
+            <Button
+              colorScheme="white"
+              variant="link"
+              size="sm"
+              onClick={getSRT}
+            >
               Download SRT
             </Button>
-            <Button colorScheme="teal" onClick={exportModal.onOpen}>
+            <Button
+              colorScheme="white"
+              variant="link"
+              size="sm"
+              onClick={exportModal.onOpen}
+            >
               Export Video
             </Button>
           </Stack>
@@ -740,14 +755,23 @@ function TestPage({ videoURL, initialValue, projectName }) {
                 </Box>
               </Box>
             </Box>
-            <Flex justifyContent="center" alignItems="center" flexGrow="1">
+            {/* <Flex justifyContent="center" alignItems="center" flexGrow="1">
               <PlayButton
                 vid={vid}
                 buffering={buffering}
                 toggleVideo={toggleVideo}
               />
-            </Flex>
-            <Seeker video={vid} />
+            </Flex> */}
+            <Seeker
+              video={vid}
+              togglePlayIcon={() => (
+                <PlayButton
+                  vid={vid}
+                  buffering={buffering}
+                  toggleVideo={toggleVideo}
+                />
+              )}
+            />
           </Flex>
           <Sidebar
             ar={ar}
