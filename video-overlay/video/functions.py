@@ -672,7 +672,7 @@ def generate_reel_v2(id, body, files):
         capture_thumbnail(path, name, thumbnail_path)
 
         meta["status"] = "Finished."
-        meta["thumbnail"] = "/media/thumbnails/{id}.png"
+        meta["thumbnail"] = f"/media/thumbnails/{id}.png"
         with open(f"{path}/meta.json", "w") as file:
             json.dump(meta, file)
 
@@ -680,7 +680,7 @@ def generate_reel_v2(id, body, files):
         print(e)
         meta["status"] = "Error"
         meta["error"] = True
-        meta["error_message"] = e
+        meta["error_message"] = str(e)
         with open(f"{path}/meta.json", "w") as file:
             json.dump(meta, file)
 
