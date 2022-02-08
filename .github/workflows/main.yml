@@ -31,14 +31,14 @@ jobs:
           eval $(ssh-agent -s)
           
           # Creating private ssh file
-          cat > ~/.ssh/id_rsa_borderer << EOL
+          cat > ~/.ssh/id_rsa << EOL
           ${{ secrets.EXPERIMENT_PRIVATE_KEY }}
           EOL
           
-          chmod 600 ~/.ssh/id_rsa_borderer && chmod 600 ~/.ssh/known_hosts
-          rsync -avz -e "ssh -i ~/.ssh/id_rsa_borderer" ./ prasum@reduct-experiments.humanassisted.ai:/home/prasum/reduct-experiments/
-          ssh -i ~/.ssh/id_rsa prasum@reduct-experiments.humanassisted.ai << EOL
-          cd /home/prasum/reduct-experiments/video-overlay
+          chmod 600 ~/.ssh/id_rsa && chmod 600 ~/.ssh/known_hosts
+          rsync -avz -e "ssh -i ~/.ssh/id_rsa" ./ avineakduwal@reduct-experiments.humanassisted.ai:/home/punit/reduct-experiments/
+          ssh -i ~/.ssh/id_rsa avineakduwal@reduct-experiments.humanassisted.ai << EOL
+          cd /home/punit/reduct-experiments/video-overlay
           
           # Adding env variables to .env
           cat > demo/.env << EOF
