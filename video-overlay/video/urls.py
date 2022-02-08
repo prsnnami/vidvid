@@ -18,6 +18,11 @@ urlpatterns = [
         "generate_reel",
         csrf_exempt(views.GenerateReel.as_view()),
         name="generate reel 2",
+    ),
+    path(
+        "save_image",
+        csrf_exempt(views.SaveImage.as_view()),
+        name="Save Image",
     )
     # path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]

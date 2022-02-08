@@ -638,10 +638,11 @@ def generate_reel_v2(id, body, files):
             color=body["canvas"]["bgColor"], height=video_height, width=video_width, path=path
         )
 
-        sorted_layers = sorted(body['layers'].values(),
-                               key=lambda x: x['index'])
+        filtered_layers = [value for key, value in body.items() if key not in [
+            'name', 'src', 'canvas']]
 
-        print(sorted_layers)
+        sorted_layers = sorted(filtered_layers,
+                               key=lambda x: x['index'])
 
         for idx, layer in enumerate(sorted_layers):
             input = f"{path}/background_image.jpg" if idx == 0 else f"{path}/{idx}.mp4"
@@ -655,7 +656,12 @@ def generate_reel_v2(id, body, files):
                 left = layer.get("left")
                 input2 = layer.get(
                     "name") if layer_type == 'image' else 'input.mp4'
-                commands = ['ffmpeg', '-i', input, '-i', f'{path}/{input2}', '-filter_complex',
+                input2 = f'{path}/{layer.get("name")}' if layer.get(
+                    'url') is None else f'{settings.BASE_DIR}/{layer.get("url")}'
+                if layer_type == 'video':
+                    input2 = f'{path}/input.mp4'
+
+                commands = ['ffmpeg', '-i', input, '-i', input2, '-filter_complex',
                             f'[1:v]scale={ih}:{iw} [o],[0:v][o]overlay={left}:{top}', '-c:a', 'copy', output]
                 subprocess.run(commands)
             elif layer_type == 'title':

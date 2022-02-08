@@ -21,6 +21,9 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import traceback
+from django.core.files.storage import FileSystemStorage
+from django.core.files.base import ContentFile
+from django.forms.models import model_to_dict
 
 from .functions import (
     add_overlay,
@@ -34,7 +37,7 @@ from .functions import (
     get_timestamp,
     resize_video,
 )
-from .models import Project
+from .models import Project, Template
 from .serializers import ProjectSerializer
 from .utils import MultipartJsonParser
 
@@ -188,17 +191,112 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request):
+        files = request.FILES
+        body = json.loads(request.data['body'])
+        name = request.data['projectName']
+        print('reached here \n')
+
+        # parsed = json.loads(request.data['layers']['images'])
+        # print(json.dumps(parsed, indent=4, sort_keys=True))
+        try:
+            for filename in files:
+
+                path = FileSystemStorage().save(
+                    f"images/{filename}", ContentFile(files[filename].read())
+                )
+                body[filename]['url'] = f"media/{path}"
+
+            project = Project(project_name=name, layers=body)
+            project.save()
+
+            return Response({"success": True, "project_id": project.id})
+        except Exception as e:
+            print(e)
+
+    def update(self, request, **kwargs):
+        files = request.FILES
+        body = json.loads(request.data['body'])
+        id = request.data['id']
+
+        try:
+            for filename in files:
+
+                path = FileSystemStorage().save(
+                    f"images/{filename}", ContentFile(files[filename].read())
+                )
+                body[filename]['url'] = path
+
+            project = Project.objects.get(id=id)
+            print(project)
+            # project.layers = body
+            # project.save()
+
+            return Response({"success": True, "project_id": project.id})
+        except Exception as e:
+            print(e)
 
 
-# class GroupViewSet(viewsets.ModelViewSet):
-#     """
-#     API endpoint that allows groups to be viewed or edited.
-#     """
+class TemplateViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows project to be viewed or edited.
+    """
 
-#     queryset = Group.objects.all()
-#     serializer_class = GroupSerializer
-#     permission_classes = [permissions.IsAuthenticated]
+    queryset = Template.objects.all()
+    serializer_class = ProjectSerializer
+
+    def create(self, request):
+        files = request.FILES
+        body = json.loads(request.data['body'])
+        name = request.data['templateName']
+        print('reached here \n')
+
+        # parsed = json.loads(request.data['layers']['images'])
+        # print(json.dumps(parsed, indent=4, sort_keys=True))
+        try:
+            for filename in files:
+
+                path = FileSystemStorage().save(
+                    f"images/{filename}", ContentFile(files[filename].read())
+                )
+                body[filename]['url'] = f"media/{path}"
+
+            template = Template(template_name=name, layers=body)
+            template.save()
+
+            return Response({"success": True, "template_id": template.id})
+        except Exception as e:
+            print(e)
+
+    def update(self, request, **kwargs):
+        files = request.FILES
+        body = json.loads(request.data['body'])
+        id = request.data['id']
+
+        try:
+            for filename in files:
+
+                path = FileSystemStorage().save(
+                    f"images/{filename}", ContentFile(files[filename].read())
+                )
+                body[filename]['url'] = path
+
+            template = Template.objects.get(id=id)
+            # project.layers = body
+            # project.save()
+
+            return Response({"success": True, "template_id": template.id})
+        except Exception as e:
+            print(e)
+
+# class ProjectView(APIView):
+#     parser_classes = (
+#         FormParser,
+#         MultiPartParser
+#     )
+
+#     def post(self, request):
 
 
 class GenerateReel(APIView):
@@ -220,6 +318,34 @@ class GenerateReel(APIView):
             print("here")
             generate_reel_v2(body=json.loads(
                 request.data["body"]), id=id, files=files)
+
+        except Exception as e:
+            # print(f"error in {e}", e)
+            traceback.print_exc()
+
+        return Response(
+            {
+                "raw": "request.data",
+            }
+        )
+
+
+class SaveImage(APIView):
+    parser_classes = (
+        MultiPartParser,
+        FormParser,
+    )
+
+    def post(self, request):
+        files = request._request.FILES
+
+        try:
+            # for filename in files:
+            #     FileSystemStorage(location="tmp").save(
+            #         f"{id}/{filename}", ContentFile(files[filename].read())
+            #     )
+            print("here")
+            print(files)
 
         except Exception as e:
             # print(f"error in {e}", e)

@@ -4,6 +4,7 @@
 tmp
 media/thumbnails
 media/fonts
+media/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

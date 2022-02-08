@@ -78,6 +78,8 @@ export function getSubtitle(transcript) {
 }
 
 export async function loadTranscript(shareUrl) {
+  console.log(shareUrl);
+  if (shareUrl.slice(-1) === '/') shareUrl = shareUrl.slice(0, -1);
   const transRet = await fetch(`/proxy/${shareUrl}/transcript.json`);
   return await transRet.json();
 }

@@ -26,6 +26,7 @@ import {
   useDisclosure,
   InputLeftAddon,
   ModalCloseButton,
+  Text,
 } from '@chakra-ui/react';
 
 import Seeker from './Seeker';
@@ -91,13 +92,13 @@ export const defaultVideoMetaData = {
 };
 // const shareUrl =
 //   'https://app.reduct.video/e/borderer-testing-84e3ce2ba0-f81df100c4861287a746';
-const shareUrl =
-  'https://app.reduct.video/e/instagram--the-power-of-archiving-69f6b2577d50-7124ecc64b17d4455b66';
+// const shareUrl =
+//   'https://app.reduct.video/e/instagram--the-power-of-archiving-69f6b2577d50-7124ecc64b17d4455b66';
 
 const MAX_HEIGHT = 600;
 const MAX_WIDTH = 800;
 
-function TestPage({ videoURL, initialValue, projectName }) {
+function TestPage({ videoURL, initialValue, projectName, projectId }) {
   const { sharePath } = useParams();
 
   const [shareURL, setShareURL] = useState('');
@@ -110,29 +111,12 @@ function TestPage({ videoURL, initialValue, projectName }) {
 
   const exportModal = useDisclosure();
   const saveModal = useDisclosure();
+  const templatesModal = useDisclosure();
   const nameRef = useRef();
   const inputRef = useRef();
   const navigate = useNavigate();
   const [selectedVideo, setSelectedVideo] = useState('');
   const [activeFont, setActiveFont] = useState(OpenSans);
-
-  useEffect(() => {
-    if (sharePath) {
-      setShareURL(`https://app.reduct.video/e/${sharePath}`);
-    }
-  }, [sharePath]);
-
-  useEffect(() => {
-    if (videoURL) {
-      setShareURL(`https://app.reduct.video/e/${videoURL}`);
-    }
-  }, [videoURL]);
-
-  useEffect(() => {
-    if (initialValue) {
-      setLayers(prevLayerVal => ({ ...prevLayerVal, ...initialValue }));
-    }
-  }, [initialValue]);
 
   const {
     buffering,
@@ -144,6 +128,61 @@ function TestPage({ videoURL, initialValue, projectName }) {
   const { canvasRef, canvas } = useCanvas(canvasSize);
 
   const [layers, setLayers] = useState({ ...defaultVideoMetaData });
+
+  useEffect(() => {
+    if (sharePath) {
+      setShareURL(`https://app.reduct.video/e/${sharePath}`);
+      setLayers(layers => ({
+        ...layers,
+        video: {
+          ...layers.video,
+          url: `https://app.reduct.video/e/${sharePath}`,
+        },
+      }));
+    }
+  }, [sharePath]);
+
+  useEffect(() => {
+    if (videoURL) {
+      setShareURL(`https://app.reduct.video/e/${videoURL}`);
+      setLayers(layers => ({
+        ...layers,
+        video: {
+          ...layers.video,
+          url: `https://app.reduct.video/e/${videoURL}`,
+        },
+      }));
+    }
+  }, [videoURL]);
+
+  useEffect(() => {
+    if (initialValue && canvas) {
+      let images = [];
+      Object.keys(initialValue).forEach(key => {
+        if (['canvas', 'subtitle', 'images', 'title', 'video'].includes(key))
+          return;
+        let file = initialValue[key];
+
+        fabric.Image.fromURL('/borderer/' + file.url, img => {
+          img.set({
+            left: file.left,
+            top: file.top,
+            scaleX: file.width / img.width,
+            scaleY: file.height / img.height,
+            name: file.name,
+          });
+          canvas.add(img);
+        });
+        images.push(file);
+      });
+      console.log(images);
+      setLayers(prevLayerVal => ({
+        ...prevLayerVal,
+        ...initialValue,
+        images: images,
+      }));
+    }
+  }, [JSON.stringify(initialValue), canvas]);
 
   useEffect(() => {
     if (vid && subtitle) {
@@ -184,9 +223,25 @@ function TestPage({ videoURL, initialValue, projectName }) {
       name: 'subtitle',
       fontSize: layers.subtitle.fontSize,
       fontWeight: layers.subtitle.fontWeight,
+      fontFamily: activeFont.family,
     });
 
-    myText.setControlsVisibility({ mt: false, mb: false });
+    if (layers.canvas.title) {
+      const title = new fabric.Textbox(layers.title.name, {
+        originX: 'center',
+        originY: 'center',
+        left: 0.5 * canvasSize.width,
+        top: 0.1 * canvasSize.height,
+        width: 400,
+        textAlign: 'center',
+        editable: false,
+        name: 'title',
+        fontSize: layers.title.fontSize,
+        fill: layers.title.color,
+        fontFamily: activeFont.family,
+      });
+      canvas.add(title);
+    }
     canvas.add(myText);
     return { myText };
   }
@@ -353,8 +408,9 @@ function TestPage({ videoURL, initialValue, projectName }) {
       let image = new Image();
       image.src = readerEvent.target.result;
       image.onload = function () {
+        let name = file.name.split('.').join(Date.now() + '.');
         let img = new fabric.Image(image, {
-          name: file.name.split('.').join(Date.now() + '.'),
+          name: name,
           displayName: file.name,
           file: file,
         });
@@ -393,11 +449,10 @@ function TestPage({ videoURL, initialValue, projectName }) {
         height: canvasSize.height,
         width: canvasSize.width,
       },
-      layers: {},
     };
 
-    if (body.canvas.title) {
-      body.layers.title = {
+    if (layers.canvas.title) {
+      body.title = {
         index: getIndex('title'),
         type: 'title',
         ...layers.title,
@@ -406,7 +461,7 @@ function TestPage({ videoURL, initialValue, projectName }) {
         fontFamily: activeFont.family,
       };
     }
-    body.layers.subtitle = {
+    body.subtitle = {
       index: getIndex('subtitle'),
       type: 'subtitle',
       subtitles: subtitle,
@@ -414,7 +469,7 @@ function TestPage({ videoURL, initialValue, projectName }) {
       ...getCoords('subtitle'),
       fontLink: getFontLink(),
     };
-    body.layers.video = {
+    body.video = {
       index: getIndex('video'),
       type: 'video',
       ...layers.video,
@@ -422,10 +477,12 @@ function TestPage({ videoURL, initialValue, projectName }) {
     };
 
     layers.images.forEach(image => {
-      body.layers[image.name] = {
+      body[image.name] = {
         index: getIndex(image.name),
         name: image.name,
         type: 'image',
+        url: image.url || null,
+        displayName: image.displayName,
         ...getCoords(image.name),
       };
     });
@@ -434,8 +491,11 @@ function TestPage({ videoURL, initialValue, projectName }) {
     formData.append('body', JSON.stringify(body));
     formData.append('input.mp4', inputRef.current.files[0]);
     layers.images.forEach(element => {
-      formData.append(element.name, element.file);
+      if (element.file) {
+        formData.append(element.name, element.file);
+      }
     });
+
     exportProjectMutation.mutate(formData);
 
     navigate('/reels');
@@ -448,68 +508,89 @@ function TestPage({ videoURL, initialValue, projectName }) {
     });
   });
 
-  const saveProjectMutation = useMutation(async function ({
-    projectName,
-    body,
-  }) {
+  const saveProjectMutation = useMutation(async function ({ formData }) {
     await fetch('/borderer/projects/', {
       method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ project_name: projectName, layers: body }),
+      body: formData,
     })
       .then(res => res.json())
-      .then(res => navigate('/project/' + res.id));
+      .then(res => console.log(res));
+  });
+
+  const updateProjectMutation = useMutation(async ({ id, formData }) => {
+    return await fetch('/borderer/projects/' + id + '/', {
+      method: 'PATCH',
+      body: formData,
+    })
+      .then(res => res.json())
+      .then(res => console.log(res));
   });
 
   function saveProject(projectName) {
-    let images = [];
-    if (layers.images.length) {
-      images = layers.images.map(image => {
-        const { name } = image;
-        return {
-          name,
-          type: 'image',
-          index: getIndex(name),
-          ...getCoords(name),
-        };
-      });
-    }
+    let body = {
+      canvas: {
+        ...layers.canvas,
+        height: canvasSize.height,
+        width: canvasSize.width,
+      },
+    };
 
-    const body = {
-      ...layers,
-      title: {
+    if (layers.canvas.title) {
+      body.title = {
         index: getIndex('title'),
         type: 'title',
         ...layers.title,
         ...getCoords('title'),
         fontLink: getFontLink(),
         fontFamily: activeFont.family,
-      },
-      subtitle: {
-        index: getIndex('subtitle'),
-        type: 'subtitle',
-        subtitles: subtitle,
-        ...layers.subtitle,
-        ...getCoords('subtitle'),
-        fontLink: getFontLink(),
-      },
-      images,
-      video: {
-        index: getIndex('video'),
-        type: 'video',
-        ...layers.video,
-        ...getCoords('video'),
-        url: shareURL,
-      },
+      };
+    }
+    body.subtitle = {
+      index: getIndex('subtitle'),
+      type: 'subtitle',
+      subtitles: subtitle,
+      ...layers.subtitle,
+      ...getCoords('subtitle'),
+      fontLink: getFontLink(),
+    };
+    body.video = {
+      index: getIndex('video'),
+      type: 'video',
+      ...layers.video,
+      ...getCoords('video'),
     };
 
-    saveProjectMutation.mutate({
-      projectName,
-      body,
+    layers.images.forEach(image => {
+      body[image.name] = {
+        index: getIndex(image.name),
+        name: image.name,
+        type: 'image',
+        url: image.url || null,
+        displayName: image.displayName,
+        ...getCoords(image.name),
+      };
     });
+
+    let formData = new FormData();
+    formData.append('body', JSON.stringify(body));
+    formData.append('projectName', projectName);
+    formData.append('id', projectId);
+    layers.images.forEach(element => {
+      if (element.file) {
+        formData.append(element.name, element.file);
+      }
+    });
+
+    if (projectId) {
+      updateProjectMutation.mutate({
+        id: projectId,
+        formData,
+      });
+    } else {
+      saveProjectMutation.mutate({
+        formData,
+      });
+    }
   }
 
   let scale;
@@ -647,22 +728,31 @@ function TestPage({ videoURL, initialValue, projectName }) {
         alignItems={'center'}
         justifyContent="space-between"
       >
-        Navbar
+        <Text>{projectName || 'Untitled'}</Text>
         <Flex>
           <Stack direction="row" spacing={6}>
             <Button
               colorScheme="white"
               variant="link"
               size="sm"
-              onClick={saveModal.onOpen}
+              onClick={templatesModal.onOpen}
             >
-              {projectName ?? 'Save Project'}
+              Template
             </Button>
             <Button
               colorScheme="white"
               variant="link"
               size="sm"
-              onClick={getSRT}
+              onClick={saveModal.onOpen}
+            >
+              Save
+            </Button>
+            <Button
+              colorScheme="white"
+              variant="link"
+              size="sm"
+              // onClick={getSRT}
+              onClick={() => console.log(layers)}
             >
               Download SRT
             </Button>
