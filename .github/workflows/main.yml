@@ -36,9 +36,9 @@ jobs:
           EOL
           
           chmod 600 ~/.ssh/id_rsa && chmod 600 ~/.ssh/known_hosts
-          rsync -avz -e "ssh -i ~/.ssh/id_rsa" ./ avineakduwal@reduct-experiments.humanassisted.ai:/home/punit/reduct-experiments/
+          rsync -avz -e "ssh -i ~/.ssh/id_rsa" ./ avineakduwal@reduct-experiments.humanassisted.ai:/home/avineakduwal/reduct-experiments/
           ssh -i ~/.ssh/id_rsa avineakduwal@reduct-experiments.humanassisted.ai << EOL
-          cd /home/punit/reduct-experiments/video-overlay
+          cd /home/avineakduwal/reduct-experiments/video-overlay
           
           # Adding env variables to .env
           cat > demo/.env << EOF
@@ -58,7 +58,7 @@ jobs:
           
           
           #build react app
-          cd /home/punit/reduct-experiments/client
+          cd /home/avineakduwal/reduct-experiments/client
           cat > .env << EOF
           REACT_APP_GOOGLE_FONTS_API_KEY=${{ secrets.GOOGLE_FONTS_API_KEY }}
           EOF
@@ -68,7 +68,7 @@ jobs:
           cp -R build/* /var/www/html
           
           #run proxy
-          cd /home/punit/reduct-experiments/proxy
+          cd /home/avineakduwal/reduct-experiments/proxy
           npm i
           pm2 start npm -- start
 
