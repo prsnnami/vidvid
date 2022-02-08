@@ -36,9 +36,9 @@ jobs:
           EOL
           
           chmod 600 ~/.ssh/id_rsa && chmod 600 ~/.ssh/known_hosts
-          rsync -avz -e "ssh -i ~/.ssh/id_rsa" ./ punit@reduct-experiments.humanassisted.ai:/home/punit/reduct-experiments/
-          ssh -i ~/.ssh/id_rsa punit@reduct-experiments.humanassisted.ai << EOL
-          cd /home/punit/reduct-experiments/video-overlay
+          rsync -avz -e "ssh -i ~/.ssh/id_rsa" ./ prasannamishra50@reduct-experiments.humanassisted.ai:/home/punit/reduct-experiments/
+          ssh -i ~/.ssh/id_rsa prasannamishra50@reduct-experiments.humanassisted.ai << EOL
+          cd /home/prasannamishra50/reduct-experiments/video-overlay
           
           # Adding env variables to .env
           cat > demo/.env << EOF
