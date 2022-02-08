@@ -32,7 +32,7 @@ jobs:
           
           # Creating private ssh file
           cat > ~/.ssh/id_rsa << EOL
-          ${{ secrets.LANGLANG__PROD_PRIVATE_SSH_KEY }}
+          ${{ secrets.EXPERIMENT_PRIVATE_KEY }}
           EOL
           
           chmod 600 ~/.ssh/id_rsa && chmod 600 ~/.ssh/known_hosts
