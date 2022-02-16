@@ -2,11 +2,11 @@
 
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main ]
+    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -29,17 +29,17 @@ jobs:
           mkdir ~/.ssh
           ssh-keyscan -H reduct-experiments.humanassisted.ai >> ~/.ssh/known_hosts
           eval $(ssh-agent -s)
-          
+
           # Creating private ssh file
           cat > ~/.ssh/id_rsa << EOL
           ${{ secrets.EXPERIMENT_PRIVATE_KEY }}
           EOL
-          
+
           chmod 600 ~/.ssh/id_rsa && chmod 600 ~/.ssh/known_hosts
           rsync -avz -e "ssh -i ~/.ssh/id_rsa" ./ prasum@reduct-experiments.humanassisted.ai:/home/prasum/reduct-experiments/
           ssh -i ~/.ssh/id_rsa prasum@reduct-experiments.humanassisted.ai << EOL
           cd /home/prasum/reduct-experiments/video-overlay
-          
+
           # Adding env variables to .env
           cat > demo/.env << EOF
           SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}
@@ -50,13 +50,13 @@ jobs:
           DB_HOST=127.0.0.1
           DB_PORT=5432
           EOF
-          
+
           pip3 install -r requirements.txt
           pm2 kill
           python3 manage.py migrate
           pm2 start manage.py --interpreter python3 --name django -- runserver
-          
-          
+
+
           #build react app
           cd /home/prasum/reduct-experiments/client
           cat > .env << EOF
@@ -64,9 +64,9 @@ jobs:
           EOF
           npm i
           npm run build
-          chmod 600 /var/www/html
+          # chmod 600 /var/www/html
           cp -R build/* /var/www/html
-          
+
           #run proxy
           cd /home/prasum/reduct-experiments/proxy
           npm i
