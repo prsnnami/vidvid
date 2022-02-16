@@ -640,11 +640,11 @@ def generate_reel_v2(id, body, files):
 
         filtered_layers = [value for key, value in body.items() if key not in [
             'name', 'src', 'canvas']]
-
         sorted_layers = sorted(filtered_layers,
-                               key=lambda x: x['index'])
+                               key=lambda x: x.get('index'))
 
         for idx, layer in enumerate(sorted_layers):
+            print(layer)
             input = f"{path}/background_image.jpg" if idx == 0 else f"{path}/{idx}.mp4"
             output = f"{path}/{name}.mp4" if idx + 1 == len(
                 sorted_layers) else f"{path}/{idx + 1}.mp4"
