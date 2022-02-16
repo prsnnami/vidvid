@@ -526,9 +526,11 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
       }
     });
 
-    exportProjectMutation.mutate(formData);
-
-    navigate('/reels');
+    exportProjectMutation.mutate(formData, {
+      onSuccess: () => {
+        navigate('/reels');
+      },
+    });
   }
 
   function saveProject(projectName) {
