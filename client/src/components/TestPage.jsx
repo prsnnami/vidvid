@@ -238,7 +238,7 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
   }, [shareURL]);
 
   const exportProjectMutation = useMutation(async function (formData) {
-    await fetch('/borderer/generate_reel', {
+    await fetch('/borderer/generate_reel/', {
       method: 'POST',
       body: formData,
     });
