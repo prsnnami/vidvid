@@ -64,7 +64,7 @@ jobs:
           EOF
           npm i
           npm run build
-          chmod 600 /var/www/html
+          # chmod 600 /var/www/html
           cp -R build/* /var/www/html
 
           #run proxy
