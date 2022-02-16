@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 import ere from 'element-resize-event';
 import { FiFile } from 'react-icons/fi';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Box,
@@ -27,6 +27,7 @@ import {
   InputLeftAddon,
   ModalCloseButton,
   Text,
+  Divider,
 } from '@chakra-ui/react';
 
 import Seeker from './Seeker';
@@ -211,6 +212,56 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
     }
   }, [videoLoading, vid]);
 
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+
+    setWrapperSize({
+      width: wrapper.offsetWidth,
+      height: wrapper.offsetHeight,
+    });
+
+    ere(wrapper, () => {
+      setWrapperSize({
+        width: wrapper.offsetWidth,
+        height: wrapper.offsetHeight,
+      });
+    });
+
+    // if (aspectRatio) handleDimensionsChange(aspectRatio);
+  }, []);
+
+  useEffect(() => {
+    loadTranscript(shareURL).then(transcript => {
+      let subtitle = getSubtitle(transcript);
+      setSubtitle(subtitle);
+    });
+  }, [shareURL]);
+
+  const exportProjectMutation = useMutation(async function (formData) {
+    await fetch('/borderer/generate_reel', {
+      method: 'POST',
+      body: formData,
+    });
+  });
+
+  const saveProjectMutation = useMutation(async function ({ formData }) {
+    await fetch('/borderer/projects/', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(res => res.json())
+      .then(res => console.log(res));
+  });
+
+  const updateProjectMutation = useMutation(async ({ id, formData }) => {
+    return await fetch('/borderer/projects/' + id + '/', {
+      method: 'PATCH',
+      body: formData,
+    })
+      .then(res => res.json())
+      .then(res => console.log(res));
+  });
+
   function bootstrapElements() {
     const myText = new fabric.Textbox('', {
       originX: 'center',
@@ -308,31 +359,6 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
     }
   }
 
-  useEffect(() => {
-    const wrapper = wrapperRef.current;
-
-    setWrapperSize({
-      width: wrapper.offsetWidth,
-      height: wrapper.offsetHeight,
-    });
-
-    ere(wrapper, () => {
-      setWrapperSize({
-        width: wrapper.offsetWidth,
-        height: wrapper.offsetHeight,
-      });
-    });
-
-    // if (aspectRatio) handleDimensionsChange(aspectRatio);
-  }, []);
-
-  useEffect(() => {
-    loadTranscript(shareURL).then(transcript => {
-      let subtitle = getSubtitle(transcript);
-      setSubtitle(subtitle);
-    });
-  }, [shareURL]);
-
   const handleSubtitleEdit = useDebouncedCallback(
     subtitle => setSubtitle(subtitle),
     400
@@ -363,9 +389,6 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
         height = canvasSize.height;
         width = canvasSize.width;
     }
-
-    // vid;
-
     setCanvasSize({ height, width });
     let videoElement = canvas.getItemByName('video');
     let subtitleElement = canvas.getItemByName('subtitle');
@@ -439,11 +462,8 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
     return items.indexOf(name);
   }
 
-  function onSubmit(e) {
-    e.preventDefault();
+  function getBody() {
     let body = {
-      name: nameRef.current.value,
-      src: inputRef.current.value,
       canvas: {
         ...layers.canvas,
         height: canvasSize.height,
@@ -486,6 +506,16 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
         ...getCoords(image.name),
       };
     });
+
+    return body;
+  }
+
+  function onSubmit(e) {
+    e.preventDefault();
+
+    let body = getBody();
+    body.name = nameRef.current.value;
+    body.src = inputRef.current.value;
 
     let formData = new FormData();
     formData.append('body', JSON.stringify(body));
@@ -501,80 +531,14 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
     navigate('/reels');
   }
 
-  const exportProjectMutation = useMutation(async function (formData) {
-    await fetch('/borderer/generate_reel', {
-      method: 'POST',
-      body: formData,
-    });
-  });
-
-  const saveProjectMutation = useMutation(async function ({ formData }) {
-    await fetch('/borderer/projects/', {
-      method: 'POST',
-      body: formData,
-    })
-      .then(res => res.json())
-      .then(res => console.log(res));
-  });
-
-  const updateProjectMutation = useMutation(async ({ id, formData }) => {
-    return await fetch('/borderer/projects/' + id + '/', {
-      method: 'PATCH',
-      body: formData,
-    })
-      .then(res => res.json())
-      .then(res => console.log(res));
-  });
-
   function saveProject(projectName) {
-    let body = {
-      canvas: {
-        ...layers.canvas,
-        height: canvasSize.height,
-        width: canvasSize.width,
-      },
-    };
-
-    if (layers.canvas.title) {
-      body.title = {
-        index: getIndex('title'),
-        type: 'title',
-        ...layers.title,
-        ...getCoords('title'),
-        fontLink: getFontLink(),
-        fontFamily: activeFont.family,
-      };
-    }
-    body.subtitle = {
-      index: getIndex('subtitle'),
-      type: 'subtitle',
-      subtitles: subtitle,
-      ...layers.subtitle,
-      ...getCoords('subtitle'),
-      fontLink: getFontLink(),
-    };
-    body.video = {
-      index: getIndex('video'),
-      type: 'video',
-      ...layers.video,
-      ...getCoords('video'),
-    };
-
-    layers.images.forEach(image => {
-      body[image.name] = {
-        index: getIndex(image.name),
-        name: image.name,
-        type: 'image',
-        url: image.url || null,
-        displayName: image.displayName,
-        ...getCoords(image.name),
-      };
-    });
-
+    let body = getBody();
     let formData = new FormData();
+
     formData.append('body', JSON.stringify(body));
     formData.append('projectName', projectName);
     formData.append('id', projectId);
+
     layers.images.forEach(element => {
       if (element.file) {
         formData.append(element.name, element.file);
@@ -593,22 +557,49 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
     }
   }
 
-  let scale;
-  if (canvasSize.width > canvasSize.height) {
-    scale = wrapperSize.width / canvasSize.width;
-    scale = Math.min(scale, MAX_WIDTH / canvasSize.width);
-  } else {
-    scale = wrapperSize.height / canvasSize.height;
-    scale = Math.min(scale, MAX_HEIGHT / canvasSize.height);
-  }
-
-  const containerHeight = scale * canvasSize.height;
-  const containerWidth = scale * canvasSize.width;
-
   const closeExportModal = () => {
     exportModal.onClose();
     setSelectedVideo('');
   };
+
+  function padStart(num) {
+    return String(Math.floor(num)).padStart(2, '0');
+  }
+
+  function getSRTTimestamp(time) {
+    let hour = time / 3600;
+    time %= 3600;
+    let minutes = time / 60;
+    time %= 60;
+    let seconds = Math.floor(time);
+    let milliseconds = (time % 1) * 100;
+    return `${padStart(hour)}:${padStart(minutes)}:${padStart(
+      seconds
+    )},${padStart(milliseconds)}`;
+  }
+
+  function getSRT() {
+    let srtText = subtitle.reduce((acc, curr, index) => {
+      acc += `${index + 1}\n${getSRTTimestamp(
+        curr.start
+      )} --> ${getSRTTimestamp(curr.end)}\n${curr.text}\n\n`;
+      return acc;
+    }, '');
+
+    let element = document.createElement('a');
+    element.setAttribute(
+      'href',
+      'data:text/plain;charset=utf-8,' + encodeURIComponent(srtText)
+    );
+    element.setAttribute('download', layers.title.name + '.srt');
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+  }
 
   const exportVideoModal = () => {
     return (
@@ -679,45 +670,6 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
     );
   };
 
-  function padStart(num) {
-    return String(Math.floor(num)).padStart(2, '0');
-  }
-
-  function getSRTTimestamp(time) {
-    let hour = time / 3600;
-    time %= 3600;
-    let minutes = time / 60;
-    time %= 60;
-    let seconds = Math.floor(time);
-    let milliseconds = (time % 1) * 100;
-    return `${padStart(hour)}:${padStart(minutes)}:${padStart(
-      seconds
-    )},${padStart(milliseconds)}`;
-  }
-
-  function getSRT() {
-    let srtText = subtitle.reduce((acc, curr, index) => {
-      acc += `${index + 1}\n${getSRTTimestamp(
-        curr.start
-      )} --> ${getSRTTimestamp(curr.end)}\n${curr.text}\n\n`;
-      return acc;
-    }, '');
-
-    let element = document.createElement('a');
-    element.setAttribute(
-      'href',
-      'data:text/plain;charset=utf-8,' + encodeURIComponent(srtText)
-    );
-    element.setAttribute('download', layers.title.name + '.srt');
-
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
-  }
-
   const Navbar = ({ projectName }) => {
     return (
       <Flex
@@ -769,6 +721,18 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
       </Flex>
     );
   };
+
+  let scale;
+  if (canvasSize.width > canvasSize.height) {
+    scale = wrapperSize.width / canvasSize.width;
+    scale = Math.min(scale, MAX_WIDTH / canvasSize.width);
+  } else {
+    scale = wrapperSize.height / canvasSize.height;
+    scale = Math.min(scale, MAX_HEIGHT / canvasSize.height);
+  }
+
+  const containerHeight = scale * canvasSize.height;
+  const containerWidth = scale * canvasSize.width;
 
   return (
     <>
@@ -845,13 +809,6 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
                 </Box>
               </Box>
             </Box>
-            {/* <Flex justifyContent="center" alignItems="center" flexGrow="1">
-              <PlayButton
-                vid={vid}
-                buffering={buffering}
-                toggleVideo={toggleVideo}
-              />
-            </Flex> */}
             <Seeker
               video={vid}
               togglePlayIcon={() => (
@@ -879,7 +836,114 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
       </Flex>
       {exportVideoModal()}
       {saveVideoModal()}
+      <TemplateModal
+        templatesModal={templatesModal}
+        layers={layers}
+        getBody={getBody}
+      />
     </>
+  );
+}
+
+function TemplateModal({ templatesModal, layers, getBody }) {
+  const nameRef = useRef('');
+  const queryClient = useQueryClient();
+
+  const templatesQuery = useQuery(['templates'], async () => {
+    return await fetch('/borderer/templates/')
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Not 2xx response');
+        } else {
+          return res.json();
+        }
+      })
+      .catch(e => {
+        throw e;
+      });
+  });
+
+  const saveTemplateMutation = useMutation(async function ({ formData }) {
+    await fetch('/borderer/templates/', {
+      method: 'POST',
+      body: formData,
+    });
+  });
+
+  function saveTemplate(e) {
+    e.preventDefault();
+    const name = nameRef.current.value;
+    let body = getBody();
+    const { video, ...rest } = body;
+    const { url, ...videoTemplate } = video;
+
+    const templateBody = { ...rest, video: videoTemplate };
+
+    let formData = new FormData();
+    formData.append('body', JSON.stringify(templateBody));
+    formData.append('templateName', name);
+    layers.images.forEach(element => {
+      if (element.file) {
+        formData.append(element.name, element.file);
+      }
+    });
+
+    saveTemplateMutation.mutate(
+      {
+        formData,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries(['templates']);
+        },
+      }
+    );
+  }
+
+  console.log(templatesQuery);
+
+  return (
+    <Modal isOpen={templatesModal.isOpen} onClose={templatesModal.onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Save template</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <form onSubmit={saveTemplate}>
+            <Stack direction={'row'}>
+              <Input ref={nameRef} required />
+              <Button
+                type="submit"
+                colorScheme={'teal'}
+                isLoading={saveTemplateMutation.isLoading}
+              >
+                Save
+              </Button>
+            </Stack>
+          </form>
+          <Divider />
+          <Heading size={'md'} py={4}>
+            Templates
+          </Heading>
+          <Stack>
+            {templatesQuery.isLoading ? (
+              <Spinner />
+            ) : templatesQuery.data?.length === 0 ? (
+              <Flex>
+                <Text>No Templates</Text>
+              </Flex>
+            ) : (
+              templatesQuery.data?.map(template => (
+                <Stack direction={'row'} key={template.id}>
+                  <Text>{template.name}</Text>
+                  <Button>Apply</Button>
+                </Stack>
+              ))
+            )}
+          </Stack>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
   );
 }
 
@@ -905,8 +969,6 @@ const Canvas = React.forwardRef((props, canvasRef) => {
 
   return <canvas ref={canvasRef} {...rest} id="my-canvas" />;
 });
-
-export default TestPage;
 
 const LeftSidebar = ({
   vid,
@@ -954,3 +1016,5 @@ const LeftSidebar = ({
     </Flex>
   );
 };
+
+export default TestPage;
