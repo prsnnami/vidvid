@@ -99,7 +99,7 @@ export const defaultVideoMetaData = {
 const MAX_HEIGHT = 600;
 const MAX_WIDTH = 800;
 
-function TestPage({ videoURL, initialValue, projectName, projectId }) {
+function TestPage({ videoURL, projectData, projectName, projectId }) {
   const { sharePath } = useParams();
 
   const [shareURL, setShareURL] = useState('');
@@ -118,6 +118,7 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
   const navigate = useNavigate();
   const [selectedVideo, setSelectedVideo] = useState('');
   const [activeFont, setActiveFont] = useState(OpenSans);
+  const [activeTemplate, setActiveTemplate] = useState(null);
 
   const {
     buffering,
@@ -157,33 +158,10 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
   }, [videoURL]);
 
   useEffect(() => {
-    if (initialValue && canvas) {
-      let images = [];
-      Object.keys(initialValue).forEach(key => {
-        if (['canvas', 'subtitle', 'images', 'title', 'video'].includes(key))
-          return;
-        let file = initialValue[key];
-
-        fabric.Image.fromURL('/borderer/' + file.url, img => {
-          img.set({
-            left: file.left,
-            top: file.top,
-            scaleX: file.width / img.width,
-            scaleY: file.height / img.height,
-            name: file.name,
-          });
-          canvas.add(img);
-        });
-        images.push(file);
-      });
-      console.log(images);
-      setLayers(prevLayerVal => ({
-        ...prevLayerVal,
-        ...initialValue,
-        images: images,
-      }));
+    if (projectData && canvas) {
+      applyLayers(projectData);
     }
-  }, [JSON.stringify(initialValue), canvas]);
+  }, [JSON.stringify(projectData), canvas]);
 
   useEffect(() => {
     if (vid && subtitle) {
@@ -390,6 +368,15 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
         width = canvasSize.width;
     }
     setCanvasSize({ height, width });
+    setLayers(layers => ({
+      ...layers,
+      canvas: {
+        ...layers.canvas,
+        height,
+        width,
+        aspect_ratio: ar,
+      },
+    }));
     let videoElement = canvas.getItemByName('video');
     let subtitleElement = canvas.getItemByName('subtitle');
     let {
@@ -603,6 +590,39 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
     document.body.removeChild(element);
   }
 
+  function applyLayers(data) {
+    let images = [];
+    console.log({ data });
+    handleDimensionsChange(data.canvas.aspect_ratio);
+    Object.keys(data).forEach(key => {
+      if (['canvas', 'subtitle', 'images', 'title', 'video'].includes(key))
+        return;
+      let file = data[key];
+
+      fabric.Image.fromURL('/borderer/' + file.url, img => {
+        img.set({
+          left: file.left,
+          top: file.top,
+          scaleX: file.width / img.width,
+          scaleY: file.height / img.height,
+          name: file.name,
+        });
+        canvas.add(img);
+      });
+      images.push(file);
+    });
+    setLayers(prevLayerVal => ({
+      ...prevLayerVal,
+      ...data,
+      images: images,
+    }));
+  }
+
+  function applyTemplate(template) {
+    setActiveTemplate(template);
+    applyLayers(template.layers);
+  }
+
   const exportVideoModal = () => {
     return (
       <Modal isOpen={exportModal.isOpen} onClose={closeExportModal}>
@@ -705,8 +725,8 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
               colorScheme="white"
               variant="link"
               size="sm"
-              // onClick={getSRT}
-              onClick={() => console.log(layers)}
+              onClick={getSRT}
+              // onClick={() => console.log(layers)}
             >
               Download SRT
             </Button>
@@ -842,12 +862,20 @@ function TestPage({ videoURL, initialValue, projectName, projectId }) {
         templatesModal={templatesModal}
         layers={layers}
         getBody={getBody}
+        applyTemplate={applyTemplate}
+        activeTemplate={activeTemplate}
       />
     </>
   );
 }
 
-function TemplateModal({ templatesModal, layers, getBody }) {
+function TemplateModal({
+  templatesModal,
+  layers,
+  getBody,
+  applyTemplate,
+  activeTemplate,
+}) {
   const nameRef = useRef('');
   const queryClient = useQueryClient();
 
@@ -872,14 +900,25 @@ function TemplateModal({ templatesModal, layers, getBody }) {
     });
   });
 
+  const updateTemplateMutation = useMutation(async function ({ id, formData }) {
+    await fetch(`/borderer/templates/${id}/`, {
+      method: 'PATCH',
+      body: formData,
+    });
+  });
+
   function saveTemplate(e) {
     e.preventDefault();
     const name = nameRef.current.value;
     let body = getBody();
-    const { video, ...rest } = body;
+    const { video, subtitle, ...rest } = body;
     const { url, ...videoTemplate } = video;
-
-    const templateBody = { ...rest, video: videoTemplate };
+    const { subtitles, ...subtitleTemplate } = subtitle;
+    const templateBody = {
+      ...rest,
+      video: videoTemplate,
+      subtitle: subtitleTemplate,
+    };
 
     let formData = new FormData();
     formData.append('body', JSON.stringify(templateBody));
@@ -902,32 +941,80 @@ function TemplateModal({ templatesModal, layers, getBody }) {
     );
   }
 
-  console.log(templatesQuery);
+  function updateTemplate() {
+    let body = getBody();
+    const { video, subtitle, ...rest } = body;
+    const { url, ...videoTemplate } = video;
+    const { subtitles, ...subtitleTemplate } = subtitle;
+    const templateBody = {
+      ...rest,
+      video: videoTemplate,
+      subtitle: subtitleTemplate,
+    };
+    console.log({ ar: body.canvas });
+
+    let formData = new FormData();
+    formData.append('id', activeTemplate.id);
+    formData.append('body', JSON.stringify(templateBody));
+    layers.images.forEach(element => {
+      if (element.file) {
+        formData.append(element.name, element.file);
+      }
+    });
+
+    updateTemplateMutation.mutate(
+      {
+        id: activeTemplate.id,
+        formData,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries(['templates']);
+        },
+      }
+    );
+  }
 
   return (
     <Modal isOpen={templatesModal.isOpen} onClose={templatesModal.onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Save template</ModalHeader>
+        {/* <ModalHeader>Save template</ModalHeader> */}
         <ModalCloseButton />
         <ModalBody>
-          <form onSubmit={saveTemplate}>
-            <Stack direction={'row'}>
-              <Input ref={nameRef} required />
+          <Heading size={'md'} py={4}>
+            Save Template
+          </Heading>
+          {!activeTemplate ? (
+            <form onSubmit={saveTemplate}>
+              <Stack direction={'row'} px="2">
+                <Input ref={nameRef} required />
+
+                <Button
+                  type="submit"
+                  colorScheme={'teal'}
+                  isLoading={saveTemplateMutation.isLoading}
+                >
+                  Save
+                </Button>
+              </Stack>
+            </form>
+          ) : (
+            <Stack direction={'row'} px="2">
+              <Input value={activeTemplate.template_name} disabled required />
               <Button
-                type="submit"
                 colorScheme={'teal'}
-                isLoading={saveTemplateMutation.isLoading}
+                onClick={updateTemplate}
+                isLoading={updateTemplateMutation.isLoading}
               >
-                Save
+                Update
               </Button>
             </Stack>
-          </form>
-          <Divider />
+          )}
           <Heading size={'md'} py={4}>
             Templates
           </Heading>
-          <Stack>
+          <Stack px="2" pb="2">
             {templatesQuery.isLoading ? (
               <Spinner />
             ) : templatesQuery.data?.length === 0 ? (
@@ -936,9 +1023,16 @@ function TemplateModal({ templatesModal, layers, getBody }) {
               </Flex>
             ) : (
               templatesQuery.data?.map(template => (
-                <Stack direction={'row'} key={template.id}>
-                  <Text>{template.name}</Text>
-                  <Button>Apply</Button>
+                <Stack
+                  direction={'row'}
+                  key={template.id}
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <Text>{template.template_name}</Text>
+                  <Button size="sm" onClick={() => applyTemplate(template)}>
+                    Apply
+                  </Button>
                 </Stack>
               ))
             )}

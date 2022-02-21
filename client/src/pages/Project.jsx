@@ -77,8 +77,8 @@ export default function Project() {
     <TestPage
       projectId={id}
       videoURL={sharePath}
-      initialValue={videoMeta}
       projectName={projectName}
+      projectValue={videoMeta}
     />
   );
 }

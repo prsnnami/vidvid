@@ -67,7 +67,8 @@ def burn_subtitles(
     rgb = text_color.split("#")[1]
     bgr = rgb[-2:] + rgb[2:4] + rgb[:2]
     probe = ffmpeg.probe(input_path)
-    video_stream = next((stream for stream in probe["streams"] if stream["codec_type"] == "video"), None)
+    video_stream = next(
+        (stream for stream in probe["streams"] if stream["codec_type"] == "video"), None)
     height = int(video_stream["height"])
     width = int(video_stream["width"])
 
@@ -120,37 +121,58 @@ def burn_subtitles(
     )
 
 
-def main():
-    dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+def download_stream(url) -> None:
+    id = 'test'
+    manifest_url = f"{url}/burn?type=json"
+    manifest_object = requests.get(manifest_url).json()
+    manifest_id = manifest_object["manifest_id"]
+    chunks = manifest_object["chunks"]
+    video_paths = []
+    current_user_dir_path = os.path.dirname(
+        os.path.dirname(os.path.realpath(__file__)))
 
-    font = "http://fonts.gstatic.com/s/didactgothic/v14/ahcfv8qz1zt6hCC5G4F_P4ASpUySp0LlcyQ.ttf"
-    textColor = "#ffffff"
-    font_size = 90
-    a_r = "16:9"
-    textPosition = 10
-    subtitle = [
-        {"start": 1.16999899999999, "end": 4.269999999999996, "text": "What can weasdasd design now as an outcome "},
-        {"start": 4.299999999999997, "end": 6.319999999999993, "text": "that wants it's ready? You'll sign off on. "},
-    ]
+    current_outpoint = 0
+    for index, chunk in enumerate(chunks):
+        resource_url = f"{url}/burn?manifest={manifest_id}&idx={index}"
+        print("Sending req : ", resource_url)
+        # multimedia = requests.get(resource_url)
+        os.makedirs(f"tmp/{id}/", exist_ok=True)
 
-    burn_subtitles(
-        id="123",
-        a_r=a_r,
-        name="1080",
-        text_color=textColor,
-        font_link=font,
-        font_family="Open Sans",
-        font_size=font_size,
-        text_position=textPosition,
-        input_path=f"{dir_path}/tmp/123/output_resized_1080p.mp4",
-        quality=1080,
-        subtitle=subtitle,
+        # with open(f"tmp/{id}/{manifest_id}_{index}.mp4", "wb") as file:
+        #     file.write(multimedia.content)
+
+        current_outpoint += chunk["duration"]
+        video_paths.append(
+            f"file {current_user_dir_path}/tmp/{id}/{manifest_id}_{index}.mp4 \noutpoint {current_outpoint:.2f}"
+        )
+        # \noutpoint {current_outpoint:.2f}
+        # \nduration {chunk['duration']:.2f}
+        #  \noutpoint {chunk['duration']}
+        print("DONE!!!")
+
+    with open(f"tmp/{id}/videos.txt", "w") as file:
+        file.write("\n".join(video_paths))
+
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            f"tmp/{id}/videos.txt",
+            "-c",
+            "copy",
+            f"tmp/{id}/output.mp4",
+        ]
     )
 
-    # burn_subtitles(id="123", a_r=a_r, name='480', text_color=textColor, font_link=font,
-    #                font_family='Didact Gothic', font_size=font_size, text_position=textPosition, input_path=f"{dir_path}/tmp/123/output_resized_480p.mp4", quality=480)
-    # burn_subtitles(id="123", a_r=a_r, name='240', text_color=textColor, font_link=font,
-    #                font_family='Didact Gothic', font_size=font_size, text_position=textPosition, input_path=f"{dir_path}/tmp/123/output_resized_240p.mp4", quality=240)
+
+def main():
+    print('hi')
+    download_stream(
+        'https://app.reduct.video/e/instagram--the-power-of-archiving-69f6b2577d50-7124ecc64b17d4455b66')
 
 
 main()

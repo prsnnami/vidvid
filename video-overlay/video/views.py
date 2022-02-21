@@ -38,7 +38,7 @@ from .functions import (
     resize_video,
 )
 from .models import Project, Template
-from .serializers import ProjectSerializer
+from .serializers import ProjectSerializer, TemplateSerializer
 from .utils import MultipartJsonParser
 
 # Create your views here.
@@ -244,7 +244,7 @@ class TemplateViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Template.objects.all()
-    serializer_class = ProjectSerializer
+    serializer_class = TemplateSerializer
 
     def create(self, request):
         files = request.FILES
@@ -283,8 +283,8 @@ class TemplateViewSet(viewsets.ModelViewSet):
                 body[filename]['url'] = path
 
             template = Template.objects.get(id=id)
-            # project.layers = body
-            # project.save()
+            template.layers = body
+            template.save()
 
             return Response({"success": True, "template_id": template.id})
         except Exception as e:
