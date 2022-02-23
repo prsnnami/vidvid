@@ -241,38 +241,40 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
   });
 
   function bootstrapElements() {
-    const myText = new fabric.Textbox('', {
-      originX: 'center',
-      originY: 'center',
-      left: 0.5 * canvasSize.width,
-      top: 0.9 * canvasSize.height,
-      width: 400,
-      textAlign: 'center',
-      editable: false,
-      name: 'subtitle',
-      fontSize: layers.subtitle.fontSize,
-      fontWeight: layers.subtitle.fontWeight,
-      fontFamily: activeFont.family,
-    });
-
-    if (layers.canvas.title) {
-      const title = new fabric.Textbox(layers.title.name, {
+    if (!canvas.getItemByName('subtitle')) {
+      const myText = new fabric.Textbox('', {
         originX: 'center',
         originY: 'center',
         left: 0.5 * canvasSize.width,
-        top: 0.1 * canvasSize.height,
+        top: 0.9 * canvasSize.height,
         width: 400,
         textAlign: 'center',
         editable: false,
-        name: 'title',
-        fontSize: layers.title.fontSize,
-        fill: layers.title.color,
+        name: 'subtitle',
+        fontSize: layers.subtitle.fontSize,
+        fontWeight: layers.subtitle.fontWeight,
         fontFamily: activeFont.family,
       });
-      canvas.add(title);
+      canvas.add(myText);
     }
-    canvas.add(myText);
-    return { myText };
+    if (!canvas.getItemByName('title')) {
+      if (layers.canvas.title) {
+        const title = new fabric.Textbox(layers.title.name, {
+          originX: 'center',
+          originY: 'center',
+          left: 0.5 * canvasSize.width,
+          top: 0.1 * canvasSize.height,
+          width: 400,
+          textAlign: 'center',
+          editable: false,
+          name: 'title',
+          fontSize: layers.title.fontSize,
+          fill: layers.title.color,
+          fontFamily: activeFont.family,
+        });
+        canvas.add(title);
+      }
+    }
   }
 
   function getFontLink() {
