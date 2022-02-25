@@ -523,61 +523,10 @@ def generate_thumbnail(id, name):
     ffmpeg.run(stream)
 
 
-def generate_reel(
-    subtitle,
-    url,
-    manifest_url,
-    name,
-    a_r,
-    color,
-    quality,
-    text_color,
-    font,
-    font_family,
-    font_size,
-    text_position,
-    outline_width,
-    outline_color,
-    show_title,
-    title_position,
-    title,
-    title_text_size,
-    font_uppercase,
-):
-    id = str(uuid.uuid4())
-
-    print("--------------------------------------------")
-    print(id)
-    print("--------------------------------------------")
-
-    os.makedirs("tmp/" + id, exist_ok=True)
-
-    meta = {}
-    meta["name"] = name
-    # with open("tmp/" + id + "/meta.json", "w") as file:
-    #     json.dump(meta, file)
-
-    try:
-        # meta = open('tmp/'+id + '/meta.json')
-        # meta.write('Name: ')
-
-        # create_srt(id, subtitle)
-
-        download_stream(project_id=id, url=url, manifest_object=manifest_url)
-
-        meta["thumbnail"] = f"/media/thumbnails/{id}.png"
-    except Exception as e:
-        print(e)
-        meta["error"] = True
-
-    with open("tmp/" + id + "/meta.json", "w") as file:
-        json.dump(meta, file, indent=2)
-
-
 def delete_reel(id):
     dir_path = (
         os.path.dirname(os.path.dirname(
-            os.path.realpath(__file__))) + f"/tmp/{id}"
+            os.path.realpath(__file__))) + f"/media/reels/{id}"
     )
     try:
         shutil.rmtree(dir_path)
@@ -589,19 +538,21 @@ def generate_reel_v2(id, body, files):
     id = str(uuid.uuid4())
     print("id")
     path = f"{settings.BASE_DIR}/tmp/{id}"
+    out_path = f"{settings.BASE_DIR}/media/reels/{id}"
     os.makedirs(path, exist_ok=True)
+    os.makedirs(out_path, exist_ok=True)
 
     name = body['name']
 
     meta = {}
     meta["name"] = name
-    with open(f"{path}/meta.json", "w") as file:
+    with open(f"{out_path}/meta.json", "w") as file:
         json.dump(meta, file)
 
     try:
         if files:
             meta["status"] = "fetching files"
-            with open(f"{path}/meta.json", "w") as file:
+            with open(f"{out_path}/meta.json", "w") as file:
                 json.dump(meta, file)
             get_files(files, path=path)
 
@@ -609,7 +560,7 @@ def generate_reel_v2(id, body, files):
         video_width = body["canvas"]['width']
 
         meta["status"] = "Generating video"
-        with open(f"{path}/meta.json", "w") as file:
+        with open(f"{out_path}/meta.json", "w") as file:
             json.dump(meta, file)
 
         create_background_image(
@@ -622,10 +573,11 @@ def generate_reel_v2(id, body, files):
                                key=lambda x: x.get('index'))
 
         for idx, layer in enumerate(sorted_layers):
-            print(layer)
+
             input = f"{path}/background_image.jpg" if idx == 0 else f"{path}/{idx}.mp4"
-            output = f"{path}/{name}.mp4" if idx + 1 == len(
+            output = f"{out_path}/{name}.mp4" if idx + 1 == len(
                 sorted_layers) else f"{path}/{idx + 1}.mp4"
+            print(f"\033[96m{input}\n{output}")
             layer_type = layer.get('type')
             if layer_type == 'image' or layer_type == 'video':
                 iw = layer.get("height")
@@ -649,23 +601,29 @@ def generate_reel_v2(id, body, files):
                               video_height, video_width)
 
         meta["status"] = "Generating thumbnail"
-        with open(f"{path}/meta.json", "w") as file:
+        with open(f"{out_path}/meta.json", "w") as file:
             json.dump(meta, file)
 
-        thumbnail_path = f"{settings.BASE_DIR}/media/thumbnails/{id}.png"
-        capture_thumbnail(path, name, thumbnail_path)
+        thumbnail_path = f"{out_path}/{name}.png"
+        capture_thumbnail(out_path, name, thumbnail_path)
 
         meta["status"] = "Finished."
-        meta["thumbnail"] = f"/media/thumbnails/{id}.png"
-        with open(f"{path}/meta.json", "w") as file:
+        meta["thumbnail"] = f"/media/reels/{id}/{name}.png"
+        meta['output'] = f"/media/reels/{id}/{name}.mp4"
+        with open(f"{out_path}/meta.json", "w") as file:
             json.dump(meta, file)
+
+        try:
+            shutil.rmtree(f"{settings.BASE_DIR}/tmp/{id}")
+        except OSError as e:
+            print("Error: %s - %s." % (e.filename, e.strerror))
 
     except Exception as e:
         print(e)
         meta["status"] = "Error"
         meta["error"] = True
         meta["error_message"] = str(e)
-        with open(f"{path}/meta.json", "w") as file:
+        with open(f"{out_path}/meta.json", "w") as file:
             json.dump(meta, file)
 
 

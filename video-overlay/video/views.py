@@ -1,42 +1,21 @@
-import asyncio
 import json
 import os
-import subprocess
-import time
+import traceback
 import uuid
 from multiprocessing import Process
-from uuid import uuid4
 
-
+from django.core.files.base import ContentFile
+from django.core.files.storage import FileSystemStorage
 from django.http import FileResponse, HttpResponse, HttpResponseBadRequest
-from django.http.response import (
-    HttpResponseBase,
-    HttpResponseNotFound,
-    HttpResponseServerError,
-    JsonResponse,
-)
+from django.http.response import (HttpResponseNotFound,
+                                  HttpResponseServerError, JsonResponse)
 from django.shortcuts import render
-from rest_framework import permissions, viewsets
+from rest_framework import viewsets
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-import traceback
-from django.core.files.storage import FileSystemStorage
-from django.core.files.base import ContentFile
-from django.forms.models import model_to_dict
 
-from .functions import (
-    add_overlay,
-    burn_subtitles,
-    delete_reel,
-    download_reduct_stream,
-    download_video,
-    generate_reel,
-    generate_reel_v2,
-    generate_thumbnail,
-    get_timestamp,
-    resize_video,
-)
+from .functions import delete_reel, generate_reel_v2
 from .models import Project, Template
 from .serializers import ProjectSerializer, TemplateSerializer
 from .utils import MultipartJsonParser
@@ -49,10 +28,12 @@ def send_file(request):
         return HttpResponse("<h1>404</h1>")
     path = request.GET.get("file")
     filename = path.split("/")[-1]
+    base_dir = os.path.dirname(os.path.dirname(
+        os.path.realpath(__file__)))
 
     try:
         return FileResponse(
-            open(f"tmp/{path}", "rb"), as_attachment=True, filename=filename
+            open(f"{base_dir}/{path}", "rb"), as_attachment=True, filename=filename
         )
     except Exception as e:
         print(e)
@@ -156,7 +137,7 @@ def get_reels(request):
 
     try:
         dir_path = os.path.dirname(os.path.dirname(
-            os.path.realpath(__file__))) + "/tmp"
+            os.path.realpath(__file__))) + "/media/reels"
         dirs = os.listdir(dir_path)
         response = {}
         for dir in dirs:
@@ -252,8 +233,6 @@ class TemplateViewSet(viewsets.ModelViewSet):
         name = request.data['templateName']
         print('reached here \n')
 
-        # parsed = json.loads(request.data['layers']['images'])
-        # print(json.dumps(parsed, indent=4, sort_keys=True))
         try:
             for filename in files:
 
@@ -290,14 +269,6 @@ class TemplateViewSet(viewsets.ModelViewSet):
         except Exception as e:
             print(e)
 
-# class ProjectView(APIView):
-#     parser_classes = (
-#         FormParser,
-#         MultiPartParser
-#     )
-
-#     def post(self, request):
-
 
 class GenerateReel(APIView):
     parser_classes = (
@@ -311,16 +282,10 @@ class GenerateReel(APIView):
         files = request._request.FILES
 
         try:
-            # for filename in files:
-            #     FileSystemStorage(location="tmp").save(
-            #         f"{id}/{filename}", ContentFile(files[filename].read())
-            #     )
-            print("here")
             generate_reel_v2(body=json.loads(
                 request.data["body"]), id=id, files=files)
 
         except Exception as e:
-            # print(f"error in {e}", e)
             traceback.print_exc()
 
         return Response(
@@ -340,10 +305,6 @@ class SaveImage(APIView):
         files = request._request.FILES
 
         try:
-            # for filename in files:
-            #     FileSystemStorage(location="tmp").save(
-            #         f"{id}/{filename}", ContentFile(files[filename].read())
-            #     )
             print("here")
             print(files)
 
