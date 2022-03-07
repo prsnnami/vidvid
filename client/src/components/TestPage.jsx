@@ -596,6 +596,7 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
     let images = [];
     console.log({ data });
     handleDimensionsChange(data.canvas.aspect_ratio);
+    handleTitleToggle(data.canvas.title);
     Object.keys(data).forEach(key => {
       if (['canvas', 'subtitle', 'images', 'title', 'video'].includes(key))
         return;
