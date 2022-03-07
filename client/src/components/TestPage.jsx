@@ -165,7 +165,7 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
 
   useEffect(() => {
     if (vid && subtitle) {
-      bootstrapElements();
+      bootstrapElements(canvasSize, layers, activeFont);
     }
   }, [vid, subtitle]);
 
@@ -240,7 +240,7 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
       .then(res => console.log(res));
   });
 
-  function bootstrapElements() {
+  function bootstrapElements(canvasSize, layers, activeFont) {
     if (!canvas.getItemByName('subtitle')) {
       const myText = new fabric.Textbox('', {
         originX: 'center',
@@ -402,6 +402,7 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
     videoElement.scaleToWidth(w);
     canvas.setDimensions({ height, width });
     canvas.renderAll();
+    return { height, width };
   }
 
   const removeImage = name => {
@@ -595,6 +596,7 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
   function applyLayers(data) {
     let images = [];
     console.log({ data });
+
     handleDimensionsChange(data.canvas.aspect_ratio);
     handleTitleToggle(data.canvas.title);
     Object.keys(data).forEach(key => {
@@ -611,8 +613,19 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
           name: file.name,
         });
         canvas.add(img);
+        canvas.moveTo(img, file.index);
       });
       images.push(file);
+    });
+
+    Object.keys(data).forEach(key => {
+      if (data[key].index !== undefined) {
+        let elem = canvas.getItemByName(key);
+        console.log({ elem, name: key });
+        if (elem) {
+          canvas.moveTo(elem, data[key].index);
+        }
+      }
     });
     setLayers(prevLayerVal => ({
       ...prevLayerVal,

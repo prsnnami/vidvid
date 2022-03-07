@@ -207,7 +207,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 path = FileSystemStorage().save(
                     f"images/{filename}", ContentFile(files[filename].read())
                 )
-                body[filename]['url'] = path
+                body[filename]['url'] = f"media/{path}"
 
             project = Project.objects.get(id=id)
             print(project)
