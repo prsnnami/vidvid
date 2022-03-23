@@ -43,6 +43,7 @@ import {
   loadTranscript,
   getVideoDimensions,
 } from '../utils';
+import overlayImage from '../assets/003c5a0b-e335-4b95-897d-8272d5c8b655.jpeg';
 
 const OpenSans = {
   variants: ['regular'],
@@ -214,6 +215,132 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
       setSubtitle(subtitle);
     });
   }, [shareURL]);
+
+  useEffect(() => {
+    if (canvas) {
+      const snapZone = 20;
+      //Vertical Center Snapping
+
+      let canvasWidth = canvas.getWidth(),
+        canvasHeight = canvas.getHeight(),
+        canvasWidthCenter = canvasWidth / 2,
+        canvasHeightCenter = canvasHeight / 2,
+        canvasWidthCenterMap = {},
+        canvasHeightCenterMap = {},
+        centerLineMargin = 20,
+        centerLineColor = 'purple',
+        centerLineWidth = 2,
+        ctx = canvas.getSelectionContext(),
+        viewportTransform;
+
+      for (
+        let i = canvasWidthCenter - centerLineMargin,
+          len = canvasWidthCenter + centerLineMargin;
+        i <= len;
+        i++
+      ) {
+        canvasWidthCenterMap[Math.round(i)] = true;
+      }
+      for (
+        let i = canvasHeightCenter - centerLineMargin,
+          len = canvasHeightCenter + centerLineMargin;
+        i <= len;
+        i++
+      ) {
+        canvasHeightCenterMap[Math.round(i)] = true;
+      }
+
+      function showVerticalCenterLine() {
+        showCenterLine(
+          canvasWidthCenter + 0.5,
+          0,
+          canvasWidthCenter + 0.5,
+          canvasHeight
+        );
+      }
+
+      function showHorizontalCenterLine() {
+        showCenterLine(
+          0,
+          canvasHeightCenter + 0.5,
+          canvasWidth,
+          canvasHeightCenter + 0.5
+        );
+      }
+
+      function showCenterLine(x1, y1, x2, y2) {
+        ctx.save();
+        ctx.strokeStyle = centerLineColor;
+        ctx.lineWidth = centerLineWidth;
+        ctx.beginPath();
+        ctx.moveTo(x1 * viewportTransform[0], y1 * viewportTransform[3]);
+        ctx.lineTo(x2 * viewportTransform[0], y2 * viewportTransform[3]);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      let afterRenderActions = [],
+        isInVerticalCenter,
+        isInHorizontalCenter;
+
+      canvas.on('mouse:down', () => {
+        isInVerticalCenter = isInHorizontalCenter = null;
+        viewportTransform = canvas.viewportTransform;
+      });
+
+      canvas.on('object:moving', function (e) {
+        let object = e.target,
+          objectCenter = object.getCenterPoint(),
+          transform = canvas._currentTransform;
+
+        if (!transform) return;
+
+        isInVerticalCenter = Math.round(objectCenter.x) in canvasWidthCenterMap;
+        isInHorizontalCenter =
+          Math.round(objectCenter.y) in canvasHeightCenterMap;
+
+        if (isInHorizontalCenter || isInVerticalCenter) {
+          object.setPositionByOrigin(
+            new fabric.Point(
+              isInVerticalCenter ? canvasWidthCenter : objectCenter.x,
+              isInHorizontalCenter ? canvasHeightCenter : objectCenter.y
+            ),
+            'center',
+            'center'
+          );
+        }
+      });
+
+      canvas.on('before:render', function () {
+        canvas.clearContext(canvas.contextTop);
+      });
+
+      canvas.on('after:render', () => {
+        if (isInVerticalCenter) {
+          showVerticalCenterLine();
+        }
+
+        if (isInHorizontalCenter) {
+          showHorizontalCenterLine();
+        }
+      });
+
+      canvas.on('mouse:up', function () {
+        // clear these values, to stop drawing guidelines once mouse is up
+        canvas.renderAll();
+      });
+      // canvas.setOverlayImage(overlayImage, canvas.renderAll.bind(canvas), {
+      //   opacity: 0.2,
+      //   left: 0,
+      //   top: 0,
+      //   originX: 'left',
+      //   originY: 'top',
+      //   width: canvasWidth,
+      //   height: canvasHeight,
+      //   scale: 0.2,
+      // });
+    }
+  }, [canvas]);
 
   const exportProjectMutation = useMutation(async function (formData) {
     await fetch('/borderer/generate_reel', {
