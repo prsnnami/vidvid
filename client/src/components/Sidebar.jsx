@@ -263,6 +263,34 @@ const Sidebar = ({
                 </NumberInputStepper>
               </NumberInput>
             </FormControl>
+            <FormControl id="line_height" isRequired>
+              <FormLabel fontSize="xs">Line Height</FormLabel>
+              <NumberInput
+                size="xs"
+                onChange={valueString => {
+                  let subtitles = canvas.getItemByName('subtitle');
+                  setLayers({
+                    ...layers,
+                    subtitle: {
+                      ...layers.subtitle,
+                      lineHeight: parseFloat(valueString) || 0,
+                    },
+                  });
+                  subtitles.set('lineHeight', parseFloat(valueString));
+                  canvas.renderAll();
+                }}
+                value={layers.subtitle.lineHeight}
+                step={0.1}
+                bg="white"
+                borderRadius={8}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+            </FormControl>
 
             <FormControl id="font_size" isRequired>
               <FormLabel fontSize="xs">Italic</FormLabel>
@@ -377,6 +405,34 @@ const Sidebar = ({
                   <NumberDecrementStepper />
                 </NumberInputStepper>
               </NumberInput>
+              <FormControl id="line_height" isRequired>
+                <FormLabel fontSize="xs">Line Height</FormLabel>
+                <NumberInput
+                  size="xs"
+                  onChange={valueString => {
+                    let title = canvas.getItemByName('title');
+                    setLayers({
+                      ...layers,
+                      title: {
+                        ...layers.title,
+                        lineHeight: parseFloat(valueString) || 0,
+                      },
+                    });
+                    title.set('lineHeight', parseFloat(valueString));
+                    canvas.renderAll();
+                  }}
+                  value={layers.title.lineHeight}
+                  step={0.1}
+                  bg="white"
+                  borderRadius={8}
+                >
+                  <NumberInputField />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
+              </FormControl>
               <FormControl id="font_size" isRequired>
                 <FormLabel fontSize="xs">Italic</FormLabel>
                 <Checkbox

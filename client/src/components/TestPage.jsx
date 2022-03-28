@@ -78,6 +78,7 @@ export const defaultVideoMetaData = {
     fontLink: '',
     outlineColor: '#000000',
     outlineWidth: 0,
+    lineHeight: 1.16,
   },
   title: {
     name: 'Transcript',
@@ -89,6 +90,7 @@ export const defaultVideoMetaData = {
     fontLink: '',
     outlineColor: '#000000',
     outlineWidth: 0,
+    lineHeight: 1.16,
   },
   images: [],
 };
@@ -382,6 +384,7 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
         fontWeight: layers.subtitle.fontWeight,
         fontFamily: activeFont.family,
         fill: layers.subtitle.color,
+        lineHeight: layers.subtitle.lineHeight,
       });
       canvas.add(myText);
     }
@@ -399,6 +402,7 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
           fontSize: layers.title.fontSize,
           fill: layers.title.color,
           fontFamily: activeFont.family,
+          lineHeight: layers.title.lineHeight,
         });
         canvas.add(title);
       }
@@ -438,6 +442,7 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
         fontSize: layers.title.fontSize,
         fill: layers.title.color,
         fontFamily: activeFont.family,
+        lineHeight: layers.title.lineHeight,
       });
       canvas.add(title);
     } else {
