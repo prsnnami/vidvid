@@ -341,6 +341,25 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
       //   height: canvasHeight,
       //   scale: 0.2,
       // });
+
+      canvas.on('object:modified', function (e) {
+        let object = e.target;
+        let name = object.name;
+        if (name === 'title' || name === 'subtitle') {
+          setLayers(layers => ({
+            ...layers,
+            [name]: {
+              ...layers[name],
+              fontSize: Math.round(layers[name].fontSize * object.scaleY),
+            },
+          }));
+          object.fontSize *= object.scaleY;
+          object.fontSize = object.fontSize.toFixed(0);
+          object.scaleX = 1;
+          object.scaleY = 1;
+          object._clearCache();
+        }
+      });
     }
   }, [canvas]);
 

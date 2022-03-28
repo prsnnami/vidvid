@@ -464,6 +464,7 @@ export function useCanvas() {
       fabric.Object.prototype.transparentCorners = false;
       fabric.Object.prototype.setControlsVisibility({ mtr: false });
       fabric.Object.prototype.objectCaching = false;
+      fabric.Text.prototype.setControlsVisibility({ mt: false, mb: false });
       // fabric.Object.prototype.cacheProperties = [
       //   ...fabric.Object.prototype.cacheProperties,
       //   'font',
