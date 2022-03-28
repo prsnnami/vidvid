@@ -392,7 +392,7 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
           originY: 'center',
           left: 0.5 * canvasSize.width,
           top: 0.1 * canvasSize.height,
-          width: 400,
+          // width: 400,
           textAlign: 'center',
           editable: false,
           name: 'title',

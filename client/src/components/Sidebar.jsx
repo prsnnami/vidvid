@@ -42,19 +42,21 @@ const Sidebar = ({
   };
 
   const handleFontChange = nextFont => {
-    const subtitleLayer = canvas.getItemByName('subtitle');
-    const titleLayer = canvas.getItemByName('title');
+    setTimeout(() => {
+      const subtitleLayer = canvas.getItemByName('subtitle');
+      const titleLayer = canvas.getItemByName('title');
 
-    if (!subtitleLayer) return;
+      if (!subtitleLayer) return;
 
-    setLayers({
-      ...layers,
-      subtitle: { ...layers.subtitle, fontFamily: nextFont.family },
-    });
-    setActiveFont(nextFont);
-    subtitleLayer.set('fontFamily', nextFont.family);
-    if (titleLayer) titleLayer.set('fontFamily', nextFont.family);
-    canvas.renderAll();
+      setLayers({
+        ...layers,
+        subtitle: { ...layers.subtitle, fontFamily: nextFont.family },
+      });
+      setActiveFont(nextFont);
+      subtitleLayer.set('fontFamily', nextFont.family);
+      if (titleLayer) titleLayer.set('fontFamily', nextFont.family);
+      canvas.renderAll();
+    }, 1000);
   };
 
   const handleTextChange = e => {
