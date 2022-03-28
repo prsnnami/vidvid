@@ -74,7 +74,7 @@ export const defaultVideoMetaData = {
     fontSize: 40,
     italic: false,
     fontWeight: 400,
-    color: '#000000',
+    color: '#ffffff',
     fontLink: '',
     outlineColor: '#000000',
     outlineWidth: 0,
@@ -85,7 +85,7 @@ export const defaultVideoMetaData = {
     fontSize: 100,
     italic: false,
     fontWeight: 400,
-    color: '#000000',
+    color: '#ffffff',
     fontLink: '',
     outlineColor: '#000000',
     outlineWidth: 0,
@@ -381,6 +381,7 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
         fontSize: layers.subtitle.fontSize,
         fontWeight: layers.subtitle.fontWeight,
         fontFamily: activeFont.family,
+        fill: layers.subtitle.color,
       });
       canvas.add(myText);
     }
@@ -423,7 +424,8 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
   }
 
   function handleTitleToggle(showTitle) {
-    if (showTitle) {
+    const title = canvas.getItemByName('title');
+    if (showTitle && !title) {
       const title = new fabric.Textbox(layers.title.name, {
         originX: 'center',
         originY: 'center',
@@ -439,7 +441,6 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
       });
       canvas.add(title);
     } else {
-      const title = canvas.getItemByName('title');
       canvas.remove(title);
     }
     setLayers(layers => ({

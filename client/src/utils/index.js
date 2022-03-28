@@ -463,6 +463,114 @@ export function useCanvas() {
       fabric.Object.prototype.cornerStyle = 'circle';
       fabric.Object.prototype.transparentCorners = false;
       fabric.Object.prototype.setControlsVisibility({ mtr: false });
+      fabric.Object.prototype.objectCaching = false;
+      // fabric.Object.prototype.cacheProperties = [
+      //   ...fabric.Object.prototype.cacheProperties,
+      //   'font',
+      //   'font family',
+      // ];
+      /**
+       * Internal implementation of _renderChars to improve cross platform/browser rendering for high precision fonts and certain font faces. Here, we render each
+       * character individually relying on the start position of Fabric.js to be more accurate than that of the canvas implementation that can vary across platforms.
+       * Fabric.js measures font faces at a large scale to avoid precision loss that is seen when measuring at standard scale in the canvas.
+       *
+       * @param method The rendering method to use.
+       * @param ctx The canvas context to render with.
+       * @param line The line that needs to be rendered.
+       * @param left The starting position.
+       * @param top The top position of the line.
+       * @param lineIndex The line index in the text element.
+       * @private
+       */
+      fabric.Text.prototype._renderChars = function (
+        //   method: string,
+        //   ctx: CanvasRenderingContext2D,
+        //   line: string,
+        //   left: number,
+        //   top: number,
+        //   lineIndex: number
+        // ): void {
+        method,
+        ctx,
+        line,
+        left,
+        top,
+        lineIndex
+      ) {
+        // set proper line offset
+        const lineHeight = this.getHeightOfLine(lineIndex);
+        const isJustify = this.textAlign.indexOf('justify') !== -1;
+        let actualStyle;
+        let nextStyle;
+        let charsToRender = '';
+        let charBox;
+        let boxWidth = 0;
+        let timeToRender;
+        const shortCut =
+          !isJustify && this.charSpacing === 0 && this.isEmptyStyles(lineIndex);
+
+        ctx.save();
+        top -= (lineHeight * this._fontSizeFraction) / this.lineHeight;
+        if (shortCut) {
+          // render all the line in one pass without checking
+          this._renderChar(
+            method,
+            ctx,
+            lineIndex,
+            0,
+            this.textLines[lineIndex],
+            left,
+            top,
+            lineHeight
+          );
+          ctx.restore();
+          return;
+        }
+        for (let i = 0, len = line.length - 1; i <= len; i++) {
+          timeToRender = i === len || this.charSpacing;
+          charsToRender += line[i];
+          charBox = this.__charBounds[lineIndex][i];
+          if (boxWidth === 0) {
+            left += charBox.kernedWidth - charBox.width;
+            boxWidth += charBox.width;
+          } else {
+            boxWidth += charBox.kernedWidth;
+          }
+          if (isJustify && !timeToRender) {
+            if (this._reSpaceAndTab.test(line[i])) {
+              timeToRender = true;
+            }
+          }
+          if (!timeToRender) {
+            // if we have charSpacing, we render char by char
+            if (!actualStyle) {
+              actualStyle = this.getCompleteStyleDeclaration(lineIndex, i);
+            }
+            nextStyle = this.getCompleteStyleDeclaration(lineIndex, i + 1);
+            timeToRender =
+              this._hasStyleChanged(actualStyle, nextStyle) ||
+              charsToRender.length === 1;
+          }
+          if (timeToRender) {
+            this._renderChar(
+              method,
+              ctx,
+              lineIndex,
+              i,
+              charsToRender,
+              left,
+              top,
+              lineHeight
+            );
+            charsToRender = '';
+            actualStyle = nextStyle;
+            left += boxWidth;
+            boxWidth = 0;
+          }
+        }
+        ctx.restore();
+      };
+
       // fabric.Object.prototype.setControlsVisibility({
       //   mt: true,
       //   mb: true,

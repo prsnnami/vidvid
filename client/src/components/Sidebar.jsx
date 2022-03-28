@@ -329,7 +329,7 @@ const Sidebar = ({
               <Checkbox
                 borderColor="black"
                 size="sm"
-                checked={layers.canvas.title}
+                isChecked={layers.canvas.title}
                 onChange={e => handleTitleToggle(e.target.checked)}
               >
                 Show Title
@@ -341,7 +341,7 @@ const Sidebar = ({
                 size="sm"
                 borderColor="black"
                 name="title"
-                checked={layers.title.fontUppercase}
+                isChecked={layers.title.fontUppercase}
                 onChange={handleTextChange}
               >
                 Uppercase
