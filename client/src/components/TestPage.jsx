@@ -885,16 +885,17 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
               colorScheme="white"
               variant="link"
               size="sm"
-              onClick={saveModal.onOpen}
+              onClick={() =>
+                projectName ? saveProject(projectName) : saveModal.onOpen()
+              }
             >
-              Save
+              {projectName ? 'Save' : 'Add Project'}
             </Button>
             <Button
               colorScheme="white"
               variant="link"
               size="sm"
               onClick={getSRT}
-              // onClick={() => console.log(layers)}
             >
               Download SRT
             </Button>
