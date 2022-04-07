@@ -16,8 +16,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .functions import delete_reel, generate_reel_v2
-from .models import Project, Template
-from .serializers import ProjectSerializer, TemplateSerializer
+from .models import Project, Template, Client
+from .serializers import ClientSerializer, ProjectSerializer, TemplateSerializer
 from .utils import MultipartJsonParser
 
 # Create your views here.
@@ -165,6 +165,15 @@ def delete_reel_view(request):
         return HttpResponseServerError()
 
 
+class ClientsViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows project to be viewed or edited.
+    """
+
+    queryset = Client.objects.all()
+    serializer_class = ClientSerializer
+
+
 class ProjectViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows project to be viewed or edited.
@@ -190,6 +199,17 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 body[filename]['url'] = f"media/{path}"
 
             project = Project(project_name=name, layers=body)
+            client_name = request.data['clientName']
+            client_id = request.data['clientId']
+
+            if(client_id and client_id != 'create-new-client'):
+                client = Client.objects.get(id=client_id)
+                project.client = client
+            elif (client_name and client_id == 'create-new-client'):
+                client = Client(client_name=client_name)
+                client.save()
+                project.client = client
+
             project.save()
 
             return Response({"success": True, "project_id": project.id})
@@ -210,9 +230,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 body[filename]['url'] = f"media/{path}"
 
             project = Project.objects.get(id=id)
-            print(project)
-            # project.layers = body
-            # project.save()
+            # print(project)
+            project.layers = body
+            project.save()
 
             return Response({"success": True, "project_id": project.id})
         except Exception as e:

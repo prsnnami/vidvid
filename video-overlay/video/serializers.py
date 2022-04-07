@@ -1,11 +1,5 @@
-from .models import Project, Template
+from .models import Project, Template, Client
 from rest_framework import serializers
-
-
-class ProjectSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Project
-        fields = ["id", "project_name", "layers"]
 
 
 class TemplateSerializer(serializers.HyperlinkedModelSerializer):
@@ -19,3 +13,17 @@ class TemplateSerializer(serializers.HyperlinkedModelSerializer):
     #     instance.layers = validated_data.get("layers", instance.layers)
     #     instance.save()
     #     return instance
+
+
+class ClientSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Client
+        fields = ["id", "client_name", "projects"]
+
+
+class ProjectSerializer(serializers.HyperlinkedModelSerializer):
+    client = ClientSerializer()
+
+    class Meta:
+        model = Project
+        fields = ["id", "project_name", "layers", "client"]
