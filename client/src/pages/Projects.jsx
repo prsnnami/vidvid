@@ -1,10 +1,26 @@
-import { Box, Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Stack,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+} from '@chakra-ui/react';
 import React from 'react';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 
 export default function Projects() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const projectsQuery = useQuery('projects', async () => {
     return await fetch('/borderer/projects/')
       .then(res => {
@@ -17,6 +33,12 @@ export default function Projects() {
       .catch(e => {
         throw e;
       });
+  });
+
+  const projectDeleteMutation = useMutation(async function ({ id }) {
+    await fetch(`/borderer/projects/${id}/`, {
+      method: 'DELETE',
+    });
   });
 
   if (projectsQuery.isLoading) return <h1>Loading...</h1>;
@@ -33,24 +55,67 @@ export default function Projects() {
       >
         <Heading color="white">Projects</Heading>
       </Flex>
-      <Box>
-        <Stack p="4">
-          {projectsQuery.data?.map(project => (
-            <Box
-              key={project.id}
-              boxShadow="md"
-              rounded="md"
-              p={8}
-              cursor="pointer"
-              bg="white"
-              onClick={() => navigate('/project/' + project.id)}
-            >
-              <Heading size="lg" color="gray.600">
-                {project.project_name}
-              </Heading>
-            </Box>
-          ))}
-        </Stack>
+      <Box p="6">
+        <TableContainer
+          bg="white"
+          borderRadius={8}
+          px="4"
+          py="6"
+          boxShadow={'xl'}
+        >
+          <Table colorScheme={'facebook'}>
+            <Thead>
+              <Tr>
+                <Th>Project Name</Th>
+                <Th w="20%">Client</Th>
+                <Th w="10%">Actions</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {projectsQuery.data?.length > 0 ? (
+                projectsQuery.data?.map(project => (
+                  <Tr>
+                    <Td>{project.project_name}</Td>
+                    <Td>{project.project_name}</Td>
+                    <Td>
+                      <Stack direction="row">
+                        <Button
+                          size="sm"
+                          onClick={() => navigate('/project/' + project.id)}
+                        >
+                          {' '}
+                          {'>'}{' '}
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            projectDeleteMutation.mutate(
+                              { id: project.id },
+                              {
+                                onSuccess: () => {
+                                  queryClient.invalidateQueries(['projects']);
+                                },
+                              }
+                            )
+                          }
+                          isLoading={projectDeleteMutation.isLoading}
+                        >
+                          Delete
+                        </Button>
+                      </Stack>
+                    </Td>
+                  </Tr>
+                ))
+              ) : (
+                <Tr>
+                  <Td colSpan={3} textAlign="center">
+                    No Projects
+                  </Td>
+                </Tr>
+              )}
+            </Tbody>
+          </Table>
+        </TableContainer>
       </Box>
     </Box>
   );
