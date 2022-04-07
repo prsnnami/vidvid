@@ -76,15 +76,16 @@ export default function Projects() {
                 projectsQuery.data?.map(project => (
                   <Tr>
                     <Td>{project.project_name}</Td>
-                    <Td>{project.project_name}</Td>
+                    <Td>
+                      {project.client ? project.client.client_name : 'N/A'}
+                    </Td>
                     <Td>
                       <Stack direction="row">
                         <Button
                           size="sm"
                           onClick={() => navigate('/project/' + project.id)}
                         >
-                          {' '}
-                          {'>'}{' '}
+                          View
                         </Button>
                         <Button
                           size="sm"

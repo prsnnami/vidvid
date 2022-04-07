@@ -675,13 +675,15 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
     });
   }
 
-  function saveProject(projectName) {
+  function saveProject(projectName, clientName = null, clientId = null) {
     let body = getBody();
     let formData = new FormData();
 
     formData.append('body', JSON.stringify(body));
     formData.append('projectName', projectName);
     formData.append('id', projectId);
+    formData.append('clientId', clientId);
+    formData.append('clientName', clientName);
 
     layers.images.forEach(element => {
       if (element.file) {
