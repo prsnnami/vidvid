@@ -1076,6 +1076,12 @@ function TemplateModal({
     });
   });
 
+  const deleteTemplateMutation = useMutation(async function ({ id }) {
+    await fetch(`/borderer/templates/${id}/`, {
+      method: 'DELETE',
+    });
+  });
+
   function saveTemplate(e) {
     e.preventDefault();
     const name = nameRef.current.value;
@@ -1199,9 +1205,27 @@ function TemplateModal({
                   justifyContent="space-between"
                 >
                   <Text>{template.template_name}</Text>
-                  <Button size="sm" onClick={() => applyTemplate(template)}>
-                    Apply
-                  </Button>
+                  <Stack direction={'row'}>
+                    <Button size="sm" onClick={() => applyTemplate(template)}>
+                      Apply
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        deleteTemplateMutation.mutate(
+                          { id: template.id },
+                          {
+                            onSuccess: () => {
+                              queryClient.invalidateQueries(['templates']);
+                            },
+                          }
+                        )
+                      }
+                      isLoading={deleteTemplateMutation.isLoading}
+                    >
+                      Delete
+                    </Button>
+                  </Stack>
                 </Stack>
               ))
             )}
