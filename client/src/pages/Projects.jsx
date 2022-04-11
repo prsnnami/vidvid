@@ -3,6 +3,7 @@ import {
   Button,
   Flex,
   Heading,
+  Spinner,
   Stack,
   Table,
   TableContainer,
@@ -26,6 +27,22 @@ function ProjectRow({ project }) {
     });
   });
 
+  function handleProjectDelete(id, name) {
+    if (
+      window.confirm(
+        'Are you sure you want to delete the project "' + name + '"?'
+      )
+    ) {
+      projectDeleteMutation.mutate(
+        { id: id },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries(['projects']);
+          },
+        }
+      );
+    }
+  }
   return (
     <Tr>
       <Td>{project.project_name}</Td>
@@ -38,14 +55,7 @@ function ProjectRow({ project }) {
           <Button
             size="sm"
             onClick={() =>
-              projectDeleteMutation.mutate(
-                { id: project.id },
-                {
-                  onSuccess: () => {
-                    queryClient.invalidateQueries(['projects']);
-                  },
-                }
-              )
+              handleProjectDelete(project.id, project.project_name)
             }
             isLoading={projectDeleteMutation.isLoading}
           >
@@ -87,36 +97,42 @@ export default function Projects() {
         <Heading color="white">Projects</Heading>
       </Flex>
       <Box p="6">
-        <TableContainer
-          bg="white"
-          borderRadius={8}
-          px="4"
-          py="6"
-          boxShadow={'xl'}
-        >
-          <Table colorScheme={'facebook'}>
-            <Thead>
-              <Tr>
-                <Th>Project Name</Th>
-                <Th w="20%">Client</Th>
-                <Th w="10%">Actions</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {projectsQuery.data?.length > 0 ? (
-                projectsQuery.data?.map(project => (
-                  <ProjectRow project={project} />
-                ))
-              ) : (
+        {projectsQuery.isLoading ? (
+          <Flex justifyContent={'center'} alignItems="center">
+            <Spinner size="lg" />
+          </Flex>
+        ) : (
+          <TableContainer
+            bg="white"
+            borderRadius={8}
+            px="4"
+            py="6"
+            boxShadow={'xl'}
+          >
+            <Table colorScheme={'facebook'}>
+              <Thead>
                 <Tr>
-                  <Td colSpan={3} textAlign="center">
-                    No Projects
-                  </Td>
+                  <Th>Project Name</Th>
+                  <Th w="20%">Client</Th>
+                  <Th w="10%">Actions</Th>
                 </Tr>
-              )}
-            </Tbody>
-          </Table>
-        </TableContainer>
+              </Thead>
+              <Tbody>
+                {projectsQuery.data?.length > 0 ? (
+                  projectsQuery.data?.map(project => (
+                    <ProjectRow project={project} />
+                  ))
+                ) : (
+                  <Tr>
+                    <Td colSpan={3} textAlign="center">
+                      No Projects
+                    </Td>
+                  </Tr>
+                )}
+              </Tbody>
+            </Table>
+          </TableContainer>
+        )}
       </Box>
     </Box>
   );
