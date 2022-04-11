@@ -8,7 +8,6 @@ import {
   TableContainer,
   Tbody,
   Td,
-  Text,
   Th,
   Thead,
   Tr,
@@ -17,10 +16,48 @@ import React from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 
-export default function Projects() {
+function ProjectRow({ project }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const projectDeleteMutation = useMutation(async function ({ id }) {
+    await fetch(`/borderer/projects/${id}/`, {
+      method: 'DELETE',
+    });
+  });
+
+  return (
+    <Tr>
+      <Td>{project.project_name}</Td>
+      <Td>{project.client ? project.client.client_name : 'N/A'}</Td>
+      <Td>
+        <Stack direction="row">
+          <Button size="sm" onClick={() => navigate('/project/' + project.id)}>
+            View
+          </Button>
+          <Button
+            size="sm"
+            onClick={() =>
+              projectDeleteMutation.mutate(
+                { id: project.id },
+                {
+                  onSuccess: () => {
+                    queryClient.invalidateQueries(['projects']);
+                  },
+                }
+              )
+            }
+            isLoading={projectDeleteMutation.isLoading}
+          >
+            Delete
+          </Button>
+        </Stack>
+      </Td>
+    </Tr>
+  );
+}
+
+export default function Projects() {
   const projectsQuery = useQuery('projects', async () => {
     return await fetch('/borderer/projects/')
       .then(res => {
@@ -35,13 +72,7 @@ export default function Projects() {
       });
   });
 
-  const projectDeleteMutation = useMutation(async function ({ id }) {
-    await fetch(`/borderer/projects/${id}/`, {
-      method: 'DELETE',
-    });
-  });
-
-  if (projectsQuery.isLoading) return <h1>Loading...</h1>;
+  if (projectsQuery.isFetching) return <h1>Loading...</h1>;
 
   return (
     <Box bg="gray.200" h="100%">
@@ -74,38 +105,7 @@ export default function Projects() {
             <Tbody>
               {projectsQuery.data?.length > 0 ? (
                 projectsQuery.data?.map(project => (
-                  <Tr>
-                    <Td>{project.project_name}</Td>
-                    <Td>
-                      {project.client ? project.client.client_name : 'N/A'}
-                    </Td>
-                    <Td>
-                      <Stack direction="row">
-                        <Button
-                          size="sm"
-                          onClick={() => navigate('/project/' + project.id)}
-                        >
-                          View
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() =>
-                            projectDeleteMutation.mutate(
-                              { id: project.id },
-                              {
-                                onSuccess: () => {
-                                  queryClient.invalidateQueries(['projects']);
-                                },
-                              }
-                            )
-                          }
-                          isLoading={projectDeleteMutation.isLoading}
-                        >
-                          Delete
-                        </Button>
-                      </Stack>
-                    </Td>
-                  </Tr>
+                  <ProjectRow project={project} />
                 ))
               ) : (
                 <Tr>
