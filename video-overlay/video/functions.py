@@ -595,7 +595,10 @@ def generate_reel_v2(id, body, files):
                             f'[1:v]scale={ih}:{iw} [o],[0:v][o]overlay={left}:{top}', '-c:a', 'copy', output]
                 subprocess.run(commands)
             elif layer_type == 'title':
-                add_title(layer, input, output)
+                info = ffmpeg.probe(input)
+                duration = info['format']['duration']
+                add_title(layer, input, output, path,
+                          video_height, video_width, duration)
             elif layer_type == 'subtitle':
                 add_subtitles(layer, input, output, path,
                               video_height, video_width)
@@ -613,10 +616,10 @@ def generate_reel_v2(id, body, files):
         with open(f"{out_path}/meta.json", "w") as file:
             json.dump(meta, file)
 
-        try:
-            shutil.rmtree(f"{settings.BASE_DIR}/tmp/{id}")
-        except OSError as e:
-            print("Error: %s - %s." % (e.filename, e.strerror))
+        # try:
+        #     shutil.rmtree(f"{settings.BASE_DIR}/tmp/{id}")
+        # except OSError as e:
+        #     print("Error: %s - %s." % (e.filename, e.strerror))
 
     except Exception as e:
         print(e)
@@ -633,7 +636,17 @@ def capture_thumbnail(path, name, thumbnail_path):
     ffmpeg.run(stream)
 
 
-def add_title(layer, input, output):
+def add_title(
+    layer,
+    input,
+    output,
+    path,
+    video_height,
+    video_width,
+    duration
+):
+
+    title_path = f"{path}/title.ass"
     fonts_dir = f"{settings.MEDIA_ROOT}/fonts"
 
     font_link = layer.get('fontLink')
@@ -647,16 +660,82 @@ def add_title(layer, input, output):
 
     font = ttLib.TTFont(f"{fonts_dir}/{font_family}.ttf")
 
+    make_title(title_path=title_path, layer=layer,
+               video_height=video_height, video_width=video_width, duration=duration)
+
     subprocess.run(
         [
             "ffmpeg",
             "-i",
             input,
             "-vf",
-            f"drawtext=fontfile='{fonts_dir}/{font_family}.ttf':text='{layer.get('name')}':fontcolor={layer.get('color')}:fontsize={layer.get('fontSize')}:x={layer.get('left')}:y={layer.get('top')}",
+            f"ass={title_path}:fontsdir={fonts_dir}",
             output,
         ]
     )
+
+
+# def add_title(layer, input, output):
+#     fonts_dir = f"{settings.MEDIA_ROOT}/fonts"
+
+#     font_link = layer.get('fontLink')
+#     font_family = layer.get('fontFamily')
+
+#     if not os.path.isdir(fonts_dir):
+#         os.makedirs(fonts_dir)
+
+#     if not os.path.exists(f"{fonts_dir}/{font_link}.ttf"):
+#         urllib.request.urlretrieve(font_link, f"{fonts_dir}/{font_family}.ttf")
+
+#     font = ttLib.TTFont(f"{fonts_dir}/{font_family}.ttf")
+#     text = layer.get("name") if layer.get(
+#         'textLines') is None else '\n'.join(layer.get('textLines'))
+
+#     subprocess.run(
+#         [
+#             "ffmpeg",
+#             "-i",
+#             input,
+#             "-vf",
+#             f"drawtext=fontfile='{fonts_dir}/{font_family}.ttf':text='{text}':fontcolor={layer.get('color')}:fontsize={layer.get('fontSize')}:x={layer.get('left')}:y={layer.get('top')}",
+#             output,
+#         ]
+#     )
+
+
+def make_title(
+    title_path,
+    layer,
+    video_height,
+    video_width,
+    duration
+):
+
+    with open(f"{settings.BASE_DIR}/templates/title.ass", "r") as f:
+        src = Template(f.read())
+
+    result = src.substitute(
+        {
+            "video_height": video_height,
+            "video_width": video_width,
+            "font_family": layer.get('fontFamily'),
+            "font_size": layer.get('fontSize') / 0.7528125,
+            "margin_l": layer.get('left'),
+            "margin_r": video_width - layer.get('left') - layer.get('width'),
+            "margin_bottom": video_height - layer.get('top') - layer.get('height'),
+            "primary_color": rgb_to_bgr(layer.get('color')),
+            "outline_width": layer.get('outlineWidth'),
+            "outline_color": rgb_to_bgr(layer.get('outlineColor')),
+        }
+    )
+
+    with open(title_path, 'w') as srt:
+        srt.write(result)
+        text = layer.get("name") if layer.get(
+            'textLines') is None else '\\N'.join(layer.get('textLines'))
+        srt.write(
+            f"Dialogue: 0,00:00:00.00,{get_timestamp(float(duration))},Default,,0,0,0,,{text}")
+        srt.write("\n")
 
 
 def make_subtitle(

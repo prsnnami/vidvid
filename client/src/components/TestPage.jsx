@@ -605,6 +605,7 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
   }
 
   function getBody() {
+    let title = canvas.getItemByName('title');
     let body = {
       canvas: {
         ...layers.canvas,
@@ -617,6 +618,7 @@ function TestPage({ videoURL, projectData, projectName, projectId }) {
       body.title = {
         index: getIndex('title'),
         type: 'title',
+        textLines: title.textLines,
         ...layers.title,
         ...getCoords('title'),
         fontLink: getFontLink(),
